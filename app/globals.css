@@ -1,26 +1,45 @@
 @import "tailwindcss";
 
+/* Kasauti design tokens — retro "OS window" look from the Round 1 deck */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --desk: #ddd5c3;
+  --paper: #f2eee1;
+  --card: #fffcf0;
+  --ink: #121212;
+  --muted: #4b4740;
+  --teal: #1f7f7a;
+  --blue: #3a5fa8;
+  --red: #b33222;
+  --yellow: #f4c430;
+  --term: #0d1410;
+  --term-green: #7ee6a6;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-desk: var(--desk);
+  --color-paper: var(--paper);
+  --color-card: var(--card);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-teal: var(--teal);
+  --color-blue: var(--blue);
+  --color-red: var(--red);
+  --color-yellow: var(--yellow);
+  --color-term: var(--term);
+  --color-term-green: var(--term-green);
+  --font-sans: var(--font-plex-sans);
+  --font-mono: var(--font-plex-mono);
+  --font-pixel: var(--font-pixel);
+  --shadow-hard: 6px 6px 0 0 var(--ink);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--desk);
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0 46px,
+    rgb(0 0 0 / 0.04) 46px 47px
+  );
+  color: var(--ink);
+  font-family: var(--font-plex-sans), system-ui, sans-serif;
 }

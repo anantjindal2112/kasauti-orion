@@ -1,36 +1,47 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Kasauti · कसौटी
 
-## Getting Started
+**Brand truth, tested before it's published.**
+A brand-governance verifier: every finding cites an approved source, every claim carries proof, and every fix keeps the creator's intent.
 
-First, run the development server:
+Team Orion · CodeNova · InkLoom AI brand-governance brief. The build plan is `STAGES.md` in the parent project folder.
+
+## Stack
+
+- Next.js 16 (App Router) + TypeScript + Tailwind CSS 4
+- Supabase: Postgres, Auth, row-level security, pgvector
+- AI: **NVIDIA NIM endpoints only** (build.nvidia.com), via `lib/nvidia/`
+- Zod for validating every AI response · Vitest for tests
+- GitHub + Vercel
+
+## Run locally
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+cp .env.example .env.local   # then fill in the keys
+npm run dev                  # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+| Script | What it does |
+|---|---|
+| `npm run dev` | Dev server |
+| `npm run build` | Production build |
+| `npm test` | Unit tests (Vitest) |
+| `npm run typecheck` | TypeScript check |
+| `npm run lint` | ESLint |
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+`GET /api/health` reports whether the app is up and which keys are configured (booleans only, never values).
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Folder layout
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+app/          pages + API routes
+lib/nvidia/   NVIDIA model clients (chat, embed, rerank, pii, ocr, vision)
+lib/checks/   code checks — no AI
+lib/pipeline/ parser, retrieval, AI review, Verifier, Claim Ledger, Intent Lock
+lib/db/       Supabase clients + queries
+lib/schemas/  Zod schemas
+supabase/     migrations + demo brand pack seed
+testset/      sample drafts with known seeded errors
+tests/        unit tests
+docs/         architecture, limitations, roadmap
+```
