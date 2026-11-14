@@ -1,0 +1,167 @@
+{
+  "brandName": {
+    "correct": "Dhaaga & Co.",
+    "wrong": [
+      "Dhaga & Co",
+      "Dhaga and Co",
+      "Dhaaga and Co",
+      "Dhaaga Co",
+      "DHAAGA",
+      "Dhaga"
+    ]
+  },
+  "productNames": [
+    {
+      "correct": "Monsoon Weave",
+      "wrong": [
+        "Monsoon Weaves",
+        "Monsoon-Weave",
+        "Monsoonweave",
+        "Mansoon Weave"
+      ]
+    },
+    {
+      "correct": "Indigo Hours",
+      "wrong": [
+        "Indigo Hour",
+        "Indigo-Hours",
+        "IndigoHours"
+      ]
+    },
+    {
+      "correct": "Kesar Collection",
+      "wrong": [
+        "Kesar Collections",
+        "Kesar collection",
+        "Kesar Range"
+      ]
+    }
+  ],
+  "banned": [
+    {
+      "term": "cheap",
+      "rule": "KSR-2.3",
+      "reason": "Undercuts the craft positioning."
+    },
+    {
+      "term": "miracle",
+      "rule": "KSR-2.3",
+      "reason": "Unprovable."
+    },
+    {
+      "term": "chemical-free",
+      "rule": "KSR-2.3",
+      "reason": "Scientifically false — everything is made of chemicals."
+    },
+    {
+      "term": "world-class",
+      "rule": "KSR-2.3",
+      "reason": "Empty superlative."
+    },
+    {
+      "term": "luxury at a steal",
+      "rule": "KSR-2.3",
+      "reason": "Off-voice; undercuts the brand."
+    }
+  ],
+  "replace": [
+    {
+      "term": "workers",
+      "with": "artisans",
+      "rule": "KSR-2.2"
+    },
+    {
+      "term": "labour",
+      "with": "artisans",
+      "rule": "KSR-2.2"
+    },
+    {
+      "term": "labourers",
+      "with": "artisans",
+      "rule": "KSR-2.2"
+    },
+    {
+      "term": "Rs.",
+      "with": "₹",
+      "rule": "KSR-2.5"
+    },
+    {
+      "term": "INR",
+      "with": "₹",
+      "rule": "KSR-2.5"
+    },
+    {
+      "term": "click here",
+      "with": "a description of where the link goes",
+      "rule": "KSR-5.2"
+    },
+    {
+      "term": "link in bio",
+      "with": "a description of where the link goes",
+      "rule": "KSR-5.2"
+    }
+  ],
+  "competitors": [
+    "LoomKart",
+    "WeaveWala",
+    "CottonCrate"
+  ],
+  "approvedAcronyms": [
+    "GOTS",
+    "OEKO-TEX",
+    "UPI",
+    "COD",
+    "AA",
+    "WCAG",
+    "D2C",
+    "TC",
+    "OK"
+  ],
+  "superlatives": [
+    "#1",
+    "number one",
+    "no. 1",
+    "best",
+    "most trusted",
+    "leading",
+    "top-rated",
+    "biggest",
+    "lowest price",
+    "most loved",
+    "India's favourite"
+  ],
+  "claimCandidates": [
+    "certified",
+    "organic",
+    "eco-friendly",
+    "sustainable",
+    "green",
+    "award-winning",
+    "favourite",
+    "favorite",
+    "handwoven",
+    "azo-free",
+    "thread count",
+    "rated"
+  ],
+  "absoluteClaims": [
+    "100% safe",
+    "guaranteed",
+    "guarantee",
+    "never fades",
+    "never fade",
+    "lasts forever",
+    "zero chemicals",
+    "completely toxin-free",
+    "risk-free"
+  ],
+  "pressurePhrases": [
+    "last chance ever",
+    "or regret it",
+    "you'll regret",
+    "don't miss out",
+    "before it's too late",
+    "only fools",
+    "what are you waiting for"
+  ]
+}

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 400">
+  <rect width="1200" height="400" fill="#F7F3EA"/>
+  <rect x="40" y="36" width="248" height="68" rx="14" fill="#F07A1A"/>
+  <text x="164" y="84" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="36" fill="#FFFFFF" letter-spacing="4">DHAAGA</text>
+  <text x="600" y="210" text-anchor="middle" font-family="Georgia, serif" font-size="72" fill="#1F2A5A">Festive Sale</text>
+  <text x="600" y="290" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="40" fill="#2B2B2B">20% off until 16 November</text>
+</svg>

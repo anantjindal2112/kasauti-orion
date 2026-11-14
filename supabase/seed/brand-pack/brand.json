@@ -1,0 +1,29 @@
+{
+  "id": "dhaaga",
+  "name": "Dhaaga & Co.",
+  "fictional": true,
+  "tagline": "Woven slowly, lived in daily.",
+  "description": "A fictional Indian direct-to-consumer brand selling handwoven cotton home textiles — bedsheets, towels and cushion covers — made with artisan clusters in Panipat and Varanasi. Created only as demo data for Kasauti.",
+  "products": ["Monsoon Weave", "Indigo Hours", "Kesar Collection"],
+  "audience": "Urban Indian households, 25–45, who care about craft and comfort and shop online.",
+  "voice": {
+    "summary": "Warm, calm and specific — like a friend who knows a lot about cotton. We talk to 'you', we explain, we never shout or pressure.",
+    "do": [
+      "Speak to the reader as 'you'",
+      "Be specific: name the weave, the artisans, the thread count",
+      "Keep sentences short and plain",
+      "One clear call to action per piece"
+    ],
+    "dont": [
+      "Shout with ALL CAPS or stacked exclamation marks",
+      "Use fear or pressure ('last chance ever', 'don't miss out or regret it')",
+      "Make claims we can't prove",
+      "Mention competitors"
+    ]
+  },
+  "limits": {
+    "readabilityMaxGrade": 8,
+    "maxExclamationMarks": 1,
+    "maxEmoji": 2
+  }
+}

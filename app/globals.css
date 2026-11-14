@@ -1,45 +1,140 @@
 @import "tailwindcss";
 
-/* Kasauti design tokens — retro "OS window" look from the Round 1 deck */
+/* Kasauti design tokens — the retro "OS window" look from the Round 1 deck */
 :root {
   --desk: #ddd5c3;
+  --desk-line: rgb(0 0 0 / 0.045);
   --paper: #f2eee1;
   --card: #fffcf0;
+  --sunk: #e8e1cf;
   --ink: #121212;
   --muted: #4b4740;
   --teal: #1f7f7a;
   --blue: #3a5fa8;
   --red: #b33222;
   --yellow: #f4c430;
+  --mustard: #b8860b;
   --term: #0d1410;
   --term-green: #7ee6a6;
+  --term-red: #ff8a7a;
+
+  /* finding highlights (ink text stays readable on all three) */
+  --mark-high: #f7cdc5;
+  --mark-medium: #fbe6a6;
+  --mark-low: #d3def4;
 }
 
 @theme inline {
   --color-desk: var(--desk);
   --color-paper: var(--paper);
   --color-card: var(--card);
+  --color-sunk: var(--sunk);
   --color-ink: var(--ink);
   --color-muted: var(--muted);
   --color-teal: var(--teal);
   --color-blue: var(--blue);
   --color-red: var(--red);
   --color-yellow: var(--yellow);
+  --color-mustard: var(--mustard);
   --color-term: var(--term);
   --color-term-green: var(--term-green);
+  --color-term-red: var(--term-red);
+  --color-mark-high: var(--mark-high);
+  --color-mark-medium: var(--mark-medium);
+  --color-mark-low: var(--mark-low);
   --font-sans: var(--font-plex-sans);
   --font-mono: var(--font-plex-mono);
   --font-pixel: var(--font-pixel);
+  --font-hindi: var(--font-tiro);
   --shadow-hard: 6px 6px 0 0 var(--ink);
+  --shadow-hard-sm: 3px 3px 0 0 var(--ink);
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 1.5rem;
 }
 
 body {
   background-color: var(--desk);
-  background-image: repeating-linear-gradient(
-    to bottom,
-    transparent 0 46px,
-    rgb(0 0 0 / 0.04) 46px 47px
-  );
+  background-image: repeating-linear-gradient(to bottom, transparent 0 46px, var(--desk-line) 46px 47px);
   color: var(--ink);
   font-family: var(--font-plex-sans), system-ui, sans-serif;
+}
+
+/* One clear focus style everywhere */
+:focus-visible {
+  outline: 3px solid var(--yellow);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 5px var(--ink);
+}
+
+::selection {
+  background: var(--yellow);
+  color: var(--ink);
+}
+
+/* Pressable retro controls: hard shadow that "clicks" down */
+.press {
+  transition: transform 90ms ease, box-shadow 90ms ease, background-color 120ms ease;
+}
+.press:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 0 var(--ink);
+}
+.press:active {
+  transform: translate(3px, 3px);
+  box-shadow: 0 0 0 0 var(--ink);
+}
+
+/* Blinking terminal cursor */
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+.cursor-blink {
+  animation: blink 1s steps(1) infinite;
+}
+
+/* Striped progress bar from the deck */
+.progress-stripes {
+  background-image: repeating-linear-gradient(90deg, var(--teal) 0 18px, var(--paper) 18px 22px);
+}
+@keyframes stripes {
+  to {
+    background-position: 44px 0;
+  }
+}
+.progress-run {
+  animation: stripes 0.6s linear infinite;
+}
+
+/* Hide scrollbar on the taskbar strip but keep it scrollable */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Chunky retro scrollbars */
+* {
+  scrollbar-color: var(--ink) var(--sunk);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .press,
+  .press:hover,
+  .press:active {
+    transition: none;
+    transform: none;
+  }
+  .cursor-blink,
+  .progress-run {
+    animation: none;
+  }
 }

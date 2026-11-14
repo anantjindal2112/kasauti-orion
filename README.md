@@ -26,6 +26,8 @@ npm run dev                  # http://localhost:3000
 | `npm run dev` | Dev server |
 | `npm run build` | Production build |
 | `npm test` | Unit tests (Vitest) |
+| `npm run smoke:nvidia` | Live check of every NVIDIA model we use (needs `NVIDIA_API_KEY`) |
+| `npm run eval:code` | Score the code checks against the test-set answer keys (`-- -v` lists every miss/extra) |
 | `npm run typecheck` | TypeScript check |
 | `npm run lint` | ESLint |
 

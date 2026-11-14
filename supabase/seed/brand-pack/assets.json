@@ -1,0 +1,32 @@
+{
+  "logos": [
+    {
+      "id": "logo-v3",
+      "version": "v3",
+      "status": "current",
+      "file": "supabase/seed/brand-pack/logos/logo-v3.svg",
+      "description": "Indigo spindle mark (a circle with a thread looping through it) next to the wordmark 'Dhaaga & Co.' in indigo serif on transparent background. Introduced January 2026."
+    },
+    {
+      "id": "logo-v2",
+      "version": "v2",
+      "status": "retired",
+      "file": "supabase/seed/brand-pack/logos/logo-v2-retired.svg",
+      "description": "Orange boxed wordmark 'DHAAGA' in white sans-serif capitals inside a rounded orange rectangle. No spindle mark.",
+      "retiredOn": "2025-12-31"
+    }
+  ],
+  "palette": [
+    { "name": "Indigo", "hex": "#1F2A5A", "use": "Primary text, logo, buttons" },
+    { "name": "Kesar", "hex": "#E8A33D", "use": "Accents and highlights only — never body text on light backgrounds" },
+    { "name": "Clay", "hex": "#B5562F", "use": "Secondary accent, sale badges" },
+    { "name": "Cotton", "hex": "#F7F3EA", "use": "Main background" },
+    { "name": "Charcoal", "hex": "#2B2B2B", "use": "Body text" },
+    { "name": "Leaf", "hex": "#4F7A4A", "use": "Sustainability and success messages" }
+  ],
+  "fonts": [
+    { "name": "Fraunces", "use": "Headings" },
+    { "name": "Inter", "use": "Body text and UI" }
+  ],
+  "contrast": { "normalText": 4.5, "largeText": 3 }
+}

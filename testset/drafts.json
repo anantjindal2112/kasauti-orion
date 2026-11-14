@@ -1,0 +1,236 @@
+[
+  {
+    "id": "D01",
+    "title": "Festive shipping post (deck slide 7 example)",
+    "channel": "instagram",
+    "author": "Agency A (Spark Social)",
+    "intent": { "purpose": "Drive festive-sale orders", "audience": "Existing customers, casual", "mustKeep": ["free shipping message", "festive feel"] },
+    "text": "Free shipping on all orders above ₹999 this festive season. Treat your home to the Monsoon Weave, woven by artisans in Panipat. Shop the festive sale before 16 November.",
+    "expected": [
+      { "rule": "KSR-4.1", "evidence": "KLE-07", "quote": "Free shipping on all orders above ₹999", "kind": "stale_fact", "detectedBy": "code", "note": "KLE-07 expired 30 Sep 2026; superseded by KLE-12 (₹1,499)." }
+    ]
+  },
+  {
+    "id": "D02",
+    "title": "Festive sale teaser (deck slide 8 example)",
+    "channel": "instagram",
+    "author": "AI tool",
+    "intent": { "purpose": "Festive-sale sign-ups", "audience": "Existing customers, casual", "mustKeep": ["urgency", "the 20% offer"] },
+    "text": "Our #1 sale ever! 20% off everything, today only!!!",
+    "expected": [
+      { "rule": "KSR-4.2", "quote": "#1", "kind": "unsupported_claim", "detectedBy": "code", "note": "No evidence entry supports '#1'." },
+      { "rule": "KSR-1.3", "quote": "!!!", "kind": "voice_drift", "detectedBy": "code" }
+    ]
+  },
+  {
+    "id": "D03",
+    "title": "Brand trust claim",
+    "channel": "web-banner",
+    "author": "In-house",
+    "intent": { "purpose": "Build trust on the homepage", "audience": "New visitors", "mustKeep": ["handwoven story"] },
+    "text": "Dhaaga & Co. is India's most trusted bedsheet brand. Every sheet is woven by hand in Varanasi and Panipat, and gets softer with every wash. Find your new favourite set in the Indigo Hours collection.",
+    "expected": [
+      { "rule": "KSR-4.2", "quote": "India's most trusted", "kind": "unsupported_claim", "detectedBy": "code", "note": "No evidence. Closest real proof is KLE-06 (4.6/5 rating)." }
+    ]
+  },
+  {
+    "id": "D04",
+    "title": "Expired certification",
+    "channel": "product-page",
+    "author": "In-house",
+    "intent": { "purpose": "Reassure on skin safety", "audience": "Parents and sensitive-skin shoppers", "mustKeep": ["gentle on skin", "price"] },
+    "text": "Sleep easy: Monsoon Weave is OEKO-TEX Standard 100 certified, so it's gentle on your skin. 300 thread count, handwoven, now ₹1,999. Shop Monsoon Weave.",
+    "expected": [
+      { "rule": "KSR-4.3", "evidence": "KLE-04", "quote": "Monsoon Weave is OEKO-TEX Standard 100 certified", "kind": "stale_fact", "detectedBy": "code", "note": "Certificate expired 31 Aug 2026; renewal pending." }
+    ]
+  },
+  {
+    "id": "D05",
+    "title": "Old launch price",
+    "channel": "whatsapp",
+    "author": "Agency A (Spark Social)",
+    "intent": { "purpose": "Restock announcement", "audience": "WhatsApp subscribers", "mustKeep": ["back in stock"] },
+    "text": "The Monsoon Weave set is back in stock at just ₹1,799. Soft, breathable, 300 thread count cotton. Shop Monsoon Weave.",
+    "expected": [
+      { "rule": "KSR-4.1", "evidence": "KLE-15", "quote": "₹1,799", "kind": "stale_fact", "detectedBy": "code", "note": "Launch price expired 31 Oct 2026; current price is ₹1,999 (KLE-16)." }
+    ]
+  },
+  {
+    "id": "D06",
+    "title": "Certification stretched to all products",
+    "channel": "email",
+    "author": "Agency B (Corporate Comms)",
+    "intent": { "purpose": "Promote organic credentials", "audience": "Eco-conscious subscribers", "mustKeep": ["organic cotton"] },
+    "text": "Every Dhaaga & Co. product is GOTS-certified organic cotton, from our towels to our cushion covers. Shop the Kesar Collection.",
+    "expected": [
+      { "rule": "KSR-4.3", "evidence": "KLE-03", "quote": "Every Dhaaga & Co. product is GOTS-certified organic cotton", "kind": "unsupported_claim", "detectedBy": "ai", "note": "GOTS covers the Kesar Collection only." }
+    ]
+  },
+  {
+    "id": "D07",
+    "title": "Shouty launch post",
+    "channel": "instagram",
+    "author": "Agency A (Spark Social)",
+    "intent": { "purpose": "Launch buzz", "audience": "Young followers", "mustKeep": ["excitement", "new collection"] },
+    "text": "HUGE NEWS 🔥🔥🔥 The Indigo Hour collection just dropped!! Don't miss out or regret it. Click here to shop.",
+    "expected": [
+      { "rule": "KSR-1.4", "quote": "HUGE NEWS", "kind": "voice_drift", "detectedBy": "code" },
+      { "rule": "KSR-1.5", "quote": "🔥🔥🔥", "kind": "voice_drift", "detectedBy": "code" },
+      { "rule": "KSR-2.6", "quote": "Indigo Hour", "kind": "terminology", "detectedBy": "code" },
+      { "rule": "KSR-1.3", "quote": "!!", "kind": "voice_drift", "detectedBy": "code" },
+      { "rule": "KSR-1.6", "quote": "Don't miss out or regret it", "kind": "voice_drift", "detectedBy": "code" },
+      { "rule": "KSR-5.2", "quote": "Click here", "kind": "accessibility", "detectedBy": "code" }
+    ]
+  },
+  {
+    "id": "D08",
+    "title": "Corporate announcement",
+    "channel": "email",
+    "author": "Agency B (Corporate Comms)",
+    "intent": { "purpose": "Announce new bed linen", "audience": "All subscribers", "mustKeep": ["new bed linen"] },
+    "text": "Dhaaga & Co. hereby announces the availability of premium bed linen solutions engineered to optimise consumer sleep outcomes through advanced textile methodologies. Purchase via the official website.",
+    "expected": [
+      { "rule": "KSR-1.1", "quote": "premium bed linen solutions engineered to optimise consumer sleep outcomes", "kind": "voice_drift", "detectedBy": "ai" },
+      { "rule": "KSR-2.4", "quote": "Dhaaga & Co. hereby announces the availability of premium bed linen solutions engineered to optimise consumer sleep outcomes through advanced textile methodologies.", "kind": "voice_drift", "detectedBy": "code", "note": "Reading level far above grade 8." }
+    ]
+  },
+  {
+    "id": "D09",
+    "title": "Terminology slips",
+    "channel": "whatsapp",
+    "author": "AI tool",
+    "intent": { "purpose": "Price reminder", "audience": "WhatsApp subscribers", "mustKeep": ["price", "made in Varanasi"] },
+    "text": "Dhaga and Co sheets are made by our workers in Varanasi. Now just Rs. 2299/- for the Indigo Hours set. Visit the shop to see the full range.",
+    "expected": [
+      { "rule": "KSR-2.1", "quote": "Dhaga and Co", "kind": "terminology", "detectedBy": "code" },
+      { "rule": "KSR-2.2", "quote": "workers", "kind": "terminology", "detectedBy": "code" },
+      { "rule": "KSR-2.5", "quote": "Rs. 2299/-", "kind": "terminology", "detectedBy": "code", "note": "Price itself is valid (KLE-11); only the format is wrong." }
+    ]
+  },
+  {
+    "id": "D10",
+    "title": "Towel hard-sell",
+    "channel": "x",
+    "author": "AI tool",
+    "intent": { "purpose": "Sell towels", "audience": "General", "mustKeep": ["colour that lasts"] },
+    "text": "Cheap, eco-friendly towels with colours that never fade, guaranteed. A miracle for your bathroom. Shop towels.",
+    "expected": [
+      { "rule": "KSR-2.3", "quote": "Cheap", "kind": "terminology", "detectedBy": "code" },
+      { "rule": "KSR-4.5", "quote": "eco-friendly", "kind": "unsupported_claim", "detectedBy": "ai", "note": "Vague green claim with no specific evidence." },
+      { "rule": "KSR-4.4", "quote": "never fade", "kind": "unsupported_claim", "detectedBy": "code" },
+      { "rule": "KSR-4.4", "quote": "guaranteed", "kind": "unsupported_claim", "detectedBy": "code" },
+      { "rule": "KSR-2.3", "quote": "miracle", "kind": "terminology", "detectedBy": "code" }
+    ]
+  },
+  {
+    "id": "D11",
+    "title": "Comparison and award",
+    "channel": "instagram",
+    "author": "Agency A (Spark Social)",
+    "intent": { "purpose": "Position Monsoon Weave as premium", "audience": "Shoppers comparing brands", "mustKeep": ["softness"] },
+    "text": "Softer than LoomKart sheets and award-winning too. Our Monsoon Weave set is the best bedsheet in India. Shop Monsoon Weave.",
+    "expected": [
+      { "rule": "KSR-6.3", "quote": "LoomKart", "kind": "messaging", "detectedBy": "code" },
+      { "rule": "KSR-4.2", "evidence": "KLE-14", "quote": "award-winning", "kind": "unsupported_claim", "detectedBy": "ai", "note": "Award exists (KLE-14) but must name the award and the year 2024." },
+      { "rule": "KSR-4.2", "quote": "the best bedsheet in India", "kind": "unsupported_claim", "detectedBy": "code" }
+    ]
+  },
+  {
+    "id": "D12",
+    "title": "Offer without conditions",
+    "channel": "email",
+    "author": "In-house",
+    "intent": { "purpose": "Festive sale reminder", "audience": "All subscribers", "mustKeep": ["20% off"] },
+    "text": "20% off everything! Shop now, follow us on Instagram, refer a friend and download our app.",
+    "expected": [
+      { "rule": "KSR-6.2", "evidence": "KLE-10", "quote": "20% off everything", "kind": "messaging", "detectedBy": "ai", "note": "Missing end date (16 November) and gift-card exclusion." },
+      { "rule": "KSR-6.1", "quote": "Shop now, follow us on Instagram, refer a friend and download our app.", "kind": "messaging", "detectedBy": "ai" }
+    ]
+  },
+  {
+    "id": "D13",
+    "title": "Lifestyle post, accessibility gaps",
+    "channel": "instagram",
+    "author": "In-house",
+    "intent": { "purpose": "Brand mood post", "audience": "Followers", "mustKeep": ["slow Sunday mood", "GOTS organic"] },
+    "text": "Slow Sundays in the Kesar Collection 🌿 GOTS-certified organic cotton, woven in Varanasi. Shop the Kesar Collection. #slowsundays #kesarcollection",
+    "images": [{ "file": "testset/images/kesar-lifestyle.svg", "alt": null }],
+    "expected": [
+      { "rule": "KSR-5.1", "quote": "testset/images/kesar-lifestyle.svg", "location": "alt", "kind": "accessibility", "detectedBy": "code", "note": "Image has no alt text." },
+      { "rule": "KSR-5.3", "quote": "#slowsundays", "kind": "accessibility", "detectedBy": "code" },
+      { "rule": "KSR-5.3", "quote": "#kesarcollection", "kind": "accessibility", "detectedBy": "code" }
+    ]
+  },
+  {
+    "id": "D14",
+    "title": "Banner with retired logo",
+    "channel": "web-banner",
+    "author": "Agency B (Corporate Comms)",
+    "intent": { "purpose": "Festive sale banner", "audience": "Site visitors", "mustKeep": ["20% off", "end date"] },
+    "text": "Festive Sale: 20% off sitewide until 16 November. Shop the festive sale.",
+    "images": [
+      {
+        "file": "testset/images/banner-old-logo.svg",
+        "alt": "Festive sale banner: 20% off sitewide until 16 November",
+        "textInImage": "DHAAGA · Festive Sale · 20% off until 16 November"
+      }
+    ],
+    "expected": [
+      { "rule": "KSR-3.2", "quote": "DHAAGA", "location": "image", "kind": "off_brand_visual", "detectedBy": "ai", "note": "Uses logo v2, retired 31 Dec 2025." }
+    ]
+  },
+  {
+    "id": "D15",
+    "title": "Low-contrast price banner",
+    "channel": "web-banner",
+    "author": "In-house",
+    "intent": { "purpose": "Promote Indigo Hours", "audience": "Site visitors", "mustKeep": ["price"] },
+    "text": "New in: the Indigo Hours set, ₹2,299. Shop Indigo Hours.",
+    "images": [
+      {
+        "file": "testset/images/banner-low-contrast.svg",
+        "alt": "Indigo Hours bedsheet set with the price ₹2,299",
+        "textInImage": "Indigo Hours · ₹2,299"
+      }
+    ],
+    "expected": [
+      { "rule": "KSR-3.4", "quote": "Indigo Hours · ₹2,299", "location": "image", "kind": "off_brand_visual", "detectedBy": "code", "note": "Kesar text on Cotton background fails WCAG AA." }
+    ]
+  },
+  {
+    "id": "D16",
+    "title": "Stale offer baked into an image",
+    "channel": "instagram",
+    "author": "Agency A (Spark Social)",
+    "intent": { "purpose": "Festive mood post", "audience": "Followers", "mustKeep": ["festive feel"] },
+    "text": "Fresh sheets for the festive season. Shop Monsoon Weave.",
+    "images": [
+      {
+        "file": "testset/images/banner-stale-shipping.svg",
+        "alt": "Monsoon Weave bedsheets with a free shipping message",
+        "textInImage": "Monsoon Weave · Free shipping above ₹999"
+      }
+    ],
+    "expected": [
+      { "rule": "KSR-4.1", "evidence": "KLE-07", "quote": "Free shipping above ₹999", "location": "image", "kind": "stale_fact", "detectedBy": "code", "note": "Found by OCR; KLE-07 expired." }
+    ]
+  },
+  {
+    "id": "D17",
+    "title": "Clean restock post (no issues)",
+    "channel": "instagram",
+    "author": "In-house",
+    "intent": { "purpose": "Restock announcement", "audience": "Followers", "mustKeep": ["back in stock", "free shipping"] },
+    "text": "Settle in, the Monsoon Weave is back. 300 thread count cotton, handwoven by artisans in Panipat, now ₹1,999. Free shipping on orders above ₹1,499. Shop Monsoon Weave.",
+    "expected": []
+  },
+  {
+    "id": "D18",
+    "title": "Clean claims-heavy email (no issues)",
+    "channel": "email",
+    "author": "In-house",
+    "intent": { "purpose": "Festive sale with trust signals", "audience": "All subscribers", "mustKeep": ["rating", "GOTS", "20% off"] },
+    "text": "Rated 4.6 out of 5 by more than 18,000 customers. The Kesar Collection is GOTS-certified organic cotton, dyed with azo-free dyes. Our festive sale gives you 20% off sitewide until 16 November. Shop the festive sale.",
+    "expected": []
+  }
+]
