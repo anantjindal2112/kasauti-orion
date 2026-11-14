@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import { PageHeader } from "@/components/retro/PageHeader";
 import { Window } from "@/components/retro/Window";
 import { Scanner } from "@/components/scan/Scanner";
-import { demoDrafts, evidenceIndex, ruleIndex } from "@/lib/demo";
+import { demoDrafts, evidenceIndex, ruleIndex, stressDrafts } from "@/lib/demo";
 
 export const metadata: Metadata = { title: "Scan a draft" };
 
@@ -27,7 +27,7 @@ export default function ScanPage() {
           </Window>
         }
       >
-        <Scanner drafts={demoDrafts()} rules={ruleIndex()} evidence={evidenceIndex()} />
+        <Scanner drafts={[...demoDrafts(), ...stressDrafts()]} rules={ruleIndex()} evidence={evidenceIndex()} />
       </Suspense>
     </>
   );

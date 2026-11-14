@@ -65,25 +65,25 @@ export default function TestSetPage() {
 
       <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Window title="CODE CHECKS" color="teal" bodyClassName="p-4">
-          <p className="font-pixel text-4xl font-bold">
+          <p className="font-num text-4xl font-bold">
             <Counter value={caught} />/{mine.length}
           </p>
           <p className="text-sm text-muted">issues code is responsible for, caught</p>
         </Window>
         <Window title="FALSE ALARMS" color={extras ? "red" : "teal"} bodyClassName="p-4" delay={0.06}>
-          <p className="font-pixel text-4xl font-bold">
+          <p className="font-num text-4xl font-bold">
             <Counter value={extras} />
           </p>
           <p className="text-sm text-muted">findings outside the answer keys</p>
         </Window>
         <Window title="AI REVIEW" color="blue" bodyClassName="p-4" delay={0.12}>
-          <p className="font-pixel text-4xl font-bold">
+          <p className="font-num text-4xl font-bold">
             <Counter value={waitingAi} />
           </p>
           <p className="text-sm text-muted">need judgement — scored live with npm run eval:ai</p>
         </Window>
         <Window title="IMAGE CHECKS" color="yellow" bodyClassName="p-4" delay={0.18}>
-          <p className="font-pixel text-4xl font-bold">
+          <p className="font-num text-4xl font-bold">
             <Counter value={waitingImage} />
           </p>
           <p className="text-sm text-muted">need pixels — Stage 11</p>

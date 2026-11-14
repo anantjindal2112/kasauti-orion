@@ -8,5 +8,6 @@ export const NAV: { href: string; label: string; short: string; icon: IconName; 
   { href: "/ledger", label: "Claim Ledger", short: "Ledger", icon: "ledger", file: "LEDGER.DAT", blurb: "Every approved claim with its source, owner and expiry date." },
   { href: "/rules", label: "Rulebook", short: "Rules", icon: "rules", file: "RULES.TXT", blurb: "The brand's 27 numbered rules, and how each one is checked." },
   { href: "/insights", label: "Insights", short: "Insights", icon: "chart", file: "RADAR.EXE", blurb: "Guideline Debt Radar: rules people keep arguing with (Round 3)." },
+  { href: "/customise", label: "Customise", short: "Custom", icon: "spark", file: "SETTINGS.CFG", blurb: "Edit the brand, limits, banned words, rules and Claim Ledger — scans use your version." },
   { href: "/how", label: "How it works", short: "How", icon: "help", file: "README.TXT", blurb: "The pipeline, the Verifier, the trust rules and build status." },
 ];

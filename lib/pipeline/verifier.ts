@@ -127,6 +127,10 @@ export function verify(args: {
       drop(`${rule.code} is a code-only rule`);
       continue;
     }
+    if (rule.layer === "visual") {
+      drop(`${rule.code} is a visual rule — it needs the image, not the text`);
+      continue;
+    }
     // Evidence is optional. Models sometimes write prose here ("KLE-10: 20% off…"):
     // keep the first real code, ignore the rest. A code that is not in the ledger fails the test.
     const evRaw = raw.evidence?.trim() ?? "";

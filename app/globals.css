@@ -46,6 +46,7 @@
   --font-mono: var(--font-plex-mono);
   --font-pixel: var(--font-pixel);
   --font-hindi: var(--font-tiro);
+  --font-num: var(--font-num), ui-monospace, monospace;
   --shadow-hard: 6px 6px 0 0 var(--ink);
   --shadow-hard-sm: 3px 3px 0 0 var(--ink);
 }
@@ -53,6 +54,12 @@
 html {
   scroll-behavior: smooth;
   scroll-padding-top: 1.5rem;
+}
+
+/* Numbers line up in columns everywhere they appear */
+.font-num {
+  font-variant-numeric: tabular-nums slashed-zero;
+  letter-spacing: -0.02em;
 }
 
 body {

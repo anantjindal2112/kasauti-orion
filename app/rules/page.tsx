@@ -31,7 +31,7 @@ export default function RulesPage() {
           ] as const
         ).map(([label, n, note, color], i) => (
           <Window key={label} title={label.toUpperCase()} color={color} bodyClassName="p-4" delay={i * 0.06}>
-            <p className="font-pixel text-4xl font-bold">
+            <p className="font-num text-4xl font-bold">
               <Counter value={n} />
             </p>
             <p className="text-sm text-muted">{note}</p>

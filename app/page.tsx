@@ -82,7 +82,7 @@ export default function Home() {
           <Pop key={s.label} className="border-2 border-ink bg-paper shadow-hard">
             <p className={`border-b-2 border-ink px-3 py-1.5 font-pixel text-sm tracking-wider ${s.color}`}>{s.label}</p>
             <div className="p-4">
-              <p className="font-pixel text-5xl font-bold">
+              <p className="font-num text-5xl font-bold">
                 <Counter value={s.value} />
                 <span className="text-muted">{s.suffix}</span>
               </p>
@@ -98,7 +98,7 @@ export default function Home() {
         <Stagger as="ol" className="mt-5 grid gap-4 md:grid-cols-3">
           {STEPS.map((s) => (
             <Pop as="li" key={s.n} className="border-2 border-ink bg-card p-4 shadow-hard-sm">
-              <p className="font-pixel text-3xl font-bold text-red">{s.n}</p>
+              <p className="font-num text-3xl font-bold text-red">{s.n}</p>
               <p className="mt-1 text-lg font-bold">{s.title}</p>
               <p className="mt-1 text-muted">{s.body}</p>
             </Pop>

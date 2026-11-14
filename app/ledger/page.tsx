@@ -53,17 +53,17 @@ export default function LedgerPage() {
 
       <div className="mb-6 grid gap-4 sm:grid-cols-3">
         <Window title="ENTRIES" color="teal" bodyClassName="p-4">
-          <p className="font-pixel text-4xl font-bold">
+          <p className="font-num text-4xl font-bold">
             <Counter value={rows.length} />
           </p>
         </Window>
         <Window title="EXPIRED" color="red" bodyClassName="p-4" delay={0.06}>
-          <p className="font-pixel text-4xl font-bold">
+          <p className="font-num text-4xl font-bold">
             <Counter value={expired} />
           </p>
         </Window>
         <Window title="DEMO DATE" color="blue" bodyClassName="p-4" delay={0.12}>
-          <p className="font-pixel text-4xl font-bold">{formatDay(DEMO_TODAY)}</p>
+          <p className="font-num text-4xl font-bold">{formatDay(DEMO_TODAY)}</p>
         </Window>
       </div>
 

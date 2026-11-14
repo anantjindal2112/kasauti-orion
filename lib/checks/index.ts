@@ -69,9 +69,10 @@ export function runCodeChecks(input: CheckInput, pack: BrandPack, opts: { today?
   const ctx: CheckContext = { pack, today: opts.today ?? DEMO_TODAY };
   const severityOf = new Map(pack.rules.map((r) => [r.code, r.severity]));
 
+  /** A rule switched off in a custom brand pack simply produces no findings. */
+  const active = (raw: RawFinding) => severityOf.has(raw.rule);
   const toFinding = (raw: RawFinding, location: FindingLocation, imageFile?: string): Finding => {
-    const severity = severityOf.get(raw.rule);
-    if (!severity) throw new Error(`Code check produced unknown rule ${raw.rule}`);
+    const severity = severityOf.get(raw.rule)!;
     return {
       id: `${raw.rule}:${location}:${imageFile ?? ""}:${raw.match.start}`,
       rule: raw.rule,
@@ -90,7 +91,9 @@ export function runCodeChecks(input: CheckInput, pack: BrandPack, opts: { today?
   };
 
   const findings: Finding[] = [
-    ...dedupe(BODY_CHECKS.flatMap((check) => check(input.text, ctx))).map((r) => toFinding(r, "text")),
+    ...dedupe(BODY_CHECKS.flatMap((check) => check(input.text, ctx)))
+      .filter(active)
+      .map((r) => toFinding(r, "text")),
   ];
   const candidates: ClaimCandidate[] = findClaimCandidates(input.text, ctx).map(({ match, ...c }) => ({
     ...c,
@@ -102,7 +105,7 @@ export function runCodeChecks(input: CheckInput, pack: BrandPack, opts: { today?
   for (const img of input.images ?? []) {
     if (img.text) {
       const raws = dedupe(IMAGE_TEXT_CHECKS.flatMap((check) => check(img.text!, ctx)));
-      findings.push(...raws.map((r) => toFinding(r, "image", img.file)));
+      findings.push(...raws.filter(active).map((r) => toFinding(r, "image", img.file)));
       candidates.push(
         ...findClaimCandidates(img.text, ctx).map(({ match, ...c }) => ({
           ...c,
@@ -115,7 +118,7 @@ export function runCodeChecks(input: CheckInput, pack: BrandPack, opts: { today?
     }
   }
 
-  for (const miss of checkAltText(input.images ?? [])) {
+  for (const miss of severityOf.has("KSR-5.1") ? checkAltText(input.images ?? []) : []) {
     findings.push(
       toFinding(
         {

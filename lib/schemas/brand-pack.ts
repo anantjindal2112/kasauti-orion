@@ -160,3 +160,13 @@ export const draftSchema = z.object({
   expected: z.array(expectedFindingSchema),
 });
 export type Draft = z.infer<typeof draftSchema>;
+
+/** A whole brand pack — what the Customise page edits and the scan API accepts as an override. */
+export const brandPackSchema = z.object({
+  brand: brandSchema,
+  rules: z.array(ruleSchema).min(1, "Keep at least one rule switched on."),
+  evidence: z.array(evidenceSchema),
+  terms: termsSchema,
+  assets: assetsSchema,
+});
+export type BrandPackData = z.infer<typeof brandPackSchema>;

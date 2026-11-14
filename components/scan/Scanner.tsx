@@ -10,6 +10,8 @@ import { TypeLines } from "@/components/retro/Motion";
 import { Window } from "@/components/retro/Window";
 import { FindingCard, type Decision } from "@/components/scan/FindingCard";
 import { HighlightedDraft } from "@/components/scan/HighlightedDraft";
+import Link from "next/link";
+import { parseCustom, useCustomRaw } from "@/lib/custom-pack";
 import type { DemoDraft, EvidenceInfo, RuleInfo, ScanResponse } from "@/lib/scan-types";
 import type { Finding } from "@/lib/schemas/finding";
 
@@ -29,7 +31,7 @@ interface Version {
 }
 
 const SEVERITY_ORDER = { high: 0, medium: 1, low: 2 } as const;
-const QUICK = ["D01", "D02", "D07", "D16", "D17"];
+const QUICK = ["D01", "D02", "D07", "D16", "D17", "X1"];
 const keyOf = (f: Finding) => `${f.rule}|${f.location}|${f.imageFile ?? ""}|${f.quote}`;
 
 async function toDataUrl(img: DraftImage): Promise<string | undefined> {
@@ -67,6 +69,29 @@ export function Scanner({
   const [ocr, setOcr] = useState(true);
   const [aiOn, setAiOn] = useState(true);
 
+  // A brand pack customised on the Customise page (saved in this browser) overrides the built-in one.
+  const customRaw = useCustomRaw();
+  const custom = useMemo(() => parseCustom(customRaw), [customRaw]);
+  const ruleInfo = useMemo<Record<string, RuleInfo>>(
+    () =>
+      custom
+        ? Object.fromEntries(custom.pack.rules.map((r) => [r.code, { code: r.code, title: r.title, layer: r.layer, checkType: r.checkType }]))
+        : rules,
+    [custom, rules],
+  );
+  const evidenceInfo = useMemo<Record<string, EvidenceInfo>>(
+    () =>
+      custom
+        ? Object.fromEntries(
+            custom.pack.evidence.map((e) => [
+              e.code,
+              { code: e.code, title: e.title, claim: e.claim, source: e.source, expiresAt: e.expiresAt, expired: e.expiresAt !== null && e.expiresAt < custom.today },
+            ]),
+          )
+        : evidence,
+    [custom, evidence],
+  );
+
   const [result, setResult] = useState<ScanResponse | null>(null);
   const [scannedText, setScannedText] = useState("");
   const [status, setStatus] = useState<"idle" | "scanning" | "error">("idle");
@@ -96,7 +121,7 @@ export function Scanner({
         const res = await fetch("/api/scan", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ text: body, images: payloadImages, ocr, ai: aiOn, intent }),
+          body: JSON.stringify({ text: body, images: payloadImages, ocr, ai: aiOn, intent, ...(custom ? { pack: custom.pack, today: custom.today } : {}) }),
         });
         const json = await res.json();
         if (!res.ok) throw new Error(json.error ?? `Scan failed (${res.status})`);
@@ -117,7 +142,7 @@ export function Scanner({
         setStatus("error");
       }
     },
-    [text, images, ocr, aiOn, intent],
+    [text, images, ocr, aiOn, intent, custom],
   );
 
   const loadDraft = useCallback(
@@ -197,6 +222,30 @@ export function Scanner({
     void scan({ text: next });
   };
 
+  /** Every open text finding with a ready-made fix, minus any that overlap (the first, most severe, wins). */
+  const batch = useMemo(() => {
+    const picked: Finding[] = [];
+    for (const f of sorted) {
+      if (f.location !== "text" || f.suggestedFix === null || decisions[keyOf(f)]) continue;
+      if (picked.some((p) => f.span.start < p.span.end && p.span.start < f.span.end)) continue;
+      picked.push(f);
+    }
+    return picked;
+  }, [sorted, decisions]);
+
+  /** Apply every fix in one go (right to left so offsets stay valid), then re-check the whole draft once. */
+  const applyAll = () => {
+    if (!canApply || batch.length === 0) return;
+    let next = scannedText;
+    for (const f of [...batch].sort((a, b) => b.span.start - a.span.start)) {
+      next = next.slice(0, f.span.start) + f.suggestedFix + next.slice(f.span.end);
+    }
+    setDecisions((d) => ({ ...d, ...Object.fromEntries(batch.map((f) => [keyOf(f), { action: "accepted" as const }])) }));
+    setVersions((v) => [...v, { n: v.length + 1, text: next, note: `Accepted ${batch.length} fixes (${batch.map((f) => f.rule).join(", ")})` }]);
+    setText(next);
+    void scan({ text: next });
+  };
+
   const setAlt = (f: Finding, alt: string) => {
     const next = images.map((i) => (i.name === f.imageFile ? { ...i, alt } : i));
     setImages(next);
@@ -236,11 +285,24 @@ export function Scanner({
             className="mt-1 w-full border-2 border-ink bg-card px-3 py-2.5 text-base shadow-hard-sm"
           >
             <option value="">— Blank draft (paste your own copy) —</option>
-            {drafts.map((d) => (
-              <option key={d.id} value={d.id}>
-                {d.id} · {d.title}
-              </option>
-            ))}
+            <optgroup label="Test set (with answer keys)">
+              {drafts
+                .filter((d) => d.id.startsWith("D"))
+                .map((d) => (
+                  <option key={d.id} value={d.id}>
+                    {d.id} · {d.title}
+                  </option>
+                ))}
+            </optgroup>
+            <optgroup label="Stress tests (lots of problems)">
+              {drafts
+                .filter((d) => d.id.startsWith("X"))
+                .map((d) => (
+                  <option key={d.id} value={d.id}>
+                    {d.id} · {d.title}
+                  </option>
+                ))}
+            </optgroup>
           </select>
           <div className="mt-2 flex flex-wrap gap-2">
             <span className="self-center font-mono text-xs text-muted">Quick picks:</span>
@@ -255,9 +317,19 @@ export function Scanner({
               </button>
             ))}
           </div>
+          {custom && (
+            <p className="mt-2 flex flex-wrap items-center gap-2 text-sm">
+              <Badge tone="ok">custom brand pack</Badge>
+              Checking against your “{custom.pack.brand.name}” settings ({custom.pack.rules.length} rules on).
+              <Link href="/customise" className="font-bold underline">
+                Edit
+              </Link>
+            </p>
+          )}
           {current && (
             <p className="mt-2 text-sm text-muted">
-              {current.channel} · by {current.author} · answer key lists {current.expectedCount} issue{current.expectedCount === 1 ? "" : "s"}
+              {current.channel} · by {current.author} ·{" "}
+              {current.id.startsWith("X") ? "stress test, no answer key" : `answer key lists ${current.expectedCount} issue${current.expectedCount === 1 ? "" : "s"}`}
             </p>
           )}
         </div>
@@ -528,6 +600,22 @@ export function Scanner({
             )}
           </div>
 
+          {result && !scanning && batch.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: -6 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="flex flex-wrap items-center gap-3 border-2 border-ink bg-yellow p-3 shadow-hard-sm"
+            >
+              <Button variant="dark" onClick={applyAll} disabled={!canApply}>
+                <Icon name="check" /> Accept all {batch.length} fix{batch.length === 1 ? "" : "es"}
+              </Button>
+              <span className="text-sm">
+                Applies every suggested fix at once, then re-checks the whole draft in one pass. You can still accept, edit or dispute each
+                one below.
+              </span>
+            </motion.div>
+          )}
+
           {result && !scanning && result.images.length > 0 && (
             <div className="space-y-2">
               <p className="font-mono text-xs font-bold uppercase tracking-wider">Text read from images</p>
@@ -564,8 +652,8 @@ export function Scanner({
                     <FindingCard
                       finding={f}
                       number={i + 1}
-                      rule={rules[f.rule]}
-                      evidence={f.evidence ? evidence[f.evidence] : undefined}
+                      rule={ruleInfo[f.rule]}
+                      evidence={f.evidence ? evidenceInfo[f.evidence] : undefined}
                       decision={decisions[keyOf(f)]}
                       canApply={canApply}
                       selected={selectedId === f.id}

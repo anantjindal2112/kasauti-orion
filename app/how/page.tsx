@@ -54,7 +54,7 @@ export default function HowPage() {
             return (
               <Pop key={s.n} className={`border-2 border-ink p-4 shadow-hard-sm ${last ? "bg-term text-paper" : "bg-card"}`}>
                 <p className="font-pixel text-2xl font-bold">
-                  <span className={last ? "text-yellow" : "text-red"}>{s.n}</span> <span className={last ? "text-term-green" : ""}>{s.title}</span>
+                  <span className={`font-num ${last ? "text-yellow" : "text-red"}`}>{s.n}</span> <span className={last ? "text-term-green" : ""}>{s.title}</span>
                 </p>
                 <p className={`mt-2 ${last ? "text-paper/85" : "text-muted"}`}>{s.body}</p>
               </Pop>

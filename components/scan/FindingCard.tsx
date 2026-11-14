@@ -63,7 +63,7 @@ export function FindingCard({
       className={`scroll-mt-6 border-2 border-ink bg-card transition-shadow ${selected ? "shadow-hard" : "shadow-hard-sm"}`}
     >
       <header className="flex flex-wrap items-center gap-2 border-b-2 border-ink bg-sunk px-3 py-2">
-        <span className="grid h-6 min-w-6 place-items-center border-2 border-ink bg-ink px-1 font-mono text-xs font-bold text-paper">{number}</span>
+        <span className="grid h-6 min-w-6 place-items-center border-2 border-ink bg-ink px-1 font-num text-xs font-bold text-paper">{number}</span>
         <SeverityBadge severity={f.severity} stamp delay={0.25 + Math.min(number * 0.07, 0.5)} />
         <span className="font-mono text-sm font-bold">{f.rule}</span>
         <span className="font-medium">{rule?.title ?? ""}</span>

@@ -1,8 +1,9 @@
 import { z } from "zod";
-import { loadBrandPack } from "@/lib/brand-pack";
+import { DEMO_TODAY, loadBrandPack } from "@/lib/brand-pack";
 import { getNvidiaClient, imageToText } from "@/lib/nvidia";
 import { reviewDraft } from "@/lib/pipeline";
 import type { ScannedImage } from "@/lib/scan-types";
+import { brandPackSchema } from "@/lib/schemas/brand-pack";
 
 const MAX_IMAGE_DATA_URL = 6_000_000; // ~4.5 MB image
 
@@ -39,6 +40,10 @@ const scanRequest = z.object({
       mustKeep: z.string().max(300).optional(),
     })
     .optional(),
+  /** A customised brand pack from the Customise page (validated in full). Defaults to the built-in pack. */
+  pack: brandPackSchema.optional(),
+  /** Date used for expiry checks. Defaults to the demo date. */
+  today: z.iso.date().optional(),
 });
 
 export type ScanRequest = z.input<typeof scanRequest>;
@@ -52,11 +57,18 @@ export async function POST(request: Request) {
   try {
     body = scanRequest.parse(await request.json());
   } catch (e) {
-    const message = e instanceof z.ZodError ? e.issues.map((i) => i.message).join(" ") : "Request body must be JSON.";
+    const message =
+      e instanceof z.ZodError
+        ? e.issues
+            .slice(0, 4)
+            .map((i) => (i.path.length ? `${i.path.join(".")}: ${i.message}` : i.message))
+            .join(" · ")
+        : "Request body must be JSON.";
     return Response.json({ error: message }, { status: 400 });
   }
 
-  const pack = loadBrandPack();
+  const pack = body.pack ?? loadBrandPack();
+  const today = body.today ?? DEMO_TODAY;
 
   let client: ReturnType<typeof getNvidiaClient> | null = null;
   let clientProblem: string | undefined;
@@ -98,7 +110,7 @@ export async function POST(request: Request) {
       intent: body.intent,
     },
     pack,
-    { client, ai: body.ai },
+    { client, ai: body.ai, today },
   );
 
   return Response.json({

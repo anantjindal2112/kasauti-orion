@@ -217,3 +217,11 @@ describe("Verifier relevance guards (test 2b)", () => {
     ]);
   });
 });
+
+describe("Verifier visual rules", () => {
+  it("drops a visual rule cited against text", () => {
+    const r = run("Love from Dhaga and Co.", [ai({ rule: "KSR-3.2", evidence: null, quote: "Dhaga and Co", suggestedFix: null })]);
+    expect(r.kept).toEqual([]);
+    expect(r.dropped[0].reason).toMatch(/visual rule/);
+  });
+});

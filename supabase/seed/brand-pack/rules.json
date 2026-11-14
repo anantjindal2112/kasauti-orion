@@ -6,9 +6,20 @@
     "body": "Address the reader as 'you'. Explain why something is good instead of just saying it is. Avoid hard-sell phrasing and corporate jargon.",
     "severity": "medium",
     "checkType": "ai",
-    "goodExamples": ["Your mornings deserve a towel that dries fast and stays soft wash after wash."],
-    "badExamples": ["Purchase our premium towel solutions today to optimise your bathroom experience."],
-    "tags": ["tone", "voice"],
+    "goodExamples": [
+      "Your mornings deserve a towel that dries fast and stays soft wash after wash.",
+      "You'll feel the difference the first night: cool, breathable cotton that softens with every wash.",
+      "We weave each sheet by hand, so you get cotton that lasts for years, not seasons."
+    ],
+    "badExamples": [
+      "Purchase our premium towel solutions today to optimise your bathroom experience.",
+      "Leverage best-in-class bed linen for enhanced sleep outcomes.",
+      "Customers are advised to procure the product via the official channel."
+    ],
+    "tags": [
+      "tone",
+      "voice"
+    ],
     "version": 1
   },
   {
@@ -18,9 +29,20 @@
     "body": "Our tone should always feel warm.",
     "severity": "low",
     "checkType": "ai",
-    "goodExamples": ["Settle in — the Monsoon Weave is back."],
-    "badExamples": ["Monsoon Weave restocked. Order now."],
-    "tags": ["tone", "voice"],
+    "goodExamples": [
+      "Settle in — the Monsoon Weave is back.",
+      "Slow Sundays start with fresh sheets.",
+      "Come home to cotton that feels like a deep breath."
+    ],
+    "badExamples": [
+      "Monsoon Weave restocked. Order now.",
+      "Product available. Limited units.",
+      "Inventory update: towels in stock."
+    ],
+    "tags": [
+      "tone",
+      "voice"
+    ],
     "version": 1,
     "knownUnclear": true
   },
@@ -31,9 +53,20 @@
     "body": "Use no more than one exclamation mark in a piece, and never stack them ('!!' or '!!!').",
     "severity": "low",
     "checkType": "code",
-    "goodExamples": ["Our festive sale starts today!"],
-    "badExamples": ["Sale starts today!!!"],
-    "tags": ["punctuation", "voice"],
+    "goodExamples": [
+      "Our festive sale starts today!",
+      "The Indigo Hours set is back.",
+      "New colours are here — have a look."
+    ],
+    "badExamples": [
+      "Sale starts today!!!",
+      "Huge news!! New towels are here.",
+      "Wow! Amazing! Buy now!"
+    ],
+    "tags": [
+      "punctuation",
+      "voice"
+    ],
     "version": 1
   },
   {
@@ -43,9 +76,20 @@
     "body": "Don't write words in ALL CAPS, except approved acronyms such as GOTS, OEKO-TEX or UPI.",
     "severity": "low",
     "checkType": "code",
-    "goodExamples": ["Now GOTS-certified."],
-    "badExamples": ["HUGE savings this week."],
-    "tags": ["punctuation", "voice"],
+    "goodExamples": [
+      "Now GOTS-certified.",
+      "Pay by UPI or cash on delivery.",
+      "Fresh colours for the season."
+    ],
+    "badExamples": [
+      "HUGE savings this week.",
+      "BUY NOW before it's gone.",
+      "The FESTIVE SALE is live."
+    ],
+    "tags": [
+      "punctuation",
+      "voice"
+    ],
     "version": 1
   },
   {
@@ -55,9 +99,20 @@
     "body": "Use at most two emoji in a single post or email.",
     "severity": "low",
     "checkType": "code",
-    "goodExamples": ["Fresh sheets, slow Sundays 🌿"],
-    "badExamples": ["Sale 🔥🔥🔥 Shop now 🛍️🎉"],
-    "tags": ["emoji", "voice"],
+    "goodExamples": [
+      "Fresh sheets, slow Sundays 🌿",
+      "Back in stock ✨🧺",
+      "Monsoon Weave is here."
+    ],
+    "badExamples": [
+      "Sale 🔥🔥🔥 Shop now 🛍️🎉",
+      "🎉🎉🎉 New launch",
+      "Love it 😍😍😍"
+    ],
+    "tags": [
+      "emoji",
+      "voice"
+    ],
     "version": 1
   },
   {
@@ -67,9 +122,20 @@
     "body": "Don't push people with fear of missing out, guilt or false scarcity. Urgency is fine when it is true (a real end date); pressure is not.",
     "severity": "medium",
     "checkType": "hybrid",
-    "goodExamples": ["The festive sale ends on 16 November."],
-    "badExamples": ["Last chance ever — buy now or regret it forever."],
-    "tags": ["pressure", "voice"],
+    "goodExamples": [
+      "The festive sale ends on 16 November.",
+      "Free shipping is on until Sunday.",
+      "Take your time — the collection isn't going anywhere."
+    ],
+    "badExamples": [
+      "Last chance ever — buy now or regret it forever.",
+      "Don't miss out on this deal.",
+      "What are you waiting for? Order today."
+    ],
+    "tags": [
+      "pressure",
+      "voice"
+    ],
     "version": 1
   },
   {
@@ -79,9 +145,20 @@
     "body": "The brand is always written 'Dhaaga & Co.' — with the double 'a', an ampersand and a full stop.",
     "severity": "medium",
     "checkType": "code",
-    "goodExamples": ["Made by Dhaaga & Co."],
-    "badExamples": ["Made by Dhaga and Co", "DHAAGA"],
-    "tags": ["brand-name", "terminology"],
+    "goodExamples": [
+      "Made by Dhaaga & Co.",
+      "Dhaaga & Co. weaves in Varanasi.",
+      "Thank you for shopping with Dhaaga & Co."
+    ],
+    "badExamples": [
+      "Made by Dhaga and Co",
+      "DHAAGA towels are here.",
+      "Try Dhaaga Co sheets."
+    ],
+    "tags": [
+      "brand-name",
+      "terminology"
+    ],
     "version": 1
   },
   {
@@ -91,9 +168,20 @@
     "body": "The people who weave our products are 'artisans' or 'weavers', never 'workers' or 'labour'.",
     "severity": "medium",
     "checkType": "code",
-    "goodExamples": ["Woven by artisans in Varanasi."],
-    "badExamples": ["Made by our workers in Varanasi."],
-    "tags": ["people", "terminology"],
+    "goodExamples": [
+      "Woven by artisans in Varanasi.",
+      "Our weavers in Panipat dye every thread.",
+      "Meet the artisans behind the Kesar Collection."
+    ],
+    "badExamples": [
+      "Made by our workers in Varanasi.",
+      "Our labour force weaves every sheet.",
+      "Labourers in Panipat made this towel."
+    ],
+    "tags": [
+      "people",
+      "terminology"
+    ],
     "version": 1
   },
   {
@@ -103,9 +191,20 @@
     "body": "Never use the words on the banned list (e.g. 'cheap', 'miracle', 'chemical-free'). They undercut the brand or make claims we can't support.",
     "severity": "medium",
     "checkType": "code",
-    "goodExamples": ["Fairly priced, made to last."],
-    "badExamples": ["Cheap bedsheets that feel like a miracle."],
-    "tags": ["banned-words", "terminology"],
+    "goodExamples": [
+      "Fairly priced, made to last.",
+      "Gentle on skin, dyed with azo-free dyes.",
+      "Thoughtfully made, honestly priced."
+    ],
+    "badExamples": [
+      "Cheap bedsheets that feel like a miracle.",
+      "World-class towels for everyone.",
+      "Chemical-free cotton for your baby."
+    ],
+    "tags": [
+      "banned-words",
+      "terminology"
+    ],
     "version": 1
   },
   {
@@ -115,9 +214,20 @@
     "body": "Aim for a reading level of grade 8 or below. Prefer short sentences and everyday words.",
     "severity": "low",
     "checkType": "code",
-    "goodExamples": ["Soft cotton. Woven by hand. Gets softer with every wash."],
-    "badExamples": ["Our meticulously engineered, artisanally conceptualised textile innovations deliver unparalleled tactile sophistication."],
-    "tags": ["readability", "terminology"],
+    "goodExamples": [
+      "Soft cotton. Woven by hand. Gets softer with every wash.",
+      "Our sheets keep you cool in summer and cosy in winter.",
+      "Wash it warm, dry it in the shade, and it lasts for years."
+    ],
+    "badExamples": [
+      "Our meticulously engineered, artisanally conceptualised textile innovations deliver unparalleled tactile sophistication to discerning contemporary households.",
+      "Leveraging multigenerational craftsmanship methodologies, the organisation operationalises sustainability-oriented manufacturing paradigms across geographically distributed artisanal communities.",
+      "Consequently, consumers experiencing thermoregulatory discomfort may consider transitioning toward intentionally engineered breathable cellulose-based bedding alternatives immediately."
+    ],
+    "tags": [
+      "readability",
+      "terminology"
+    ],
     "version": 1
   },
   {
@@ -127,9 +237,20 @@
     "body": "Write prices with the rupee symbol and Indian digit grouping: '₹1,499'. Don't use 'Rs.', 'Rs', 'INR' or '/-'.",
     "severity": "low",
     "checkType": "code",
-    "goodExamples": ["Now ₹1,999."],
-    "badExamples": ["Now Rs. 1999/-"],
-    "tags": ["prices", "terminology"],
+    "goodExamples": [
+      "Now ₹1,999.",
+      "Free shipping above ₹1,499.",
+      "The set is ₹2,299."
+    ],
+    "badExamples": [
+      "Now Rs. 1999/-",
+      "Only INR 2299",
+      "Just ₹1499"
+    ],
+    "tags": [
+      "prices",
+      "terminology"
+    ],
     "version": 1
   },
   {
@@ -139,9 +260,20 @@
     "body": "Product lines must be written exactly as approved: 'Monsoon Weave', 'Indigo Hours', 'Kesar Collection'.",
     "severity": "medium",
     "checkType": "code",
-    "goodExamples": ["The Indigo Hours set is back."],
-    "badExamples": ["The Indigo Hour set is back.", "Monsoon Weaves"],
-    "tags": ["product-names", "terminology"],
+    "goodExamples": [
+      "The Indigo Hours set is back.",
+      "Meet the Monsoon Weave.",
+      "New in the Kesar Collection."
+    ],
+    "badExamples": [
+      "The Indigo Hour set is back.",
+      "Monsoon Weaves for every room.",
+      "New in the Kesar collection."
+    ],
+    "tags": [
+      "product-names",
+      "terminology"
+    ],
     "version": 1
   },
   {
@@ -151,9 +283,20 @@
     "body": "Give the logo clear space.",
     "severity": "low",
     "checkType": "ai",
-    "goodExamples": ["Logo placed in a corner with empty margin around it."],
-    "badExamples": ["Logo overlapping product photo edges and text."],
-    "tags": ["logo", "visual"],
+    "goodExamples": [
+      "Logo placed in a corner with empty margin around it.",
+      "Logo on a plain Cotton background, well away from the product photo.",
+      "Logo in the footer strip with space on every side."
+    ],
+    "badExamples": [
+      "Logo overlapping product photo edges and text.",
+      "Logo squeezed into the corner, touching the price badge.",
+      "Logo placed on top of a busy fabric pattern."
+    ],
+    "tags": [
+      "logo",
+      "visual"
+    ],
     "version": 1,
     "knownUnclear": true
   },
@@ -164,9 +307,20 @@
     "body": "Use logo v3 (the indigo spindle mark, introduced 2026). Logo v2 (the orange wordmark in a box) was retired on 31 December 2025.",
     "severity": "high",
     "checkType": "ai",
-    "goodExamples": ["Banner with the v3 indigo spindle mark."],
-    "badExamples": ["Banner with the old orange boxed wordmark."],
-    "tags": ["logo", "visual"],
+    "goodExamples": [
+      "Banner with the v3 indigo spindle mark.",
+      "Email header using the current spindle logo in Indigo.",
+      "Instagram post with the v3 mark in the bottom corner."
+    ],
+    "badExamples": [
+      "Banner with the old orange boxed wordmark.",
+      "Partner flyer still using the 2024 orange 'DHAAGA' box.",
+      "Story template with the retired logo v2."
+    ],
+    "tags": [
+      "logo",
+      "visual"
+    ],
     "version": 1
   },
   {
@@ -176,9 +330,20 @@
     "body": "Backgrounds, text and accents use only the six brand palette colours.",
     "severity": "low",
     "checkType": "code",
-    "goodExamples": ["Indigo text on a Cotton background."],
-    "badExamples": ["Neon pink sale badge."],
-    "tags": ["palette", "visual"],
+    "goodExamples": [
+      "Indigo text on a Cotton background.",
+      "Clay sale badge with Cotton text.",
+      "Leaf green for the sustainability note."
+    ],
+    "badExamples": [
+      "Neon pink sale badge.",
+      "Bright purple background on the banner.",
+      "Lime-green price sticker."
+    ],
+    "tags": [
+      "palette",
+      "visual"
+    ],
     "version": 1
   },
   {
@@ -188,9 +353,21 @@
     "body": "Text over a colour or image must meet WCAG AA contrast: at least 4.5:1 for normal text and 3:1 for large text (24px+, or 18.5px+ bold).",
     "severity": "high",
     "checkType": "code",
-    "goodExamples": ["Charcoal #2B2B2B text on Cotton #F7F3EA (contrast about 13:1)."],
-    "badExamples": ["Kesar #E8A33D text on Cotton #F7F3EA (contrast about 2:1)."],
-    "tags": ["contrast", "visual", "accessibility"],
+    "goodExamples": [
+      "Charcoal #2B2B2B text on Cotton #F7F3EA (contrast about 13:1).",
+      "Cotton text on an Indigo button (contrast above 12:1).",
+      "White text on Clay at large size (contrast above 3:1)."
+    ],
+    "badExamples": [
+      "Kesar #E8A33D text on Cotton #F7F3EA (contrast about 2:1).",
+      "Light grey caption on a white photo.",
+      "Small Kesar price text over a pale fabric image."
+    ],
+    "tags": [
+      "contrast",
+      "visual",
+      "accessibility"
+    ],
     "version": 1
   },
   {
@@ -200,9 +377,21 @@
     "body": "Every price, discount, shipping threshold or sale date must match a live (unexpired) Claim Ledger entry.",
     "severity": "high",
     "checkType": "hybrid",
-    "goodExamples": ["Free shipping on orders above ₹1,499."],
-    "badExamples": ["Free shipping on all orders above ₹999."],
-    "tags": ["prices", "offers", "claims"],
+    "goodExamples": [
+      "Free shipping on orders above ₹1,499.",
+      "The Monsoon Weave set is ₹1,999.",
+      "The Indigo Hours set is ₹2,299."
+    ],
+    "badExamples": [
+      "Free shipping on all orders above ₹999.",
+      "Monsoon Weave, now just ₹1,799.",
+      "Grab the Monsoon Weave at ₹1,799 this week."
+    ],
+    "tags": [
+      "prices",
+      "offers",
+      "claims"
+    ],
     "version": 1
   },
   {
@@ -212,9 +401,20 @@
     "body": "Superlatives and comparative claims ('#1', 'best', 'most trusted', 'India's favourite') need a Claim Ledger entry that proves them. No evidence, no claim.",
     "severity": "high",
     "checkType": "hybrid",
-    "goodExamples": ["Rated 4.6 out of 5 by over 18,000 customers."],
-    "badExamples": ["India's most trusted bedsheet brand."],
-    "tags": ["superlatives", "claims"],
+    "goodExamples": [
+      "Rated 4.6 out of 5 by over 18,000 customers.",
+      "Winner, Best D2C Home Brand at the Demo Retail Awards 2024.",
+      "Handwoven in Panipat and Varanasi."
+    ],
+    "badExamples": [
+      "India's most trusted bedsheet brand.",
+      "The best towels you'll ever own.",
+      "Our #1 bestselling set."
+    ],
+    "tags": [
+      "superlatives",
+      "claims"
+    ],
     "version": 1
   },
   {
@@ -224,9 +424,20 @@
     "body": "Mention a certification (GOTS, OEKO-TEX, azo-free lab report) only for the product line it covers, and only while the certificate is valid.",
     "severity": "high",
     "checkType": "hybrid",
-    "goodExamples": ["The Kesar Collection is GOTS-certified organic cotton."],
-    "badExamples": ["Every Dhaaga & Co. product is GOTS-certified."],
-    "tags": ["certifications", "claims"],
+    "goodExamples": [
+      "The Kesar Collection is GOTS-certified organic cotton.",
+      "Dyed with azo-free dyes, lab-tested in 2026.",
+      "Kesar Collection sheets carry GOTS certification."
+    ],
+    "badExamples": [
+      "Every Dhaaga & Co. product is GOTS-certified.",
+      "Monsoon Weave is OEKO-TEX certified.",
+      "All our towels are certified organic."
+    ],
+    "tags": [
+      "certifications",
+      "claims"
+    ],
     "version": 1
   },
   {
@@ -236,9 +447,20 @@
     "body": "Don't make absolute promises such as '100% safe', 'guaranteed', 'never fades' or 'lasts forever'.",
     "severity": "high",
     "checkType": "code",
-    "goodExamples": ["Colours made to hold up through many washes."],
-    "badExamples": ["Colours that never fade — guaranteed."],
-    "tags": ["absolutes", "claims"],
+    "goodExamples": [
+      "Colours made to hold up through many washes.",
+      "Built for years of everyday use.",
+      "Easy returns within 7 days of delivery."
+    ],
+    "badExamples": [
+      "Colours that never fade — guaranteed.",
+      "100% safe for your baby.",
+      "Sheets that last forever."
+    ],
+    "tags": [
+      "absolutes",
+      "claims"
+    ],
     "version": 1
   },
   {
@@ -248,9 +470,20 @@
     "body": "Vague green claims ('eco-friendly', 'sustainable', 'green') are not allowed on their own. Say exactly what is true and back it with evidence (e.g. 'GOTS-certified organic cotton', 'azo-free dyes').",
     "severity": "medium",
     "checkType": "hybrid",
-    "goodExamples": ["Dyed with azo-free dyes, lab-tested in 2026."],
-    "badExamples": ["Our eco-friendly sheets are good for the planet."],
-    "tags": ["sustainability", "claims"],
+    "goodExamples": [
+      "Dyed with azo-free dyes, lab-tested in 2026.",
+      "The Kesar Collection is GOTS-certified organic cotton.",
+      "Handwoven by artisans, with no power looms."
+    ],
+    "badExamples": [
+      "Our eco-friendly sheets are good for the planet.",
+      "Sustainable towels for a greener home.",
+      "Go green with our bedsheets."
+    ],
+    "tags": [
+      "sustainability",
+      "claims"
+    ],
     "version": 1
   },
   {
@@ -260,9 +493,20 @@
     "body": "Every image must have alt text that describes what it shows. Decorative-only images are marked as such.",
     "severity": "medium",
     "checkType": "code",
-    "goodExamples": ["Alt: Indigo Hours bedsheet set folded on a wooden bench."],
-    "badExamples": ["Alt: (missing)", "Alt: image1.jpg"],
-    "tags": ["alt-text", "accessibility"],
+    "goodExamples": [
+      "Alt: Indigo Hours bedsheet set folded on a wooden bench.",
+      "Alt: Kesar Collection cushion covers on a cane chair in morning light.",
+      "Alt: Close-up of the Monsoon Weave texture in deep blue."
+    ],
+    "badExamples": [
+      "Alt: (missing)",
+      "Alt: image1.jpg",
+      "Alt: photo"
+    ],
+    "tags": [
+      "alt-text",
+      "accessibility"
+    ],
     "version": 1
   },
   {
@@ -272,9 +516,20 @@
     "body": "Link text must describe the destination. Never use 'click here' or 'link in bio' as the only description.",
     "severity": "low",
     "checkType": "code",
-    "goodExamples": ["Shop the Indigo Hours collection."],
-    "badExamples": ["Click here to shop."],
-    "tags": ["links", "accessibility"],
+    "goodExamples": [
+      "Shop the Indigo Hours collection.",
+      "Read our care guide for cotton sheets.",
+      "See every colour in the Monsoon Weave range."
+    ],
+    "badExamples": [
+      "Click here to shop.",
+      "Link in bio for more.",
+      "Details? Click here."
+    ],
+    "tags": [
+      "links",
+      "accessibility"
+    ],
     "version": 1
   },
   {
@@ -284,9 +539,20 @@
     "body": "Write multi-word hashtags in CamelCase so screen readers read them as words: #FestiveSale, not #festivesale.",
     "severity": "low",
     "checkType": "code",
-    "goodExamples": ["#FestiveSale #MonsoonWeave"],
-    "badExamples": ["#festivesale #monsoonweave"],
-    "tags": ["hashtags", "accessibility"],
+    "goodExamples": [
+      "#FestiveSale #MonsoonWeave",
+      "#SlowSundays",
+      "#KesarCollection #Handwoven"
+    ],
+    "badExamples": [
+      "#festivesale #monsoonweave",
+      "#slowsundays",
+      "#kesarcollection"
+    ],
+    "tags": [
+      "hashtags",
+      "accessibility"
+    ],
     "version": 1
   },
   {
@@ -296,9 +562,20 @@
     "body": "Every promotional piece ends with one clear call to action. Don't stack several competing asks.",
     "severity": "low",
     "checkType": "ai",
-    "goodExamples": ["Shop the festive sale."],
-    "badExamples": ["Shop now, follow us, refer a friend and download the app!"],
-    "tags": ["cta", "messaging"],
+    "goodExamples": [
+      "Shop the festive sale.",
+      "Find your Monsoon Weave set.",
+      "Explore the Kesar Collection."
+    ],
+    "badExamples": [
+      "Shop now, follow us, refer a friend and download the app.",
+      "Buy now, subscribe and share this post.",
+      "Order today, tag a friend and follow for more."
+    ],
+    "tags": [
+      "cta",
+      "messaging"
+    ],
     "version": 1
   },
   {
@@ -308,9 +585,20 @@
     "body": "Any offer must state its end date or condition (e.g. minimum order). An offer without its condition is misleading.",
     "severity": "medium",
     "checkType": "ai",
-    "goodExamples": ["20% off sitewide until 16 November."],
-    "badExamples": ["20% off everything!"],
-    "tags": ["offers", "messaging"],
+    "goodExamples": [
+      "20% off sitewide until 16 November.",
+      "Free shipping on orders above ₹1,499.",
+      "20% off until 16 November — not valid on gift cards."
+    ],
+    "badExamples": [
+      "20% off everything!",
+      "Free shipping on all orders.",
+      "Huge discounts this week only."
+    ],
+    "tags": [
+      "offers",
+      "messaging"
+    ],
     "version": 1
   },
   {
@@ -320,9 +608,20 @@
     "body": "Never mention competitor brands by name, even in comparisons.",
     "severity": "medium",
     "checkType": "code",
-    "goodExamples": ["Softer than you'd expect from cotton."],
-    "badExamples": ["Softer than LoomKart sheets."],
-    "tags": ["competitors", "messaging"],
+    "goodExamples": [
+      "Softer than you'd expect from cotton.",
+      "Made to feel better with every wash.",
+      "The kind of towel you reach for first."
+    ],
+    "badExamples": [
+      "Softer than LoomKart sheets.",
+      "Cheaper than WeaveWala, better than CottonCrate.",
+      "Why pay LoomKart prices?"
+    ],
+    "tags": [
+      "competitors",
+      "messaging"
+    ],
     "version": 1
   }
 ]

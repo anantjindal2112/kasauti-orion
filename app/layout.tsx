@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { IBM_Plex_Mono, IBM_Plex_Sans, Pixelify_Sans, Tiro_Devanagari_Hindi } from "next/font/google";
+import { IBM_Plex_Mono, IBM_Plex_Sans, Pixelify_Sans, Space_Mono, Tiro_Devanagari_Hindi } from "next/font/google";
 import { Providers } from "@/components/retro/Providers";
 import { Taskbar } from "@/components/retro/Taskbar";
 import { DEMO_TODAY } from "@/lib/brand-pack";
@@ -8,6 +8,8 @@ import "./globals.css";
 const plexSans = IBM_Plex_Sans({ variable: "--font-plex-sans", subsets: ["latin"], weight: ["400", "500", "700"] });
 const plexMono = IBM_Plex_Mono({ variable: "--font-plex-mono", subsets: ["latin"], weight: ["400", "500", "700"] });
 const pixel = Pixelify_Sans({ variable: "--font-pixel", subsets: ["latin"] });
+/** Numbers: retro terminal feel, but far easier to read than the pixel font. */
+const num = Space_Mono({ variable: "--font-num", subsets: ["latin"], weight: ["400", "700"] });
 const tiro = Tiro_Devanagari_Hindi({ variable: "--font-tiro", subsets: ["devanagari", "latin"], weight: "400" });
 
 export const metadata: Metadata = {
@@ -25,7 +27,7 @@ const demoDate = new Date(`${DEMO_TODAY}T00:00:00Z`).toLocaleDateString("en-GB",
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${plexSans.variable} ${plexMono.variable} ${pixel.variable} ${tiro.variable} h-full antialiased`}>
+    <html lang="en" className={`${plexSans.variable} ${plexMono.variable} ${pixel.variable} ${num.variable} ${tiro.variable} h-full antialiased`}>
       <body className="min-h-full">
         <Providers>
           <a
