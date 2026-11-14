@@ -32,6 +32,10 @@ export const findingSchema = z.object({
   /** rule = deterministic code check, ai = model output (passed through the Verifier). */
   source: z.enum(["rule", "ai"]),
   modelId: z.string().nullable(),
+  /** AI findings only: passed every Verifier test, or kept for a person to judge. */
+  review: z.enum(["verified", "needs_review"]).optional(),
+  /** Why the Verifier sent it to human review (low confidence, fix removed…). */
+  reviewNote: z.string().optional(),
 });
 export type Finding = z.infer<typeof findingSchema>;
 

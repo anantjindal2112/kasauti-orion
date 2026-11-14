@@ -80,7 +80,7 @@ export default function TestSetPage() {
           <p className="font-pixel text-4xl font-bold">
             <Counter value={waitingAi} />
           </p>
-          <p className="text-sm text-muted">need judgement — Stage 6</p>
+          <p className="text-sm text-muted">need judgement — scored live with npm run eval:ai</p>
         </Window>
         <Window title="IMAGE CHECKS" color="yellow" bodyClassName="p-4" delay={0.18}>
           <p className="font-pixel text-4xl font-bold">

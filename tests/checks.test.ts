@@ -226,3 +226,10 @@ describe("test set (answer keys)", () => {
     expect(cands("D10").some((c) => c.text === "eco-friendly")).toBe(true);
   });
 });
+
+describe("price format regression", () => {
+  it("does not swallow a comma that ends the clause", () => {
+    expect(only("Free shipping above ₹1,499, shop now.", "KSR-2.5")).toHaveLength(0);
+    expect(only("Now Rs. 2299/-, today only.", "KSR-2.5")[0].quote).toBe("Rs. 2299/-");
+  });
+});

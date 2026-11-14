@@ -33,7 +33,8 @@ const STAGES: [string, string, number, "done" | "live" | "next" | "later"][] = [
   ["NVIDIA client layer", "9/9 live model checks", 100, "done"],
   ["Review screen", "This interface", 80, "live"],
   ["Image reading (OCR)", "NVIDIA vision, live in Scan", 60, "live"],
-  ["Retrieval + AI review + Verifier", "Stages 5–6", 15, "next"],
+  ["Retrieval over rules + proof", "10/10 on the retrieval check", 100, "done"],
+  ["AI review + Verifier", "NVIDIA reviewer; ungrounded findings dropped", 85, "live"],
   ["Database, approvals, audit log", "Stages 2 + 9", 10, "next"],
   ["Intent Lock + Radar", "Round 3", 0, "later"],
 ];

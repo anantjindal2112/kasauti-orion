@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { loadBrandPack } from "@/lib/brand-pack";
-import { runCodeChecks } from "@/lib/checks";
 import { getNvidiaClient, imageToText } from "@/lib/nvidia";
+import { reviewDraft } from "@/lib/pipeline";
 import type { ScannedImage } from "@/lib/scan-types";
 
 const MAX_IMAGE_DATA_URL = 6_000_000; // ~4.5 MB image
@@ -30,9 +30,21 @@ const scanRequest = z.object({
     .max(4, "Up to 4 images per draft.")
     .default([]),
   ocr: z.boolean().default(true),
+  /** Run the NVIDIA AI reviewer + Verifier on top of the code checks. */
+  ai: z.boolean().default(true),
+  intent: z
+    .object({
+      purpose: z.string().max(300).optional(),
+      audience: z.string().max(300).optional(),
+      mustKeep: z.string().max(300).optional(),
+    })
+    .optional(),
 });
 
 export type ScanRequest = z.input<typeof scanRequest>;
+
+/** AI review can take several seconds on a long draft. */
+export const maxDuration = 60;
 
 export async function POST(request: Request) {
   const started = Date.now();
@@ -46,10 +58,9 @@ export async function POST(request: Request) {
 
   const pack = loadBrandPack();
 
-  // Read text inside images (OCR) with NVIDIA, falling back to known demo text.
   let client: ReturnType<typeof getNvidiaClient> | null = null;
   let clientProblem: string | undefined;
-  if (body.ocr && body.images.some((i) => i.dataUrl)) {
+  if (body.ai || (body.ocr && body.images.some((i) => i.dataUrl))) {
     try {
       client = getNvidiaClient();
     } catch {
@@ -57,9 +68,10 @@ export async function POST(request: Request) {
     }
   }
 
+  // Read text inside images (OCR) with NVIDIA, falling back to known demo text.
   const images: ScannedImage[] = await Promise.all(
     body.images.map(async (img): Promise<ScannedImage> => {
-      if (client && img.dataUrl) {
+      if (client && body.ocr && img.dataUrl) {
         try {
           const r = await imageToText(client, img.dataUrl);
           return { name: img.name, text: r.data, textSource: "nvidia", modelId: r.modelId, latencyMs: r.latencyMs };
@@ -78,12 +90,15 @@ export async function POST(request: Request) {
   );
   const ocrMs = Date.now() - started;
 
-  const result = runCodeChecks(
+  // Code checks → mask PII → retrieval → AI review → Verifier (falls back to code checks only).
+  const result = await reviewDraft(
     {
       text: body.text,
       images: body.images.map((img, i) => ({ file: img.name, alt: img.alt, text: images[i].text || undefined })),
+      intent: body.intent,
     },
     pack,
+    { client, ai: body.ai },
   );
 
   return Response.json({

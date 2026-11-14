@@ -11,7 +11,9 @@
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
     "eval:code": "tsx scripts/eval-code-checks.ts",
-    "smoke:nvidia": "tsx scripts/smoke-nvidia.mts"
+    "smoke:nvidia": "tsx scripts/smoke-nvidia.mts",
+    "eval:ai": "tsx scripts/eval-ai.mts",
+    "eval:retrieval": "tsx scripts/eval-retrieval.mts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",

@@ -69,11 +69,14 @@ export const checkCompetitors: TextCheck = (text, { pack }) =>
     })),
   );
 
-/** Matches ₹1,499 · ₹1499 · Rs. 1499/- · Rs 1,499 · INR 1499 */
-export const PRICE_RE = /(?:₹\s?|\bRs\.?\s?|\bINR\s?)(\d[\d,]*(?:\.\d{1,2})?)(?:\s?\/-)?/g;
+/**
+ * Matches ₹1,499 · ₹1499 · Rs. 1499/- · Rs 1,499 · INR 1499.
+ * A comma only counts as part of the number when digits follow it ("₹1,499, shop now" → "₹1,499").
+ */
+export const PRICE_RE = /(?:₹\s?|\bRs\.?\s?|\bINR\s?)(\d+(?:,\d+)*(?:\.\d{1,2})?)(?:\s?\/-)?/g;
 
 export function parseAmount(raw: string): number | null {
-  const m = /(\d[\d,]*(?:\.\d{1,2})?)/.exec(raw);
+  const m = /(\d+(?:,\d+)*(?:\.\d{1,2})?)/.exec(raw);
   if (!m) return null;
   const n = Number(m[1].replace(/,/g, ""));
   return Number.isFinite(n) ? n : null;

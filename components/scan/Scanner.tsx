@@ -65,6 +65,7 @@ export function Scanner({
   const [intent, setIntent] = useState({ purpose: "", audience: "", mustKeep: "" });
   const [images, setImages] = useState<DraftImage[]>([]);
   const [ocr, setOcr] = useState(true);
+  const [aiOn, setAiOn] = useState(true);
 
   const [result, setResult] = useState<ScanResponse | null>(null);
   const [scannedText, setScannedText] = useState("");
@@ -95,7 +96,7 @@ export function Scanner({
         const res = await fetch("/api/scan", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ text: body, images: payloadImages, ocr }),
+          body: JSON.stringify({ text: body, images: payloadImages, ocr, ai: aiOn, intent }),
         });
         const json = await res.json();
         if (!res.ok) throw new Error(json.error ?? `Scan failed (${res.status})`);
@@ -116,7 +117,7 @@ export function Scanner({
         setStatus("error");
       }
     },
-    [text, images, ocr],
+    [text, images, ocr, aiOn, intent],
   );
 
   const loadDraft = useCallback(
@@ -160,8 +161,15 @@ export function Scanner({
     router.replace(id ? `/scan?draft=${id}` : "/scan", { scroll: false });
   };
 
+  // Verified findings first (by severity), then anything the Verifier sent to a human.
   const sorted = useMemo(
-    () => [...(result?.findings ?? [])].sort((a, b) => SEVERITY_ORDER[a.severity] - SEVERITY_ORDER[b.severity] || a.span.start - b.span.start),
+    () =>
+      [...(result?.findings ?? [])].sort(
+        (a, b) =>
+          Number(a.review === "needs_review") - Number(b.review === "needs_review") ||
+          SEVERITY_ORDER[a.severity] - SEVERITY_ORDER[b.severity] ||
+          a.span.start - b.span.start,
+      ),
     [result],
   );
   const numberOf = useCallback((f: Finding) => sorted.findIndex((x) => x.id === f.id) + 1, [sorted]);
@@ -359,10 +367,20 @@ export function Scanner({
                     ))}
                   </ul>
                 )}
-                <label className="mt-3 flex items-center gap-2 text-sm">
-                  <input type="checkbox" checked={ocr} onChange={(e) => setOcr(e.target.checked)} className="h-4 w-4 accent-teal" />
-                  Read text inside images with NVIDIA vision (AI)
-                </label>
+                <div className="mt-3 flex flex-col gap-2 border-2 border-ink bg-card p-3 text-sm">
+                  <label className="flex items-center gap-2">
+                    <input type="checkbox" checked={aiOn} onChange={(e) => setAiOn(e.target.checked)} className="h-4 w-4 accent-teal" />
+                    <span>
+                      <b>AI review</b> — NVIDIA model judges tone, claim scope and offers; every finding passes the Verifier
+                    </span>
+                  </label>
+                  <label className="flex items-center gap-2">
+                    <input type="checkbox" checked={ocr} onChange={(e) => setOcr(e.target.checked)} className="h-4 w-4 accent-teal" />
+                    <span>
+                      <b>Read image text</b> — NVIDIA vision reads words inside images
+                    </span>
+                  </label>
+                </div>
               </div>
             </motion.div>
           ) : (
@@ -454,7 +472,24 @@ export function Scanner({
                 <p className="text-paper/80">Load a demo draft or paste copy, then press Run scan.</p>
               </>
             )}
-            {scanning && <p className="mt-2 text-term-green">Testing claims against the Claim Ledger…</p>}
+            {scanning && (
+              <TypeLines
+                className="mt-2 space-y-1"
+                start={0}
+                step={0.9}
+                lines={[
+                  { text: "Running code checks…", className: "text-term-green" },
+                  ...(aiOn
+                    ? [
+                        { text: "Masking personal data…", className: "text-term-green" },
+                        { text: "Retrieving rules + proof…", className: "text-term-green" },
+                        { text: "Asking the NVIDIA reviewer…", className: "text-yellow" },
+                        { text: "Verifier testing each finding…", className: "text-yellow" },
+                      ]
+                    : []),
+                ]}
+              />
+            )}
             {result && !scanning && (
               <div key={runs}>
                 <TypeLines
@@ -473,6 +508,12 @@ export function Scanner({
                           ? "[ OK ] No issues found by code checks."
                           : `${sorted.length} finding${sorted.length === 1 ? "" : "s"}: ${counts.high} high · ${counts.medium} medium · ${counts.low} low.`,
                       className: "pt-2 text-term-green",
+                    },
+                    {
+                      text: result.ai.ran
+                        ? `AI: ${result.ai.proposed ?? 0} proposed · ${result.ai.verified ?? 0} verified · ${result.ai.needsReview ?? 0} to a human · ${result.ai.dropped?.length ?? 0} dropped`
+                        : `AI: off — ${result.ai.error ?? "code checks only"}`,
+                      className: result.ai.ran ? "text-[#9db8f0]" : "text-paper/60",
                     },
                     {
                       text: sorted.length === 0 ? "Clean." : open.length ? "Human review required." : "All findings handled.",
@@ -514,6 +555,12 @@ export function Scanner({
               <AnimatePresence initial={false}>
                 {sorted.map((f, i) => (
                   <li key={f.id}>
+                    {f.review === "needs_review" && sorted.findIndex((x) => x.review === "needs_review") === i && (
+                      <p className="mb-3 mt-2 flex items-center gap-2 border-y-2 border-dashed border-ink py-2 font-pixel text-lg font-bold">
+                        <Icon name="warn" className="h-5 w-5 text-mustard" /> Needs human review
+                        <span className="font-sans text-sm font-normal text-muted">— the Verifier wasn&rsquo;t sure enough to show these as verified</span>
+                      </p>
+                    )}
                     <FindingCard
                       finding={f}
                       number={i + 1}
@@ -544,13 +591,49 @@ export function Scanner({
             </motion.div>
           )}
 
-          {result && !scanning && result.candidates.length > 0 && (
+          {result && !scanning && result.ai.ran && (
+            <details className="border-2 border-ink bg-term p-3 font-mono text-sm text-paper">
+              <summary className="cursor-pointer font-bold text-yellow">ai_disclosure.txt — what the AI saw and did</summary>
+              <dl className="mt-3 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1">
+                <dt className="text-term-green">model</dt>
+                <dd>
+                  {result.ai.modelId} · {result.ai.latencyMs} ms
+                </dd>
+                <dt className="text-term-green">rules</dt>
+                <dd>{result.ai.rulesConsidered?.join(", ")}</dd>
+                <dt className="text-term-green">proof</dt>
+                <dd>{result.ai.evidenceConsidered?.join(", ") || "—"}</dd>
+                <dt className="text-term-green">masked</dt>
+                <dd>{result.ai.maskedItems ?? 0} personal detail(s) hidden before the call</dd>
+                <dt className="text-term-green">safety</dt>
+                <dd>
+                  {result.ai.safety
+                    ? `${result.ai.safety.safe ? "safe" : `unsafe: ${result.ai.safety.categories.join(", ")}`} · ${result.ai.safety.modelId.split("/").at(-1)}`
+                    : "not checked"}
+                </dd>
+              </dl>
+              {result.ai.dropped && result.ai.dropped.length > 0 && (
+                <>
+                  <p className="mt-3 text-yellow">Dropped by the Verifier (never shown as findings):</p>
+                  <ul className="mt-1 space-y-1">
+                    {result.ai.dropped.map((d, i) => (
+                      <li key={i} className="text-paper/80">
+                        <span className="text-term-red">[DROP]</span> {d.rule} “{d.quote}” — {d.reason}
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              )}
+            </details>
+          )}
+
+          {result && !scanning && !result.ai.ran && result.candidates.length > 0 && (
             <details className="border-2 border-dashed border-ink bg-card p-3">
               <summary className="cursor-pointer font-mono text-sm font-bold">
                 Waiting for AI review · {result.candidates.length} possible claim{result.candidates.length === 1 ? "" : "s"}
               </summary>
               <p className="mt-2 text-sm text-muted">
-                Code can’t decide these alone. In Stage 6 the AI reviewer checks each one against the Claim Ledger, and the Verifier drops anything it can’t ground.
+                Code can’t decide these alone. Turn on AI review and the NVIDIA reviewer checks each one against the Claim Ledger; the Verifier drops anything it can’t ground.
               </p>
               <ul className="mt-2 flex flex-wrap gap-2">
                 {result.candidates.map((c, i) => (

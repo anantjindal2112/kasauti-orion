@@ -85,6 +85,20 @@ export function FindingCard({
 
         <p className="leading-relaxed">{f.explanation}</p>
 
+        {f.review === "needs_review" && (
+          <p className="flex items-start gap-2 border-2 border-dashed border-ink bg-mark-medium px-3 py-2 text-sm">
+            <Icon name="warn" className="mt-0.5 h-4 w-4 shrink-0" />
+            <span>
+              <b>Needs human review.</b> {f.reviewNote}
+            </span>
+          </p>
+        )}
+        {f.source === "ai" && f.review === "verified" && (
+          <p className="flex items-center gap-2 font-mono text-xs text-teal">
+            <Icon name="check" className="h-3.5 w-3.5" /> Passed all 3 Verifier tests · confidence {Math.round(f.confidence * 100)}%
+          </p>
+        )}
+
         {f.evidence && evidence && (
           <Link
             href={`/ledger#${f.evidence}`}
