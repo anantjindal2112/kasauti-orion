@@ -1,0 +1,402 @@
+{
+  "findings": [],
+  "candidates": [
+    {
+      "type": "price",
+      "evidence": [
+        "KLE-16"
+      ],
+      "note": "Backed by KLE-16 \"The Monsoon Weave bedsheet set is ₹1,999.\" (source: Price list, November 2026), valid until 31 Jan 2027.",
+      "text": "₹1,999",
+      "span": {
+        "start": 114,
+        "end": 120
+      },
+      "location": "text"
+    },
+    {
+      "type": "percent",
+      "evidence": [
+        "KLE-10"
+      ],
+      "note": "Backed by KLE-10 \"20% off sitewide from 1 to 16 November 2026.\" (source: Festive campaign brief, approved 20 Oct 2026), valid until 16 Nov 2026. Condition to keep with it: Sale ends 16 November 2026. Not valid on gift cards.",
+      "text": "20%",
+      "span": {
+        "start": 149,
+        "end": 152
+      },
+      "location": "text"
+    },
+    {
+      "type": "price",
+      "evidence": [
+        "KLE-12"
+      ],
+      "note": "Backed by KLE-12 \"Free shipping on orders above ₹1,499.\" (source: Offer sheet v3), valid until 31 Mar 2027.",
+      "text": "₹1,499",
+      "span": {
+        "start": 245,
+        "end": 251
+      },
+      "location": "text"
+    },
+    {
+      "type": "trigger",
+      "evidence": [],
+      "note": "\"handwoven\" may be a claim that needs evidence.",
+      "text": "handwoven",
+      "span": {
+        "start": 63,
+        "end": 72
+      },
+      "location": "text"
+    },
+    {
+      "type": "trigger",
+      "evidence": [],
+      "note": "\"thread count\" may be a claim that needs evidence.",
+      "text": "thread count",
+      "span": {
+        "start": 42,
+        "end": 54
+      },
+      "location": "text"
+    },
+    {
+      "type": "trigger",
+      "evidence": [],
+      "note": "\"Rated\" may be a claim that needs evidence.",
+      "text": "Rated",
+      "span": {
+        "start": 253,
+        "end": 258
+      },
+      "location": "text"
+    },
+    {
+      "type": "price",
+      "evidence": [
+        "KLE-16"
+      ],
+      "note": "Backed by KLE-16 \"The Monsoon Weave bedsheet set is ₹1,999.\" (source: Price list, November 2026), valid until 31 Jan 2027.",
+      "text": "₹1,999",
+      "span": {
+        "start": 39,
+        "end": 45
+      },
+      "location": "image",
+      "imageFile": "monsoon-weave-restock.webp"
+    },
+    {
+      "type": "percent",
+      "evidence": [
+        "KLE-10"
+      ],
+      "note": "Backed by KLE-10 \"20% off sitewide from 1 to 16 November 2026.\" (source: Festive campaign brief, approved 20 Oct 2026), valid until 16 Nov 2026. Condition to keep with it: Sale ends 16 November 2026. Not valid on gift cards.",
+      "text": "20%",
+      "span": {
+        "start": 46,
+        "end": 49
+      },
+      "location": "image",
+      "imageFile": "monsoon-weave-restock.webp"
+    },
+    {
+      "type": "price",
+      "evidence": [
+        "KLE-12"
+      ],
+      "note": "Backed by KLE-12 \"Free shipping on orders above ₹1,499.\" (source: Offer sheet v3), valid until 31 Mar 2027.",
+      "text": "₹1,499",
+      "span": {
+        "start": 101,
+        "end": 107
+      },
+      "location": "image",
+      "imageFile": "monsoon-weave-restock.webp"
+    }
+  ],
+  "claims": [
+    {
+      "id": "claim:text::38",
+      "text": "300 thread count",
+      "span": {
+        "start": 38,
+        "end": 54
+      },
+      "location": "text",
+      "sentence": "300 thread count cotton, handwoven by artisans in Panipat and Varanasi, now ₹1,999.",
+      "kind": "count",
+      "status": "verified",
+      "evidence": "KLE-08",
+      "suggestedFix": null,
+      "note": "Backed by KLE-08 \"Monsoon Weave bedsheets are 300 thread count.\" (source: Product spec sheet MW-2026), valid with no expiry.",
+      "source": "rule",
+      "modelId": null,
+      "confidence": 1
+    },
+    {
+      "id": "claim:text::ai:63",
+      "text": "handwoven by artisans in Panipat and Varanasi",
+      "span": {
+        "start": 63,
+        "end": 108
+      },
+      "location": "text",
+      "sentence": "300 thread count cotton, handwoven by artisans in Panipat and Varanasi, now ₹1,999.",
+      "kind": "implicit",
+      "status": "verified",
+      "evidence": "KLE-13",
+      "suggestedFix": null,
+      "note": "KLE-13 states: 'Handwoven in Panipat and Varanasi.' The draft's claim matches exactly.",
+      "source": "ai",
+      "modelId": "nvidia/nemotron-3.5-lightning-30b-a3b",
+      "confidence": 1,
+      "review": "verified"
+    },
+    {
+      "id": "claim:text::114",
+      "text": "₹1,999",
+      "span": {
+        "start": 114,
+        "end": 120
+      },
+      "location": "text",
+      "sentence": "300 thread count cotton, handwoven by artisans in Panipat and Varanasi, now ₹1,999.",
+      "kind": "price",
+      "status": "verified",
+      "evidence": "KLE-16",
+      "suggestedFix": null,
+      "note": "Backed by KLE-16 \"The Monsoon Weave bedsheet set is ₹1,999.\" (source: Price list, November 2026), valid until 31 Jan 2027.",
+      "source": "rule",
+      "modelId": null,
+      "confidence": 1
+    },
+    {
+      "id": "claim:text::149",
+      "text": "20%",
+      "span": {
+        "start": 149,
+        "end": 152
+      },
+      "location": "text",
+      "sentence": "Our festive sale gives you 20% off sitewide until 16 November (not valid on gift cards), and free shipping on orders above ₹1,499.",
+      "kind": "percent",
+      "status": "verified",
+      "evidence": "KLE-10",
+      "suggestedFix": null,
+      "note": "Backed by KLE-10 \"20% off sitewide from 1 to 16 November 2026.\" (source: Festive campaign brief, approved 20 Oct 2026), valid until 16 Nov 2026. Condition to keep with it: Sale ends 16 November 2026. Not valid on gift cards.",
+      "source": "rule",
+      "modelId": null,
+      "confidence": 1
+    },
+    {
+      "id": "claim:text::245",
+      "text": "₹1,499",
+      "span": {
+        "start": 245,
+        "end": 251
+      },
+      "location": "text",
+      "sentence": "Our festive sale gives you 20% off sitewide until 16 November (not valid on gift cards), and free shipping on orders above ₹1,499.",
+      "kind": "price",
+      "status": "verified",
+      "evidence": "KLE-12",
+      "suggestedFix": null,
+      "note": "Backed by KLE-12 \"Free shipping on orders above ₹1,499.\" (source: Offer sheet v3), valid until 31 Mar 2027.",
+      "source": "rule",
+      "modelId": null,
+      "confidence": 1
+    },
+    {
+      "id": "claim:text::259",
+      "text": "4.6 out of 5",
+      "span": {
+        "start": 259,
+        "end": 271
+      },
+      "location": "text",
+      "sentence": "Rated 4.6 out of 5 by more than 18,000 customers.",
+      "kind": "rating",
+      "status": "verified",
+      "evidence": "KLE-06",
+      "suggestedFix": null,
+      "note": "Backed by KLE-06 \"Rated 4.6 out of 5 by more than 18,000 customers.\" (source: Reviews dashboard export, 1 Oct 2026), valid until 31 Dec 2026.",
+      "source": "rule",
+      "modelId": null,
+      "confidence": 1
+    },
+    {
+      "id": "claim:text::285",
+      "text": "18,000 customers",
+      "span": {
+        "start": 285,
+        "end": 301
+      },
+      "location": "text",
+      "sentence": "Rated 4.6 out of 5 by more than 18,000 customers.",
+      "kind": "count",
+      "status": "verified",
+      "evidence": "KLE-06",
+      "suggestedFix": null,
+      "note": "Backed by KLE-06 \"Rated 4.6 out of 5 by more than 18,000 customers.\" (source: Reviews dashboard export, 1 Oct 2026), valid until 31 Dec 2026.",
+      "source": "rule",
+      "modelId": null,
+      "confidence": 1
+    },
+    {
+      "id": "claim:image:monsoon-weave-restock.webp:39",
+      "text": "₹1,999",
+      "span": {
+        "start": 39,
+        "end": 45
+      },
+      "location": "image",
+      "imageFile": "monsoon-weave-restock.webp",
+      "sentence": "Dhaaga & Co.\nThe Monsoon Weave is back\n₹1,999\n20% off sitewide until 16 November\nFree shipping above ₹1,499",
+      "kind": "price",
+      "status": "verified",
+      "evidence": "KLE-16",
+      "suggestedFix": null,
+      "note": "Backed by KLE-16 \"The Monsoon Weave bedsheet set is ₹1,999.\" (source: Price list, November 2026), valid until 31 Jan 2027.",
+      "source": "rule",
+      "modelId": null,
+      "confidence": 1
+    },
+    {
+      "id": "claim:image:monsoon-weave-restock.webp:46",
+      "text": "20%",
+      "span": {
+        "start": 46,
+        "end": 49
+      },
+      "location": "image",
+      "imageFile": "monsoon-weave-restock.webp",
+      "sentence": "Dhaaga & Co.\nThe Monsoon Weave is back\n₹1,999\n20% off sitewide until 16 November\nFree shipping above ₹1,499",
+      "kind": "percent",
+      "status": "verified",
+      "evidence": "KLE-10",
+      "suggestedFix": null,
+      "note": "Backed by KLE-10 \"20% off sitewide from 1 to 16 November 2026.\" (source: Festive campaign brief, approved 20 Oct 2026), valid until 16 Nov 2026. Condition to keep with it: Sale ends 16 November 2026. Not valid on gift cards.",
+      "source": "rule",
+      "modelId": null,
+      "confidence": 1
+    },
+    {
+      "id": "claim:image:monsoon-weave-restock.webp:101",
+      "text": "₹1,499",
+      "span": {
+        "start": 101,
+        "end": 107
+      },
+      "location": "image",
+      "imageFile": "monsoon-weave-restock.webp",
+      "sentence": "Dhaaga & Co.\nThe Monsoon Weave is back\n₹1,999\n20% off sitewide until 16 November\nFree shipping above ₹1,499",
+      "kind": "price",
+      "status": "verified",
+      "evidence": "KLE-12",
+      "suggestedFix": null,
+      "note": "Backed by KLE-12 \"Free shipping on orders above ₹1,499.\" (source: Offer sheet v3), valid until 31 Mar 2027.",
+      "source": "rule",
+      "modelId": null,
+      "confidence": 1
+    }
+  ],
+  "ai": {
+    "ran": true,
+    "modelId": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "latencyMs": 33451,
+    "rulesConsidered": [
+      "KSR-1.1",
+      "KSR-1.2",
+      "KSR-1.6",
+      "KSR-3.1",
+      "KSR-3.2",
+      "KSR-4.1",
+      "KSR-4.2",
+      "KSR-4.3",
+      "KSR-4.5",
+      "KSR-6.1",
+      "KSR-6.2",
+      "KSR-2.5",
+      "KSR-2.6",
+      "KSR-2.2"
+    ],
+    "evidenceConsidered": [
+      "KLE-06",
+      "KLE-16",
+      "KLE-04",
+      "KLE-15",
+      "KLE-10",
+      "KLE-08",
+      "KLE-12",
+      "KLE-13",
+      "KLE-07",
+      "KLE-02",
+      "KLE-01",
+      "KLE-09",
+      "KLE-11"
+    ],
+    "proposed": 4,
+    "verified": 0,
+    "needsReview": 0,
+    "dropped": [
+      {
+        "rule": "KSR-4.2",
+        "quote": "300 thread count",
+        "reason": "quote does not contain a superlative or comparative claim, so it can't break KSR-4.2"
+      },
+      {
+        "rule": "KSR-4.2",
+        "quote": "handwoven by artisans",
+        "reason": "quote does not contain a superlative or comparative claim, so it can't break KSR-4.2"
+      },
+      {
+        "rule": "KSR-4.2",
+        "quote": "Rated 4.6 out of 5 by more than 18,000 customers",
+        "reason": "quote does not contain a superlative or comparative claim, so it can't break KSR-4.2"
+      },
+      {
+        "rule": "KSR-6.1",
+        "quote": "Shop Monsoon Weave",
+        "reason": "quote does not contain two or more different calls to action, so it can't break KSR-6.1"
+      }
+    ],
+    "maskedItems": 0,
+    "safety": {
+      "safe": true,
+      "categories": [],
+      "modelId": "nvidia/llama-3.1-nemotron-safety-guard-8b-v3"
+    },
+    "ledger": {
+      "ran": true,
+      "modelId": "nvidia/nemotron-3.5-lightning-30b-a3b",
+      "latencyMs": 5452,
+      "judged": 0,
+      "added": 1,
+      "dropped": [
+        {
+          "quote": "Settle in, the Monsoon Weave is back.",
+          "reason": "a call to action or a name, not a claim"
+        },
+        {
+          "quote": "Shop Monsoon Weave.",
+          "reason": "a call to action or a name, not a claim"
+        }
+      ]
+    }
+  },
+  "images": [
+    {
+      "name": "monsoon-weave-restock.webp",
+      "text": "Dhaaga & Co.\nThe Monsoon Weave is back\n₹1,999\n20% off sitewide until 16 November\nFree shipping above ₹1,499",
+      "textSource": "nvidia",
+      "modelId": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning",
+      "latencyMs": 5151
+    }
+  ],
+  "timings": {
+    "totalMs": 38643,
+    "ocrMs": 5160
+  }
+}

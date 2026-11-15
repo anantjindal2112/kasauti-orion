@@ -114,7 +114,14 @@ export function withDeadline<T>(p: Promise<T>, ms: number, label: string): Promi
   });
 }
 
-/** The reasoning model gets 25 s; if it is slow or fails, the fast model gets one try. */
+/** How long the reasoning model gets before the fast model's answer is used instead. */
+export const REASONING_WAIT_MS = Number(process.env.KASAUTI_REASONING_WAIT_MS) || 5_000;
+
+/**
+ * Both models are asked at once. The reasoning model's answer is used if it arrives within
+ * REASONING_WAIT_MS; otherwise the fast model's (already on its way) is, so a slow reasoning
+ * model costs about five seconds instead of the 25 s it used to.
+ */
 export async function askReviewer(client: NvidiaClient, messages: ChatMessage[]): Promise<NvidiaResult<AiFinding[]>> {
   const ask = (model: "reasoning" | "fast", ms: number) =>
     withDeadline(
@@ -122,11 +129,13 @@ export async function askReviewer(client: NvidiaClient, messages: ChatMessage[])
       ms,
       model,
     );
+  const fast = ask("fast", 20_000);
+  fast.catch(() => undefined); // handled below if the reasoning model doesn't answer in time
   let res;
   try {
-    res = await ask("reasoning", 25_000);
+    res = await ask("reasoning", REASONING_WAIT_MS);
   } catch {
-    res = await ask("fast", 20_000);
+    res = await fast;
   }
   return { ...res, data: res.data.findings };
 }

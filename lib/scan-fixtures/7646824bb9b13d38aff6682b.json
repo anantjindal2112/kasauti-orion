@@ -1,0 +1,774 @@
+{
+  "findings": [
+    {
+      "id": "KSR-2.4:text::0",
+      "rule": "KSR-2.4",
+      "quote": "Dhaaga & Co. hereby announces the availability of premium bed linen solutions engineered to optimise consumer sleep outcomes through advanced textile methodologies.",
+      "location": "text",
+      "span": {
+        "start": 0,
+        "end": 164
+      },
+      "explanation": "This sentence reads at about grade 19 (the piece overall: grade 9). Aim for grade 8 or below — shorter sentences, everyday words.",
+      "suggestedFix": "Dhaaga & Co. is now offering premium bed linen solutions designed to help you sleep better.",
+      "confidence": 1,
+      "severity": "low",
+      "source": "rule",
+      "modelId": null,
+      "fixBy": "nvidia/nemotron-3.5-lightning-30b-a3b"
+    },
+    {
+      "id": "KSR-4.2:text::173",
+      "rule": "KSR-4.2",
+      "evidence": "KLE-01",
+      "quote": "since 2012",
+      "location": "text",
+      "span": {
+        "start": 173,
+        "end": 183
+      },
+      "explanation": "Contradicted: The ledger says otherwise: KLE-01 \"Weaving since 2014.\" (source: Company registration certificate), last verified 10 Jan 2026.",
+      "suggestedFix": "since 2014",
+      "confidence": 1,
+      "severity": "high",
+      "source": "rule",
+      "modelId": null
+    },
+    {
+      "id": "KSR-4.2:text::198",
+      "rule": "KSR-4.2",
+      "evidence": "KLE-02",
+      "quote": "2,000 artisans",
+      "location": "text",
+      "span": {
+        "start": 198,
+        "end": 212
+      },
+      "explanation": "Contradicted: The ledger says otherwise: KLE-02 \"Made with more than 1,200 artisans across 6 states.\" (source: Artisan census 2026 (internal)), last verified 1 Apr 2026.",
+      "suggestedFix": "1,200 artisans",
+      "confidence": 1,
+      "severity": "high",
+      "source": "rule",
+      "modelId": null
+    },
+    {
+      "id": "KSR-4.3:text::350",
+      "rule": "KSR-4.3",
+      "evidence": "KLE-04",
+      "quote": "OEKO-TEX Standard 100",
+      "location": "text",
+      "span": {
+        "start": 350,
+        "end": 371
+      },
+      "explanation": "KLE-04: the OEKO-TEX Standard 100 certificate (OTX-DEMO-7730) expired on 31 Aug 2026. Applies to Monsoon Weave only. Renewal pending. Remove the claim until it is renewed.",
+      "suggestedFix": "",
+      "confidence": 1,
+      "severity": "high",
+      "source": "rule",
+      "modelId": null,
+      "fixBy": "nvidia/nemotron-3.5-lightning-30b-a3b"
+    },
+    {
+      "id": "KSR-4.1:text::440",
+      "rule": "KSR-4.1",
+      "evidence": "KLE-15",
+      "quote": "₹1,799",
+      "location": "text",
+      "span": {
+        "start": 440,
+        "end": 446
+      },
+      "explanation": "Stale: KLE-15 backed \"₹1,799\" until it expired on 31 Oct 2026 (last verified 1 Jun 2026). The live entry is KLE-16 \"The Monsoon Weave bedsheet set is ₹1,999.\" (source: Price list, November 2026).",
+      "suggestedFix": "₹1,999",
+      "confidence": 1,
+      "severity": "high",
+      "source": "rule",
+      "modelId": null
+    },
+    {
+      "id": "KSR-4.2:text::454",
+      "rule": "KSR-4.2",
+      "evidence": "KLE-06",
+      "quote": "4.8 out of 5",
+      "location": "text",
+      "span": {
+        "start": 454,
+        "end": 466
+      },
+      "explanation": "Contradicted: The ledger says otherwise: KLE-06 \"Rated 4.6 out of 5 by more than 18,000 customers.\" (source: Reviews dashboard export, 1 Oct 2026), last verified 1 Oct 2026.",
+      "suggestedFix": "4.6 out of 5",
+      "confidence": 1,
+      "severity": "high",
+      "source": "rule",
+      "modelId": null
+    },
+    {
+      "id": "KSR-4.2:text::470",
+      "rule": "KSR-4.2",
+      "evidence": "KLE-06",
+      "quote": "25,000 customers",
+      "location": "text",
+      "span": {
+        "start": 470,
+        "end": 486
+      },
+      "explanation": "Contradicted: The ledger says otherwise: KLE-06 \"Rated 4.6 out of 5 by more than 18,000 customers.\" (source: Reviews dashboard export, 1 Oct 2026), last verified 1 Oct 2026.",
+      "suggestedFix": "18,000 customers",
+      "confidence": 1,
+      "severity": "high",
+      "source": "rule",
+      "modelId": null
+    },
+    {
+      "id": "KSR-4.2:text::493",
+      "rule": "KSR-4.2",
+      "evidence": "KLE-09",
+      "quote": "30-day",
+      "location": "text",
+      "span": {
+        "start": 493,
+        "end": 499
+      },
+      "explanation": "Contradicted: The ledger says otherwise: KLE-09 \"Easy returns within 7 days of delivery.\" (source: Returns policy v2), last verified 1 May 2026.",
+      "suggestedFix": "7-day",
+      "confidence": 1,
+      "severity": "high",
+      "source": "rule",
+      "modelId": null
+    },
+    {
+      "id": "KSR-4.1:image:monsoon-weave-email.webp:35",
+      "rule": "KSR-4.1",
+      "evidence": "KLE-15",
+      "quote": "₹1,799",
+      "location": "image",
+      "span": {
+        "start": 35,
+        "end": 41
+      },
+      "imageFile": "monsoon-weave-email.webp",
+      "explanation": "Stale: KLE-15 backed \"₹1,799\" until it expired on 31 Oct 2026 (last verified 1 Jun 2026). The live entry is KLE-16 \"The Monsoon Weave bedsheet set is ₹1,999.\" (source: Price list, November 2026).",
+      "suggestedFix": "₹1,999",
+      "confidence": 1,
+      "severity": "high",
+      "source": "rule",
+      "modelId": null
+    },
+    {
+      "id": "KSR-4.3:image:monsoon-weave-email.webp:42",
+      "rule": "KSR-4.3",
+      "evidence": "KLE-04",
+      "quote": "OEKO-TEX Standard 100",
+      "location": "image",
+      "span": {
+        "start": 42,
+        "end": 63
+      },
+      "imageFile": "monsoon-weave-email.webp",
+      "explanation": "KLE-04: the OEKO-TEX Standard 100 certificate (OTX-DEMO-7730) expired on 31 Aug 2026. Applies to Monsoon Weave only. Renewal pending. Remove the claim until it is renewed.",
+      "suggestedFix": null,
+      "confidence": 1,
+      "severity": "high",
+      "source": "rule",
+      "modelId": null
+    },
+    {
+      "id": "KSR-4.2:image:monsoon-weave-email.webp:80",
+      "rule": "KSR-4.2",
+      "evidence": "KLE-06",
+      "quote": "4.8/5",
+      "location": "image",
+      "span": {
+        "start": 80,
+        "end": 85
+      },
+      "imageFile": "monsoon-weave-email.webp",
+      "explanation": "Contradicted: The ledger says otherwise: KLE-06 \"Rated 4.6 out of 5 by more than 18,000 customers.\" (source: Reviews dashboard export, 1 Oct 2026), last verified 1 Oct 2026.",
+      "suggestedFix": "4.6/5",
+      "confidence": 1,
+      "severity": "high",
+      "source": "rule",
+      "modelId": null
+    },
+    {
+      "id": "KSR-4.2:image:monsoon-weave-email.webp:89",
+      "rule": "KSR-4.2",
+      "evidence": "KLE-06",
+      "quote": "25,000 customers",
+      "location": "image",
+      "span": {
+        "start": 89,
+        "end": 105
+      },
+      "imageFile": "monsoon-weave-email.webp",
+      "explanation": "Contradicted: The ledger says otherwise: KLE-06 \"Rated 4.6 out of 5 by more than 18,000 customers.\" (source: Reviews dashboard export, 1 Oct 2026), last verified 1 Oct 2026.",
+      "suggestedFix": "18,000 customers",
+      "confidence": 1,
+      "severity": "high",
+      "source": "rule",
+      "modelId": null
+    },
+    {
+      "id": "KSR-5.1:alt:monsoon-weave-email.webp:0",
+      "rule": "KSR-5.1",
+      "quote": "monsoon-weave-email.webp",
+      "location": "alt",
+      "span": {
+        "start": 0,
+        "end": 24
+      },
+      "imageFile": "monsoon-weave-email.webp",
+      "explanation": "The alt text \"IMG_2041.png\" is a file name, not a description.",
+      "suggestedFix": null,
+      "confidence": 1,
+      "severity": "medium",
+      "source": "rule",
+      "modelId": null
+    },
+    {
+      "id": "ai:KSR-1.1:165",
+      "rule": "KSR-1.1",
+      "quote": "Weaving since 2012, we work with 2,000 artisans, and every sheet is handwoven in Panipat and Varanasi.",
+      "location": "text",
+      "span": {
+        "start": 165,
+        "end": 267
+      },
+      "explanation": "The draft addresses the reader as 'we' and states facts without explaining why they are good, violating the friend-to-reader requirement of KSR-1.1.",
+      "suggestedFix": "We've been weaving since 2012, and every sheet is handwoven in Panipat and Varanasi by our artisans.",
+      "confidence": 0.9,
+      "severity": "medium",
+      "source": "ai",
+      "modelId": "nvidia/nemotron-3.5-lightning-30b-a3b",
+      "review": "needs_review",
+      "reviewNote": "Tone is a judgement call, so a person makes the final decision."
+    },
+    {
+      "id": "ai:KSR-1.2:165",
+      "rule": "KSR-1.2",
+      "quote": "Weaving since 2012, we work with 2,000 artisans, and every sheet is handwoven in Panipat and Varanasi.",
+      "location": "text",
+      "span": {
+        "start": 165,
+        "end": 267
+      },
+      "explanation": "The tone is transactional and factual rather than warm, failing the 'warm tone' requirement of KSR-1.2.",
+      "suggestedFix": "We've been weaving since 2012, and every sheet is handwoven in Panipat and Varanasi by our artisans.",
+      "confidence": 0.85,
+      "severity": "low",
+      "source": "ai",
+      "modelId": "nvidia/nemotron-3.5-lightning-30b-a3b",
+      "review": "needs_review",
+      "reviewNote": "KSR-1.2 is a vague rule, so a person makes the call."
+    },
+    {
+      "id": "ai:KSR-4.3:268",
+      "rule": "KSR-4.3",
+      "evidence": "KLE-03",
+      "quote": "Every Dhaaga & Co. product is GOTS-certified organic cotton",
+      "location": "text",
+      "span": {
+        "start": 268,
+        "end": 327
+      },
+      "explanation": "KLE-03 certifies only the Kesar Collection, not all products. The draft claims all products are GOTS-certified, which exceeds the certification scope.",
+      "suggestedFix": "The Kesar Collection is GOTS-certified organic cotton.",
+      "confidence": 1,
+      "severity": "high",
+      "source": "ai",
+      "modelId": "nvidia/nemotron-3.5-lightning-30b-a3b",
+      "review": "verified"
+    },
+    {
+      "id": "ai:KSR-4.5:402",
+      "rule": "KSR-4.5",
+      "quote": "eco-friendly Monsoon Weave set",
+      "location": "text",
+      "span": {
+        "start": 402,
+        "end": 432
+      },
+      "explanation": "The term 'eco-friendly' is a vague green claim on its own, violating KSR-4.5 which requires specific, evidence-backed sustainability statements.",
+      "suggestedFix": "Monsoon Weave set",
+      "confidence": 0.9,
+      "severity": "medium",
+      "source": "ai",
+      "modelId": "nvidia/nemotron-3.5-lightning-30b-a3b",
+      "review": "verified"
+    }
+  ],
+  "candidates": [
+    {
+      "type": "certification",
+      "evidence": [
+        "KLE-03"
+      ],
+      "note": "Certificate is live. Check scope: Applies to the Kesar Collection only.",
+      "text": "GOTS",
+      "span": {
+        "start": 298,
+        "end": 302
+      },
+      "location": "text"
+    },
+    {
+      "type": "trigger",
+      "evidence": [],
+      "note": "\"certified\" may be a claim that needs evidence.",
+      "text": "certified",
+      "span": {
+        "start": 303,
+        "end": 312
+      },
+      "location": "text"
+    },
+    {
+      "type": "trigger",
+      "evidence": [],
+      "note": "\"certified\" may be a claim that needs evidence.",
+      "text": "certified",
+      "span": {
+        "start": 372,
+        "end": 381
+      },
+      "location": "text"
+    },
+    {
+      "type": "trigger",
+      "evidence": [],
+      "note": "\"organic\" may be a claim that needs evidence.",
+      "text": "organic",
+      "span": {
+        "start": 313,
+        "end": 320
+      },
+      "location": "text"
+    },
+    {
+      "type": "trigger",
+      "evidence": [],
+      "note": "\"eco-friendly\" may be a claim that needs evidence.",
+      "text": "eco-friendly",
+      "span": {
+        "start": 402,
+        "end": 414
+      },
+      "location": "text"
+    },
+    {
+      "type": "trigger",
+      "evidence": [],
+      "note": "\"award-winning\" may be a claim that needs evidence.",
+      "text": "award-winning",
+      "span": {
+        "start": 387,
+        "end": 400
+      },
+      "location": "text"
+    },
+    {
+      "type": "trigger",
+      "evidence": [],
+      "note": "\"handwoven\" may be a claim that needs evidence.",
+      "text": "handwoven",
+      "span": {
+        "start": 233,
+        "end": 242
+      },
+      "location": "text"
+    },
+    {
+      "type": "trigger",
+      "evidence": [],
+      "note": "\"rated\" may be a claim that needs evidence.",
+      "text": "rated",
+      "span": {
+        "start": 448,
+        "end": 453
+      },
+      "location": "text"
+    },
+    {
+      "type": "trigger",
+      "evidence": [],
+      "note": "\"certified\" may be a claim that needs evidence.",
+      "text": "certified",
+      "span": {
+        "start": 64,
+        "end": 73
+      },
+      "location": "image",
+      "imageFile": "monsoon-weave-email.webp"
+    },
+    {
+      "type": "trigger",
+      "evidence": [],
+      "note": "\"Rated\" may be a claim that needs evidence.",
+      "text": "Rated",
+      "span": {
+        "start": 74,
+        "end": 79
+      },
+      "location": "image",
+      "imageFile": "monsoon-weave-email.webp"
+    }
+  ],
+  "claims": [
+    {
+      "id": "claim:text::173",
+      "text": "since 2012",
+      "span": {
+        "start": 173,
+        "end": 183
+      },
+      "location": "text",
+      "sentence": "Weaving since 2012, we work with 2,000 artisans, and every sheet is handwoven in Panipat and Varanasi.",
+      "kind": "year",
+      "status": "contradicted",
+      "evidence": "KLE-01",
+      "suggestedFix": "since 2014",
+      "note": "The ledger says otherwise: KLE-01 \"Weaving since 2014.\" (source: Company registration certificate), last verified 10 Jan 2026.",
+      "source": "rule",
+      "modelId": null,
+      "confidence": 1,
+      "findingId": "KSR-4.2:text::173"
+    },
+    {
+      "id": "claim:text::198",
+      "text": "2,000 artisans",
+      "span": {
+        "start": 198,
+        "end": 212
+      },
+      "location": "text",
+      "sentence": "Weaving since 2012, we work with 2,000 artisans, and every sheet is handwoven in Panipat and Varanasi.",
+      "kind": "count",
+      "status": "contradicted",
+      "evidence": "KLE-02",
+      "suggestedFix": "1,200 artisans",
+      "note": "The ledger says otherwise: KLE-02 \"Made with more than 1,200 artisans across 6 states.\" (source: Artisan census 2026 (internal)), last verified 1 Apr 2026.",
+      "source": "rule",
+      "modelId": null,
+      "confidence": 1,
+      "findingId": "KSR-4.2:text::198"
+    },
+    {
+      "id": "claim:text::ai:218",
+      "text": "every sheet is handwoven in Panipat and Varanasi",
+      "span": {
+        "start": 218,
+        "end": 266
+      },
+      "location": "text",
+      "sentence": "Weaving since 2012, we work with 2,000 artisans, and every sheet is handwoven in Panipat and Varanasi.",
+      "kind": "implicit",
+      "status": "contradicted",
+      "evidence": "KLE-13",
+      "suggestedFix": null,
+      "note": "KLE-13 states 'Handwoven in Panipat and Varanasi.' The draft says 'every sheet,' which may overgeneralize beyond the evidence scope, but the evidence itself matches the location claim. Verdict: contradicted due to scope ('every sheet' vs evidence).",
+      "source": "ai",
+      "modelId": "nvidia/nemotron-3.5-lightning-30b-a3b",
+      "confidence": 0.9,
+      "review": "verified",
+      "findingId": "ai:KSR-1.1:165"
+    },
+    {
+      "id": "claim:text::ai:268",
+      "text": "Every Dhaaga & Co. product is GOTS-certified organic cotton",
+      "span": {
+        "start": 268,
+        "end": 327
+      },
+      "location": "text",
+      "sentence": "Every Dhaaga & Co. product is GOTS-certified organic cotton, and Monsoon Weave is OEKO-TEX Standard 100 certified.",
+      "kind": "certification",
+      "status": "contradicted",
+      "evidence": "KLE-03",
+      "suggestedFix": null,
+      "note": "KLE-03 explicitly states it applies only to the Kesar Collection. The draft claims 'every product.'",
+      "source": "ai",
+      "modelId": "nvidia/nemotron-3.5-lightning-30b-a3b",
+      "confidence": 1,
+      "review": "verified",
+      "findingId": "ai:KSR-4.3:268"
+    },
+    {
+      "id": "claim:text::350",
+      "text": "OEKO-TEX Standard 100",
+      "span": {
+        "start": 350,
+        "end": 371
+      },
+      "location": "text",
+      "sentence": "Every Dhaaga & Co. product is GOTS-certified organic cotton, and Monsoon Weave is OEKO-TEX Standard 100 certified.",
+      "kind": "certification",
+      "status": "stale",
+      "evidence": "KLE-04",
+      "suggestedFix": null,
+      "note": "KLE-04 expired on 31 Aug 2026 (last verified 1 Sept 2025). Applies to Monsoon Weave only. Renewal pending.",
+      "source": "rule",
+      "modelId": null,
+      "confidence": 1,
+      "findingId": "KSR-4.3:text::350"
+    },
+    {
+      "id": "claim:text::440",
+      "text": "₹1,799",
+      "span": {
+        "start": 440,
+        "end": 446
+      },
+      "location": "text",
+      "sentence": "Our award-winning, eco-friendly Monsoon Weave set is now ₹1,799, rated 4.8 out of 5 by 25,000 customers, with 30-day returns.",
+      "kind": "price",
+      "status": "stale",
+      "evidence": "KLE-15",
+      "suggestedFix": "₹1,999",
+      "note": "KLE-15 backed \"₹1,799\" until it expired on 31 Oct 2026 (last verified 1 Jun 2026). The live entry is KLE-16 \"The Monsoon Weave bedsheet set is ₹1,999.\" (source: Price list, November 2026).",
+      "source": "rule",
+      "modelId": null,
+      "confidence": 1,
+      "findingId": "KSR-4.1:text::440"
+    },
+    {
+      "id": "claim:text::454",
+      "text": "4.8 out of 5",
+      "span": {
+        "start": 454,
+        "end": 466
+      },
+      "location": "text",
+      "sentence": "Our award-winning, eco-friendly Monsoon Weave set is now ₹1,799, rated 4.8 out of 5 by 25,000 customers, with 30-day returns.",
+      "kind": "rating",
+      "status": "contradicted",
+      "evidence": "KLE-06",
+      "suggestedFix": "4.6 out of 5",
+      "note": "The ledger says otherwise: KLE-06 \"Rated 4.6 out of 5 by more than 18,000 customers.\" (source: Reviews dashboard export, 1 Oct 2026), last verified 1 Oct 2026.",
+      "source": "rule",
+      "modelId": null,
+      "confidence": 1,
+      "findingId": "KSR-4.2:text::454"
+    },
+    {
+      "id": "claim:text::470",
+      "text": "25,000 customers",
+      "span": {
+        "start": 470,
+        "end": 486
+      },
+      "location": "text",
+      "sentence": "Our award-winning, eco-friendly Monsoon Weave set is now ₹1,799, rated 4.8 out of 5 by 25,000 customers, with 30-day returns.",
+      "kind": "count",
+      "status": "contradicted",
+      "evidence": "KLE-06",
+      "suggestedFix": "18,000 customers",
+      "note": "The ledger says otherwise: KLE-06 \"Rated 4.6 out of 5 by more than 18,000 customers.\" (source: Reviews dashboard export, 1 Oct 2026), last verified 1 Oct 2026.",
+      "source": "rule",
+      "modelId": null,
+      "confidence": 1,
+      "findingId": "KSR-4.2:text::470"
+    },
+    {
+      "id": "claim:text::493",
+      "text": "30-day",
+      "span": {
+        "start": 493,
+        "end": 499
+      },
+      "location": "text",
+      "sentence": "Our award-winning, eco-friendly Monsoon Weave set is now ₹1,799, rated 4.8 out of 5 by 25,000 customers, with 30-day returns.",
+      "kind": "days",
+      "status": "contradicted",
+      "evidence": "KLE-09",
+      "suggestedFix": "7-day",
+      "note": "The ledger says otherwise: KLE-09 \"Easy returns within 7 days of delivery.\" (source: Returns policy v2), last verified 1 May 2026.",
+      "source": "rule",
+      "modelId": null,
+      "confidence": 1,
+      "findingId": "KSR-4.2:text::493"
+    },
+    {
+      "id": "claim:image:monsoon-weave-email.webp:35",
+      "text": "₹1,799",
+      "span": {
+        "start": 35,
+        "end": 41
+      },
+      "location": "image",
+      "imageFile": "monsoon-weave-email.webp",
+      "sentence": "Dhaaga & Co.\nThe Monsoon Weave\nNow ₹1,799\nOEKO-TEX Standard 100 certified\nRated 4.8/5 by 25,000 customers",
+      "kind": "price",
+      "status": "stale",
+      "evidence": "KLE-15",
+      "suggestedFix": "₹1,999",
+      "note": "KLE-15 backed \"₹1,799\" until it expired on 31 Oct 2026 (last verified 1 Jun 2026). The live entry is KLE-16 \"The Monsoon Weave bedsheet set is ₹1,999.\" (source: Price list, November 2026).",
+      "source": "rule",
+      "modelId": null,
+      "confidence": 1,
+      "findingId": "KSR-4.1:image:monsoon-weave-email.webp:35"
+    },
+    {
+      "id": "claim:image:monsoon-weave-email.webp:42",
+      "text": "OEKO-TEX Standard 100",
+      "span": {
+        "start": 42,
+        "end": 63
+      },
+      "location": "image",
+      "imageFile": "monsoon-weave-email.webp",
+      "sentence": "Dhaaga & Co.\nThe Monsoon Weave\nNow ₹1,799\nOEKO-TEX Standard 100 certified\nRated 4.8/5 by 25,000 customers",
+      "kind": "certification",
+      "status": "stale",
+      "evidence": "KLE-04",
+      "suggestedFix": null,
+      "note": "KLE-04 expired on 31 Aug 2026 (last verified 1 Sept 2025). Applies to Monsoon Weave only. Renewal pending.",
+      "source": "rule",
+      "modelId": null,
+      "confidence": 1,
+      "findingId": "KSR-4.3:image:monsoon-weave-email.webp:42"
+    },
+    {
+      "id": "claim:image:monsoon-weave-email.webp:80",
+      "text": "4.8/5",
+      "span": {
+        "start": 80,
+        "end": 85
+      },
+      "location": "image",
+      "imageFile": "monsoon-weave-email.webp",
+      "sentence": "Dhaaga & Co.\nThe Monsoon Weave\nNow ₹1,799\nOEKO-TEX Standard 100 certified\nRated 4.8/5 by 25,000 customers",
+      "kind": "rating",
+      "status": "contradicted",
+      "evidence": "KLE-06",
+      "suggestedFix": "4.6/5",
+      "note": "The ledger says otherwise: KLE-06 \"Rated 4.6 out of 5 by more than 18,000 customers.\" (source: Reviews dashboard export, 1 Oct 2026), last verified 1 Oct 2026.",
+      "source": "rule",
+      "modelId": null,
+      "confidence": 1,
+      "findingId": "KSR-4.2:image:monsoon-weave-email.webp:80"
+    },
+    {
+      "id": "claim:image:monsoon-weave-email.webp:89",
+      "text": "25,000 customers",
+      "span": {
+        "start": 89,
+        "end": 105
+      },
+      "location": "image",
+      "imageFile": "monsoon-weave-email.webp",
+      "sentence": "Dhaaga & Co.\nThe Monsoon Weave\nNow ₹1,799\nOEKO-TEX Standard 100 certified\nRated 4.8/5 by 25,000 customers",
+      "kind": "count",
+      "status": "contradicted",
+      "evidence": "KLE-06",
+      "suggestedFix": "18,000 customers",
+      "note": "The ledger says otherwise: KLE-06 \"Rated 4.6 out of 5 by more than 18,000 customers.\" (source: Reviews dashboard export, 1 Oct 2026), last verified 1 Oct 2026.",
+      "source": "rule",
+      "modelId": null,
+      "confidence": 1,
+      "findingId": "KSR-4.2:image:monsoon-weave-email.webp:89"
+    }
+  ],
+  "ai": {
+    "ran": true,
+    "modelId": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "latencyMs": 31099,
+    "rulesConsidered": [
+      "KSR-1.1",
+      "KSR-1.2",
+      "KSR-1.6",
+      "KSR-3.1",
+      "KSR-3.2",
+      "KSR-4.1",
+      "KSR-4.2",
+      "KSR-4.3",
+      "KSR-4.5",
+      "KSR-6.1",
+      "KSR-6.2",
+      "KSR-2.2",
+      "KSR-2.1",
+      "KSR-2.6",
+      "KSR-2.4"
+    ],
+    "evidenceConsidered": [
+      "KLE-04",
+      "KLE-16",
+      "KLE-15",
+      "KLE-13",
+      "KLE-08",
+      "KLE-03",
+      "KLE-14",
+      "KLE-02",
+      "KLE-01",
+      "KLE-11",
+      "KLE-06",
+      "KLE-05",
+      "KLE-09"
+    ],
+    "proposed": 9,
+    "verified": 2,
+    "needsReview": 2,
+    "dropped": [
+      {
+        "rule": "KSR-4.3",
+        "quote": "Monsoon Weave is OEKO-TEX Standard 100 certified",
+        "reason": "duplicate of a code check"
+      },
+      {
+        "rule": "KSR-4.2",
+        "quote": "rated 4.8 out of 5 by 25,000 customers",
+        "reason": "quote does not contain a superlative or comparative claim, so it can't break KSR-4.2"
+      },
+      {
+        "rule": "KSR-6.2",
+        "quote": "30-day returns",
+        "reason": "quote does not contain an offer, so it can't break KSR-6.2"
+      },
+      {
+        "rule": "KSR-4.1",
+        "quote": "₹1,799",
+        "reason": "duplicate of a code check"
+      },
+      {
+        "rule": "KSR-6.1",
+        "quote": "Shop Monsoon Weave.",
+        "reason": "quote does not contain two or more different calls to action, so it can't break KSR-6.1"
+      }
+    ],
+    "maskedItems": 2,
+    "safety": {
+      "safe": true,
+      "categories": [],
+      "modelId": "nvidia/llama-3.1-nemotron-safety-guard-8b-v3"
+    },
+    "fixWriter": {
+      "ran": true,
+      "modelId": "nvidia/nemotron-3.5-lightning-30b-a3b",
+      "latencyMs": 916,
+      "written": 2,
+      "rejected": 0,
+      "rejectedReasons": []
+    },
+    "ledger": {
+      "ran": true,
+      "modelId": "nvidia/nemotron-3.5-lightning-30b-a3b",
+      "latencyMs": 5131,
+      "judged": 1,
+      "added": 1,
+      "dropped": []
+    }
+  },
+  "images": [
+    {
+      "name": "monsoon-weave-email.webp",
+      "text": "Dhaaga & Co.\nThe Monsoon Weave\nNow ₹1,799\nOEKO-TEX Standard 100 certified\nRated 4.8/5 by 25,000 customers",
+      "textSource": "nvidia",
+      "modelId": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning",
+      "latencyMs": 4905
+    }
+  ],
+  "timings": {
+    "totalMs": 36016,
+    "ocrMs": 4909
+  }
+}

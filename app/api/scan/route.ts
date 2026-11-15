@@ -2,6 +2,7 @@ import { z } from "zod";
 import { DEMO_TODAY, loadBrandPack } from "@/lib/brand-pack";
 import { getNvidiaClient, imageToText } from "@/lib/nvidia";
 import { reviewDraft } from "@/lib/pipeline";
+import { readSaved, save, scanKey } from "@/lib/scan-cache";
 import { withDeadline } from "@/lib/pipeline/ai-review";
 import type { ScannedImage } from "@/lib/scan-types";
 import { brandPackSchema } from "@/lib/schemas/brand-pack";
@@ -71,6 +72,15 @@ export async function POST(request: Request) {
     return Response.json({ error: message }, { status: 400 });
   }
 
+  // Same input as an earlier real run (the showcase examples are recorded): return that result.
+  // Custom packs and re-checks after fixes are always computed fresh.
+  const key =
+    body.pack || body.recheck
+      ? null
+      : scanKey({ text: body.text, images: body.images, ocr: body.ocr, ai: body.ai, intent: body.intent, custom: false, today: body.today ?? DEMO_TODAY });
+  const saved = key ? readSaved(key) : null;
+  if (saved) return Response.json(saved);
+
   const pack = body.pack ?? loadBrandPack();
   const today = body.today ?? DEMO_TODAY;
 
@@ -113,9 +123,7 @@ export async function POST(request: Request) {
     { client, ai: body.ai, today, recheck: body.recheck },
   );
 
-  return Response.json({
-    ...result,
-    images,
-    timings: { totalMs: Date.now() - started, ocrMs },
-  });
+  const payload = { ...result, images, timings: { totalMs: Date.now() - started, ocrMs } };
+  if (key && result.ai.ran) save(key, payload);
+  return Response.json(payload);
 }

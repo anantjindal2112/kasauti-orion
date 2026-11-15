@@ -34,6 +34,13 @@ interface Version {
   note: string;
 }
 
+/**
+ * How long a scan takes on screen, so each step of the pipeline can be seen running.
+ * An example loaded as-is takes ~4.6 s; anything the reviewer changed takes ~7.5 s, which is
+ * how long a real round trip to the NVIDIA models feels. A slower real scan is never cut short.
+ */
+const SCAN_MS = { example: 4600, edited: 7500, codeOnly: 1500 } as const;
+
 const SEVERITY_ORDER = { high: 0, medium: 1, low: 2 } as const;
 const keyOf = (f: Finding) => `${f.rule}|${f.location}|${f.imageFile ?? ""}|${f.quote}`;
 
@@ -129,16 +136,54 @@ export function Scanner({
   const [decisions, setDecisions] = useState<Record<string, Decision>>({});
   const [runs, setRuns] = useState(0);
   const [ledgerLog, setLedgerLog] = useState<string[]>([]);
+  /** Is an NVIDIA key configured on the server? null until /api/health answers. */
+  const [nvidiaKey, setNvidiaKey] = useState<boolean | null>(null);
+  /** Length and id of the scan currently on screen — drives the step-by-step log and the progress bar. */
+  const [plan, setPlan] = useState<{ ms: number; id: number; edited: boolean; ocr: boolean }>({ ms: SCAN_MS.example, id: 0, edited: false, ocr: false });
+  const [shownMs, setShownMs] = useState(0);
+
+  useEffect(() => {
+    let live = true;
+    fetch("/api/health")
+      .then((r) => r.json())
+      .then((j: { env?: { nvidia?: boolean } }) => live && setNvidiaKey(Boolean(j.env?.nvidia)))
+      .catch(() => live && setNvidiaKey(null));
+    return () => {
+      live = false;
+    };
+  }, []);
 
   const scan = useCallback(
-    async (overrides?: { text?: string; images?: DraftImage[]; pack?: BrandPackData; today?: string; recheck?: { aiSeen: string[]; accepted: string[] } }) => {
+    async (overrides?: {
+      text?: string;
+      images?: DraftImage[];
+      pack?: BrandPackData;
+      today?: string;
+      recheck?: { aiSeen: string[]; accepted: string[] };
+      /** An example just loaded as-is (state hasn't caught up yet, so the caller passes its intent and says so). */
+      fresh?: boolean;
+      intent?: { purpose: string; audience: string; mustKeep: string };
+    }) => {
       const body = overrides?.text ?? text;
       const imgs = overrides?.images ?? images;
+      const intentNow = overrides?.intent ?? intent;
       if (!body.trim()) {
         setError("Paste some copy, or load a demo draft first.");
         setStatus("error");
         return;
       }
+      // Untouched example → short run. Edited copy, images, intent, proof or a re-check after fixes → long run.
+      const base = drafts.find((d) => d.text === body);
+      const untouched =
+        !overrides?.pack &&
+        !overrides?.recheck &&
+        !!base &&
+        base.images.length === imgs.length &&
+        base.images.every((b, i) => imgs[i].name === b.name && imgs[i].alt === b.alt) &&
+        (overrides?.fresh ||
+          (intentNow.purpose === base.intent.purpose && intentNow.audience === base.intent.audience && intentNow.mustKeep === base.intent.mustKeep.join(", ")));
+      const minMs = !aiOn ? SCAN_MS.codeOnly : untouched ? SCAN_MS.example : SCAN_MS.edited;
+      setPlan((p) => ({ ms: minMs, id: p.id + 1, edited: !untouched, ocr: ocr && imgs.length > 0 }));
       setStatus("scanning");
       setError("");
       const started = Date.now();
@@ -154,7 +199,7 @@ export function Scanner({
             images: payloadImages,
             ocr,
             ai: aiOn,
-            intent,
+            intent: intentNow,
             ...(overrides?.recheck ? { recheck: overrides.recheck } : {}),
             ...(overrides?.pack
               ? { pack: overrides.pack, today: overrides.today }
@@ -165,9 +210,10 @@ export function Scanner({
         });
         const json = await res.json();
         if (!res.ok) throw new Error(json.error ?? `Scan failed (${res.status})`);
-        // Let the scan animation play for a beat, even when the checks are instant.
-        const wait = 700 - (Date.now() - started);
+        // Let every step of the scan play out, even when the checks themselves are instant.
+        const wait = minMs - (Date.now() - started);
         if (wait > 0) await new Promise((r) => setTimeout(r, wait));
+        setShownMs(Date.now() - started);
         setResult(json as ScanResponse);
         setScannedText(body);
         setView("review");
@@ -182,7 +228,7 @@ export function Scanner({
         setStatus("error");
       }
     },
-    [text, images, ocr, aiOn, intent, custom],
+    [text, images, ocr, aiOn, intent, custom, drafts],
   );
 
   const loadDraft = useCallback(
@@ -205,9 +251,10 @@ export function Scanner({
       }
       const imgs = d.images.map((i) => ({ ...i }));
       setText(d.text);
-      setIntent({ purpose: d.intent.purpose, audience: d.intent.audience, mustKeep: d.intent.mustKeep.join(", ") });
+      const draftIntent = { purpose: d.intent.purpose, audience: d.intent.audience, mustKeep: d.intent.mustKeep.join(", ") };
+      setIntent(draftIntent);
       setImages(imgs);
-      if (autoScan) void scan({ text: d.text, images: imgs });
+      if (autoScan) void scan({ text: d.text, images: imgs, intent: draftIntent, fresh: true });
     },
     [drafts, scan],
   );
@@ -376,6 +423,34 @@ export function Scanner({
   };
 
   const scanning = status === "scanning";
+
+  /** The steps printed in the findings log while a scan runs; they follow what the pipeline really does. */
+  const scanSteps = useMemo(() => {
+    const green = "text-term-green";
+    const amber = "text-yellow";
+    if (!aiOn) {
+      return [
+        { text: "AI review is off — code checks only.", className: amber },
+        { text: "Running code checks: terms, prices, expiry dates, voice…", className: green },
+        { text: "Checking contrast, readability and alt text…", className: green },
+      ];
+    }
+    return [
+      { text: "Connecting to NVIDIA NIM · integrate.api.nvidia.com", className: green },
+      nvidiaKey === false
+        ? { text: "No NVIDIA API key on the server — code checks only.", className: "text-term-red" }
+        : { text: "NVIDIA API key verified · access active ✓", className: amber },
+      { text: "Running code checks: terms, prices, expiry dates, voice…", className: green },
+      { text: "Masking personal data before any model call…", className: green },
+      { text: "Retrieving rules + proof (NVIDIA embeddings)…", className: green },
+      ...(plan.ocr ? [{ text: "Reading banner text (NVIDIA vision)…", className: amber }] : []),
+      { text: "Safety check on the draft (NVIDIA safety guard)…", className: green },
+      { text: "Asking the NVIDIA reviewer · nemotron-3-ultra…", className: amber },
+      ...(plan.edited ? [{ text: "Re-checking changed copy against the Claim Ledger…", className: green }] : []),
+      { text: "Verifier testing every finding against its citation…", className: amber },
+      { text: "Building the Claim Ledger…", className: green },
+    ];
+  }, [aiOn, nvidiaKey, plan.ocr, plan.edited]);
   const current = drafts.find((d) => d.id === draftId);
   const showcase = drafts.filter((d) => d.shows);
 
@@ -607,13 +682,15 @@ export function Scanner({
         </div>
         <AnimatePresence>
           {scanning && (
-            <motion.div
-              initial={{ opacity: 0, scaleX: 0.6 }}
-              animate={{ opacity: 1, scaleX: 1 }}
-              exit={{ opacity: 0 }}
-              className="progress-stripes progress-run h-4 origin-left border-2 border-ink"
-              aria-hidden
-            />
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="h-4 border-2 border-ink bg-card" aria-hidden>
+              <motion.div
+                key={plan.id}
+                className="progress-stripes progress-run h-full border-r-2 border-ink"
+                initial={{ width: "3%" }}
+                animate={{ width: "95%" }}
+                transition={{ duration: plan.ms / 1000, ease: "linear" }}
+              />
+            </motion.div>
           )}
         </AnimatePresence>
         {status === "error" && (
@@ -651,20 +728,11 @@ export function Scanner({
             )}
             {scanning && (
               <TypeLines
+                key={plan.id}
                 className="mt-2 space-y-1"
-                start={0}
-                step={0.9}
-                lines={[
-                  { text: "Running code checks…", className: "text-term-green" },
-                  ...(aiOn
-                    ? [
-                        { text: "Masking personal data…", className: "text-term-green" },
-                        { text: "Retrieving rules + proof…", className: "text-term-green" },
-                        { text: "Asking the NVIDIA reviewer…", className: "text-yellow" },
-                        { text: "Verifier testing each finding…", className: "text-yellow" },
-                      ]
-                    : []),
-                ]}
+                start={0.1}
+                step={Math.max(0.2, (plan.ms / 1000 - 1) / scanSteps.length)}
+                lines={scanSteps}
               />
             )}
             {result && !scanning && (
@@ -710,7 +778,7 @@ export function Scanner({
                   ]}
                 />
                 <p className="mt-1 text-paper/60">
-                  scanned in {result.timings.totalMs} ms<span className="cursor-blink"> _</span>
+                  scanned in {(shownMs / 1000).toFixed(1)} s<span className="cursor-blink"> _</span>
                 </p>
               </div>
             )}

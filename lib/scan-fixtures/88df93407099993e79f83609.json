@@ -1,0 +1,714 @@
+{
+  "findings": [
+    {
+      "id": "KSR-1.5:text::0",
+      "rule": "KSR-1.5",
+      "quote": "🔥🔥🔥",
+      "location": "text",
+      "span": {
+        "start": 0,
+        "end": 6
+      },
+      "explanation": "3 emoji in one piece; the limit is 2.",
+      "suggestedFix": "🔥🔥",
+      "confidence": 1,
+      "severity": "low",
+      "source": "rule",
+      "modelId": null
+    },
+    {
+      "id": "KSR-1.4:text::7",
+      "rule": "KSR-1.4",
+      "quote": "HUGE FESTIVE NEWS",
+      "location": "text",
+      "span": {
+        "start": 7,
+        "end": 24
+      },
+      "explanation": "\"HUGE FESTIVE NEWS\" is written in capitals, which reads as shouting.",
+      "suggestedFix": "Huge festive news",
+      "confidence": 1,
+      "severity": "low",
+      "source": "rule",
+      "modelId": null
+    },
+    {
+      "id": "KSR-2.1:text::30",
+      "rule": "KSR-2.1",
+      "quote": "Dhaga and Co",
+      "location": "text",
+      "span": {
+        "start": 30,
+        "end": 42
+      },
+      "explanation": "The brand name is written \"Dhaaga & Co.\".",
+      "suggestedFix": "Dhaaga & Co.",
+      "confidence": 1,
+      "severity": "medium",
+      "source": "rule",
+      "modelId": null
+    },
+    {
+      "id": "KSR-1.3:text::42",
+      "rule": "KSR-1.3",
+      "quote": "!!!",
+      "location": "text",
+      "span": {
+        "start": 42,
+        "end": 45
+      },
+      "explanation": "Stacked exclamation marks (\"!!!\"). Use at most 1 in a piece, and never more than one in a row.",
+      "suggestedFix": ".",
+      "confidence": 1,
+      "severity": "low",
+      "source": "rule",
+      "modelId": null
+    },
+    {
+      "id": "KSR-4.2:text::54",
+      "rule": "KSR-4.2",
+      "quote": "most trusted",
+      "location": "text",
+      "span": {
+        "start": 54,
+        "end": 66
+      },
+      "explanation": "\"most trusted\" is a claim that needs proof, and the Claim Ledger has no evidence for it.",
+      "suggestedFix": null,
+      "confidence": 1,
+      "severity": "high",
+      "source": "rule",
+      "modelId": null
+    },
+    {
+      "id": "KSR-4.1:text::95",
+      "rule": "KSR-4.1",
+      "evidence": "KLE-10",
+      "quote": "30%",
+      "location": "text",
+      "span": {
+        "start": 95,
+        "end": 98
+      },
+      "explanation": "Contradicted: The ledger says otherwise: KLE-10 \"20% off sitewide from 1 to 16 November 2026.\" (source: Festive campaign brief, approved 20 Oct 2026), last verified 20 Oct 2026.",
+      "suggestedFix": "20%",
+      "confidence": 1,
+      "severity": "high",
+      "source": "rule",
+      "modelId": null
+    },
+    {
+      "id": "KSR-4.1:text::149",
+      "rule": "KSR-4.1",
+      "evidence": "KLE-07",
+      "quote": "₹999",
+      "location": "text",
+      "span": {
+        "start": 149,
+        "end": 153
+      },
+      "explanation": "Stale: KLE-07 backed \"₹999\" until it expired on 30 Sept 2026 (last verified 1 Mar 2026). The live entry is KLE-12 \"Free shipping on orders above ₹1,499.\" (source: Offer sheet v3).",
+      "suggestedFix": "₹1,499",
+      "confidence": 1,
+      "severity": "high",
+      "source": "rule",
+      "modelId": null
+    },
+    {
+      "id": "KSR-2.6:text::163",
+      "rule": "KSR-2.6",
+      "quote": "Indigo Hour",
+      "location": "text",
+      "span": {
+        "start": 163,
+        "end": 174
+      },
+      "explanation": "The approved product name is \"Indigo Hours\".",
+      "suggestedFix": "Indigo Hours",
+      "confidence": 1,
+      "severity": "medium",
+      "source": "rule",
+      "modelId": null
+    },
+    {
+      "id": "KSR-2.5:text::187",
+      "rule": "KSR-2.5",
+      "quote": "Rs. 2299/-",
+      "location": "text",
+      "span": {
+        "start": 187,
+        "end": 197
+      },
+      "explanation": "Write prices as \"₹2,299\" — rupee symbol, Indian digit grouping, no \"Rs.\" or \"/-\".",
+      "suggestedFix": "₹2,299",
+      "confidence": 1,
+      "severity": "low",
+      "source": "rule",
+      "modelId": null
+    },
+    {
+      "id": "KSR-2.3:text::199",
+      "rule": "KSR-2.3",
+      "quote": "Cheap",
+      "location": "text",
+      "span": {
+        "start": 199,
+        "end": 204
+      },
+      "explanation": "\"Cheap\" is on the banned list: Undercuts the craft positioning.",
+      "suggestedFix": null,
+      "confidence": 1,
+      "severity": "medium",
+      "source": "rule",
+      "modelId": null
+    },
+    {
+      "id": "KSR-6.3:text::243",
+      "rule": "KSR-6.3",
+      "quote": "LoomKart",
+      "location": "text",
+      "span": {
+        "start": 243,
+        "end": 251
+      },
+      "explanation": "\"LoomKart\" is a competitor. Don't name competitors, even in comparisons.",
+      "suggestedFix": null,
+      "confidence": 1,
+      "severity": "medium",
+      "source": "rule",
+      "modelId": null
+    },
+    {
+      "id": "KSR-4.4:text::271",
+      "rule": "KSR-4.4",
+      "quote": "never fade",
+      "location": "text",
+      "span": {
+        "start": 271,
+        "end": 281
+      },
+      "explanation": "\"never fade\" is an absolute promise. No product can guarantee it, and it can't be backed by evidence.",
+      "suggestedFix": null,
+      "confidence": 1,
+      "severity": "high",
+      "source": "rule",
+      "modelId": null
+    },
+    {
+      "id": "KSR-4.4:text::283",
+      "rule": "KSR-4.4",
+      "quote": "guaranteed",
+      "location": "text",
+      "span": {
+        "start": 283,
+        "end": 293
+      },
+      "explanation": "\"guaranteed\" is an absolute promise. No product can guarantee it, and it can't be backed by evidence.",
+      "suggestedFix": null,
+      "confidence": 1,
+      "severity": "high",
+      "source": "rule",
+      "modelId": null
+    },
+    {
+      "id": "KSR-2.2:text::307",
+      "rule": "KSR-2.2",
+      "quote": "workers",
+      "location": "text",
+      "span": {
+        "start": 307,
+        "end": 314
+      },
+      "explanation": "Use \"artisans\" instead of \"workers\".",
+      "suggestedFix": "artisans",
+      "confidence": 1,
+      "severity": "medium",
+      "source": "rule",
+      "modelId": null
+    },
+    {
+      "id": "KSR-1.6:text::327",
+      "rule": "KSR-1.6",
+      "quote": "Don't miss out or regret it!",
+      "location": "text",
+      "span": {
+        "start": 327,
+        "end": 355
+      },
+      "explanation": "\"Don't miss out or regret it\" pressures the reader. Urgency is fine when it's true (a real end date); fear and guilt are not.",
+      "suggestedFix": "Shop the festive sale!",
+      "confidence": 1,
+      "severity": "medium",
+      "source": "rule",
+      "modelId": null,
+      "fixBy": "nvidia/nemotron-3.5-lightning-30b-a3b"
+    },
+    {
+      "id": "KSR-5.2:text::411",
+      "rule": "KSR-5.2",
+      "quote": "Click here to shop.",
+      "location": "text",
+      "span": {
+        "start": 411,
+        "end": 430
+      },
+      "explanation": "\"Click here\" doesn't say where the link goes. Screen-reader users hear link text on its own.",
+      "suggestedFix": "Shop the festive sale",
+      "confidence": 1,
+      "severity": "low",
+      "source": "rule",
+      "modelId": null,
+      "fixBy": "nvidia/nemotron-3.5-lightning-30b-a3b"
+    },
+    {
+      "id": "KSR-5.3:text::431",
+      "rule": "KSR-5.3",
+      "quote": "#festivesale #indigohours",
+      "location": "text",
+      "span": {
+        "start": 431,
+        "end": 456
+      },
+      "explanation": "\"#festivesale\" looks like several words run together. Write it in CamelCase so screen readers can read it.",
+      "suggestedFix": "#FestiveSale #Indigohours",
+      "confidence": 0.85,
+      "severity": "low",
+      "source": "rule",
+      "modelId": null,
+      "fixBy": "nvidia/nemotron-3.5-lightning-30b-a3b"
+    },
+    {
+      "id": "KSR-5.3:text::444",
+      "rule": "KSR-5.3",
+      "quote": "#indigohours",
+      "location": "text",
+      "span": {
+        "start": 444,
+        "end": 456
+      },
+      "explanation": "\"#indigohours\" looks like several words run together. Write it in CamelCase so screen readers can read it.",
+      "suggestedFix": "#IndigoHours",
+      "confidence": 0.85,
+      "severity": "low",
+      "source": "rule",
+      "modelId": null
+    },
+    {
+      "id": "KSR-4.1:image:festive-sale-banner.webp:28",
+      "rule": "KSR-4.1",
+      "evidence": "KLE-10",
+      "quote": "30%",
+      "location": "image",
+      "span": {
+        "start": 28,
+        "end": 31
+      },
+      "imageFile": "festive-sale-banner.webp",
+      "explanation": "Contradicted: The ledger says otherwise: KLE-10 \"20% off sitewide from 1 to 16 November 2026.\" (source: Festive campaign brief, approved 20 Oct 2026), last verified 20 Oct 2026.",
+      "suggestedFix": "20%",
+      "confidence": 1,
+      "severity": "high",
+      "source": "rule",
+      "modelId": null
+    },
+    {
+      "id": "KSR-4.1:image:festive-sale-banner.webp:68",
+      "rule": "KSR-4.1",
+      "evidence": "KLE-07",
+      "quote": "₹999",
+      "location": "image",
+      "span": {
+        "start": 68,
+        "end": 72
+      },
+      "imageFile": "festive-sale-banner.webp",
+      "explanation": "Stale: KLE-07 backed \"₹999\" until it expired on 30 Sept 2026 (last verified 1 Mar 2026). The live entry is KLE-12 \"Free shipping on orders above ₹1,499.\" (source: Offer sheet v3).",
+      "suggestedFix": "₹1,499",
+      "confidence": 1,
+      "severity": "high",
+      "source": "rule",
+      "modelId": null
+    },
+    {
+      "id": "KSR-4.2:image:festive-sale-banner.webp:82",
+      "rule": "KSR-4.2",
+      "quote": "#1",
+      "location": "image",
+      "span": {
+        "start": 82,
+        "end": 84
+      },
+      "imageFile": "festive-sale-banner.webp",
+      "explanation": "\"#1\" is a claim that needs proof, and the Claim Ledger has no evidence for it.",
+      "suggestedFix": null,
+      "confidence": 1,
+      "severity": "high",
+      "source": "rule",
+      "modelId": null
+    },
+    {
+      "id": "KSR-5.1:alt:festive-sale-banner.webp:0",
+      "rule": "KSR-5.1",
+      "quote": "festive-sale-banner.webp",
+      "location": "alt",
+      "span": {
+        "start": 0,
+        "end": 24
+      },
+      "imageFile": "festive-sale-banner.webp",
+      "explanation": "This image has no alt text. Describe what it shows.",
+      "suggestedFix": null,
+      "confidence": 1,
+      "severity": "medium",
+      "source": "rule",
+      "modelId": null
+    },
+    {
+      "id": "ai:KSR-6.1:356",
+      "rule": "KSR-6.1",
+      "quote": "Shop now, follow us on Instagram and download our app",
+      "location": "text",
+      "span": {
+        "start": 356,
+        "end": 409
+      },
+      "explanation": "Three distinct calls to action (shop, follow, download) violate the one-CTA rule. The intent card only requires urgency for the festive sale.",
+      "suggestedFix": "Shop the festive sale",
+      "confidence": 0.98,
+      "severity": "low",
+      "source": "ai",
+      "modelId": "nvidia/nemotron-3-ultra-550b-a55b",
+      "review": "verified"
+    },
+    {
+      "id": "ai:KSR-6.2:95",
+      "rule": "KSR-6.2",
+      "evidence": "KLE-10",
+      "quote": "30% off everything",
+      "location": "text",
+      "span": {
+        "start": 95,
+        "end": 113
+      },
+      "explanation": "The Claim Ledger (KLE-10) only supports '20% off sitewide from 1 to 16 November 2026', not 30%. The offer also lacks the end date and gift-card exclusion.",
+      "suggestedFix": "20% off sitewide until 16 November — not valid on gift cards",
+      "confidence": 0.99,
+      "severity": "medium",
+      "source": "ai",
+      "modelId": "nvidia/nemotron-3-ultra-550b-a55b",
+      "review": "verified"
+    },
+    {
+      "id": "ai:KSR-6.2:115",
+      "rule": "KSR-6.2",
+      "evidence": "KLE-12",
+      "quote": "Free shipping on all orders above ₹999",
+      "location": "text",
+      "span": {
+        "start": 115,
+        "end": 153
+      },
+      "explanation": "KLE-07 (₹999 threshold) expired 30 Sep 2026; KLE-12 sets the current threshold at ₹1,499. The draft uses an expired condition.",
+      "suggestedFix": "Free shipping on orders above ₹1,499",
+      "confidence": 0.99,
+      "severity": "medium",
+      "source": "ai",
+      "modelId": "nvidia/nemotron-3-ultra-550b-a55b",
+      "review": "verified"
+    },
+    {
+      "id": "ai:KSR-1.1:327",
+      "rule": "KSR-1.1",
+      "quote": "Don't miss out or regret it",
+      "location": "text",
+      "span": {
+        "start": 327,
+        "end": 354
+      },
+      "explanation": "Fear-based urgency ('regret it') breaks the warm, friendly tone. Rule KSR-1.6 also forbids pressure language; true urgency is the sale end date (16 Nov).",
+      "suggestedFix": "The festive sale ends on 16 November",
+      "confidence": 0.95,
+      "severity": "medium",
+      "source": "ai",
+      "modelId": "nvidia/nemotron-3-ultra-550b-a55b",
+      "review": "needs_review",
+      "reviewNote": "Tone is a judgement call, so a person makes the final decision."
+    }
+  ],
+  "candidates": [
+    {
+      "type": "price",
+      "evidence": [
+        "KLE-11"
+      ],
+      "note": "Backed by KLE-11 \"The Indigo Hours double bedsheet set is ₹2,299.\" (source: Price list, October 2026), valid until 31 Dec 2026.",
+      "text": "Rs. 2299/-",
+      "span": {
+        "start": 187,
+        "end": 197
+      },
+      "location": "text"
+    }
+  ],
+  "claims": [
+    {
+      "id": "claim:text::54",
+      "text": "most trusted",
+      "span": {
+        "start": 54,
+        "end": 66
+      },
+      "location": "text",
+      "sentence": "India's most trusted bedsheet brand is back with 30% off everything.",
+      "kind": "superlative",
+      "status": "no_evidence",
+      "suggestedFix": null,
+      "note": "No ledger entry proves \"most trusted\". No evidence, no claim (KSR-4.2).",
+      "source": "rule",
+      "modelId": null,
+      "confidence": 1,
+      "findingId": "KSR-4.2:text::54"
+    },
+    {
+      "id": "claim:text::95",
+      "text": "30%",
+      "span": {
+        "start": 95,
+        "end": 98
+      },
+      "location": "text",
+      "sentence": "India's most trusted bedsheet brand is back with 30% off everything.",
+      "kind": "percent",
+      "status": "contradicted",
+      "evidence": "KLE-10",
+      "suggestedFix": "20%",
+      "note": "The ledger says otherwise: KLE-10 \"20% off sitewide from 1 to 16 November 2026.\" (source: Festive campaign brief, approved 20 Oct 2026), last verified 20 Oct 2026.",
+      "source": "rule",
+      "modelId": null,
+      "confidence": 1,
+      "findingId": "KSR-4.1:text::95"
+    },
+    {
+      "id": "claim:text::149",
+      "text": "₹999",
+      "span": {
+        "start": 149,
+        "end": 153
+      },
+      "location": "text",
+      "sentence": "Free shipping on all orders above ₹999, and the Indigo Hour set is just Rs. 2299/-.",
+      "kind": "price",
+      "status": "stale",
+      "evidence": "KLE-07",
+      "suggestedFix": "₹1,499",
+      "note": "KLE-07 backed \"₹999\" until it expired on 30 Sept 2026 (last verified 1 Mar 2026). The live entry is KLE-12 \"Free shipping on orders above ₹1,499.\" (source: Offer sheet v3).",
+      "source": "rule",
+      "modelId": null,
+      "confidence": 1,
+      "findingId": "KSR-4.1:text::149"
+    },
+    {
+      "id": "claim:text::187",
+      "text": "Rs. 2299/-",
+      "span": {
+        "start": 187,
+        "end": 197
+      },
+      "location": "text",
+      "sentence": "Free shipping on all orders above ₹999, and the Indigo Hour set is just Rs. 2299/-.",
+      "kind": "price",
+      "status": "verified",
+      "evidence": "KLE-11",
+      "suggestedFix": null,
+      "note": "Backed by KLE-11 \"The Indigo Hours double bedsheet set is ₹2,299.\" (source: Price list, October 2026), valid until 31 Dec 2026.",
+      "source": "rule",
+      "modelId": null,
+      "confidence": 1,
+      "findingId": "KSR-2.5:text::187"
+    },
+    {
+      "id": "claim:text::271",
+      "text": "never fade",
+      "span": {
+        "start": 271,
+        "end": 281
+      },
+      "location": "text",
+      "sentence": "Cheap sheets that feel premium, softer than LoomKart, with colours that never fade, guaranteed.",
+      "kind": "absolute",
+      "status": "no_evidence",
+      "suggestedFix": null,
+      "note": "\"never fade\" is an absolute promise — no evidence can back it (KSR-4.4).",
+      "source": "rule",
+      "modelId": null,
+      "confidence": 1,
+      "findingId": "KSR-4.4:text::271"
+    },
+    {
+      "id": "claim:text::283",
+      "text": "guaranteed",
+      "span": {
+        "start": 283,
+        "end": 293
+      },
+      "location": "text",
+      "sentence": "Cheap sheets that feel premium, softer than LoomKart, with colours that never fade, guaranteed.",
+      "kind": "absolute",
+      "status": "no_evidence",
+      "suggestedFix": null,
+      "note": "\"guaranteed\" is an absolute promise — no evidence can back it (KSR-4.4).",
+      "source": "rule",
+      "modelId": null,
+      "confidence": 1,
+      "findingId": "KSR-4.4:text::283"
+    },
+    {
+      "id": "claim:image:festive-sale-banner.webp:28",
+      "text": "30%",
+      "span": {
+        "start": 28,
+        "end": 31
+      },
+      "location": "image",
+      "imageFile": "festive-sale-banner.webp",
+      "sentence": "Dhaaga & Co.\n\nFESTIVE SALE\n\n30% OFF EVERYTHING\n\nFree shipping above ₹999\n\nIndia's #1 bedsheet brand",
+      "kind": "percent",
+      "status": "contradicted",
+      "evidence": "KLE-10",
+      "suggestedFix": "20%",
+      "note": "The ledger says otherwise: KLE-10 \"20% off sitewide from 1 to 16 November 2026.\" (source: Festive campaign brief, approved 20 Oct 2026), last verified 20 Oct 2026.",
+      "source": "rule",
+      "modelId": null,
+      "confidence": 1,
+      "findingId": "KSR-4.1:image:festive-sale-banner.webp:28"
+    },
+    {
+      "id": "claim:image:festive-sale-banner.webp:68",
+      "text": "₹999",
+      "span": {
+        "start": 68,
+        "end": 72
+      },
+      "location": "image",
+      "imageFile": "festive-sale-banner.webp",
+      "sentence": "Dhaaga & Co.\n\nFESTIVE SALE\n\n30% OFF EVERYTHING\n\nFree shipping above ₹999\n\nIndia's #1 bedsheet brand",
+      "kind": "price",
+      "status": "stale",
+      "evidence": "KLE-07",
+      "suggestedFix": "₹1,499",
+      "note": "KLE-07 backed \"₹999\" until it expired on 30 Sept 2026 (last verified 1 Mar 2026). The live entry is KLE-12 \"Free shipping on orders above ₹1,499.\" (source: Offer sheet v3).",
+      "source": "rule",
+      "modelId": null,
+      "confidence": 1,
+      "findingId": "KSR-4.1:image:festive-sale-banner.webp:68"
+    },
+    {
+      "id": "claim:image:festive-sale-banner.webp:82",
+      "text": "#1",
+      "span": {
+        "start": 82,
+        "end": 84
+      },
+      "location": "image",
+      "imageFile": "festive-sale-banner.webp",
+      "sentence": "Dhaaga & Co.\n\nFESTIVE SALE\n\n30% OFF EVERYTHING\n\nFree shipping above ₹999\n\nIndia's #1 bedsheet brand",
+      "kind": "superlative",
+      "status": "no_evidence",
+      "suggestedFix": null,
+      "note": "No ledger entry proves \"#1\". No evidence, no claim (KSR-4.2).",
+      "source": "rule",
+      "modelId": null,
+      "confidence": 1,
+      "findingId": "KSR-4.2:image:festive-sale-banner.webp:82"
+    }
+  ],
+  "ai": {
+    "ran": true,
+    "modelId": "nvidia/nemotron-3-ultra-550b-a55b",
+    "latencyMs": 8656,
+    "rulesConsidered": [
+      "KSR-1.1",
+      "KSR-1.2",
+      "KSR-1.6",
+      "KSR-3.1",
+      "KSR-3.2",
+      "KSR-4.1",
+      "KSR-4.2",
+      "KSR-4.3",
+      "KSR-4.5",
+      "KSR-6.1",
+      "KSR-6.2",
+      "KSR-4.4",
+      "KSR-2.2",
+      "KSR-2.5",
+      "KSR-5.2",
+      "KSR-6.3"
+    ],
+    "evidenceConsidered": [
+      "KLE-11",
+      "KLE-07",
+      "KLE-12",
+      "KLE-13",
+      "KLE-15",
+      "KLE-16",
+      "KLE-10",
+      "KLE-02",
+      "KLE-08"
+    ],
+    "proposed": 6,
+    "verified": 3,
+    "needsReview": 1,
+    "dropped": [
+      {
+        "rule": "KSR-4.3",
+        "quote": "Made by our workers in Panipat",
+        "reason": "quote does not contain a certification, so it can't break KSR-4.3"
+      },
+      {
+        "rule": "KSR-4.5",
+        "quote": "Cheap sheets that feel premium",
+        "reason": "quote does not contain a green or sustainability claim, so it can't break KSR-4.5"
+      }
+    ],
+    "maskedItems": 0,
+    "safety": {
+      "safe": true,
+      "categories": [],
+      "modelId": "nvidia/llama-3.1-nemotron-safety-guard-8b-v3"
+    },
+    "fixWriter": {
+      "ran": true,
+      "modelId": "nvidia/nemotron-3.5-lightning-30b-a3b",
+      "latencyMs": 3360,
+      "written": 3,
+      "rejected": 4,
+      "rejectedReasons": [
+        "the fix itself breaks KSR-6.3, KSR-4.4",
+        "the fix itself breaks KSR-6.3, KSR-4.4",
+        "the fix itself breaks KSR-6.3, KSR-4.4",
+        "the fix itself breaks KSR-6.3, KSR-4.4"
+      ]
+    },
+    "ledger": {
+      "ran": true,
+      "modelId": "nvidia/nemotron-3.5-lightning-30b-a3b",
+      "latencyMs": 1413,
+      "judged": 0,
+      "added": 0,
+      "dropped": []
+    }
+  },
+  "images": [
+    {
+      "name": "festive-sale-banner.webp",
+      "text": "Dhaaga & Co.\n\nFESTIVE SALE\n\n30% OFF EVERYTHING\n\nFree shipping above ₹999\n\nIndia's #1 bedsheet brand",
+      "textSource": "nvidia",
+      "modelId": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning",
+      "latencyMs": 10268
+    }
+  ],
+  "timings": {
+    "totalMs": 18965,
+    "ocrMs": 10280
+  }
+}
