@@ -60,6 +60,7 @@ export function buildReviewMessages(args: {
     "- quote words copied exactly from the DRAFT (same spelling, punctuation and capitals), the shortest span that shows the problem;",
     "- explain in one or two sentences, naming the evidence code when a claim is involved;",
     "- suggest replacement text for the quoted words only, keeping the creator's intent and every MUST KEEP item; use null if a person must rewrite;",
+    "- read the sentence with your fix in place: it must read naturally. If it can't, quote the whole clause and rewrite that instead;",
     "- never invent facts: a fix may only use numbers, dates and claims that appear in EVIDENCE or the DRAFT;",
     "- set evidence to a single code like KLE-10, or null — never prose;",
     "- give a confidence from 0 to 1. Use below 0.6 when you are unsure.",

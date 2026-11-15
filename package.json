@@ -14,7 +14,8 @@
     "smoke:nvidia": "tsx scripts/smoke-nvidia.mts",
     "eval:ai": "tsx scripts/eval-ai.mts",
     "eval:retrieval": "tsx scripts/eval-retrieval.mts",
-    "eval:ledger": "tsx scripts/eval-ledger.mts"
+    "eval:ledger": "tsx scripts/eval-ledger.mts",
+    "eval:fixall": "tsx scripts/eval-fixall.mts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",

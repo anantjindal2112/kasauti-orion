@@ -27,6 +27,8 @@ export interface AiMeta {
   dropped?: { rule: string; quote: string; reason: string }[];
   maskedItems?: number;
   safety?: { safe: boolean; categories: string[]; modelId: string } | null;
+  /** AI-written fixes for code findings that had none (each checked by code before it is offered). */
+  fixWriter?: { ran: boolean; modelId?: string; latencyMs?: number; written?: number; rejected?: number; rejectedReasons?: string[] };
   /** The Claim Ledger's AI pass (implicit claims + "does this evidence support it?"). */
   ledger?: {
     ran: boolean;
@@ -88,4 +90,13 @@ export interface EvidenceInfo {
   expired: boolean;
   verifiedAt: string;
   owner: string;
+}
+
+/** What /api/fixall returns: the draft with every fix applied (and checked), plus alt text for images that had none. */
+export interface FixAllResponse {
+  text: string;
+  /** "ai" = one verified rewrite of the whole draft; "plan" = the span-by-span fixes. */
+  source: "ai" | "plan";
+  modelId?: string;
+  alts: { name: string; alt: string }[];
 }

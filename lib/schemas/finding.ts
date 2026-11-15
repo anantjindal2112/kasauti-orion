@@ -36,6 +36,8 @@ export const findingSchema = z.object({
   review: z.enum(["verified", "needs_review"]).optional(),
   /** Why the Verifier sent it to human review (low confidence, fix removed…). */
   reviewNote: z.string().optional(),
+  /** A code finding whose fix was written by this AI model and then checked by code. */
+  fixBy: z.string().optional(),
 });
 export type Finding = z.infer<typeof findingSchema>;
 

@@ -21,7 +21,10 @@ export const checkBrandName: TextCheck = (text, { pack }) => {
 /** KSR-2.6 — product lines written exactly as approved. */
 export const checkProductNames: TextCheck = (text, { pack }) =>
   pack.terms.productNames.flatMap(({ correct, wrong }) =>
-    dropOverlaps(wrong.flatMap((w) => findTerm(text, w, { caseSensitive: true }))).map((m) => ({
+    dropOverlaps(wrong.flatMap((w) => findTerm(text, w, { caseSensitive: true })))
+      // "#IndigoHours" is how the name is written as a hashtag (KSR-5.3), not a misspelling.
+      .filter((m) => text[m.start - 1] !== "#")
+      .map((m) => ({
       rule: "KSR-2.6",
       match: m,
       explanation: `The approved product name is "${correct}".`,

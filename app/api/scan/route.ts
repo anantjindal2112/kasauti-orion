@@ -44,6 +44,8 @@ const scanRequest = z.object({
     .optional(),
   /** A customised brand pack from the Customise page (validated in full). Defaults to the built-in pack. */
   pack: brandPackSchema.optional(),
+  /** Set when re-checking after accepting fixes: the AI findings shown last time ("rule|quote"). */
+  recheck: z.object({ aiSeen: z.array(z.string().max(2000)).max(100), accepted: z.array(z.string().max(2000)).max(100).optional() }).optional(),
   /** Date used for expiry checks. Defaults to the demo date. */
   today: z.iso.date().optional(),
 });
@@ -108,7 +110,7 @@ export async function POST(request: Request) {
       intent: body.intent,
     },
     pack,
-    { client, ai: body.ai, today },
+    { client, ai: body.ai, today, recheck: body.recheck },
   );
 
   return Response.json({

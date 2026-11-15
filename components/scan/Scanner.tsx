@@ -13,7 +13,8 @@ import { FindingCard, type Decision } from "@/components/scan/FindingCard";
 import { HighlightedDraft } from "@/components/scan/HighlightedDraft";
 import Link from "next/link";
 import { parseCustom, saveCustom, useCustomRaw, type CustomSettings } from "@/lib/custom-pack";
-import type { DemoDraft, EvidenceInfo, RuleInfo, ScanResponse } from "@/lib/scan-types";
+import { applyFixes } from "@/lib/fixes/apply";
+import type { DemoDraft, EvidenceInfo, FixAllResponse, RuleInfo, ScanResponse } from "@/lib/scan-types";
 import type { BrandPackData, Evidence } from "@/lib/schemas/brand-pack";
 import type { LedgerClaim } from "@/lib/schemas/claim";
 import type { Finding } from "@/lib/schemas/finding";
@@ -130,7 +131,7 @@ export function Scanner({
   const [ledgerLog, setLedgerLog] = useState<string[]>([]);
 
   const scan = useCallback(
-    async (overrides?: { text?: string; images?: DraftImage[]; pack?: BrandPackData; today?: string }) => {
+    async (overrides?: { text?: string; images?: DraftImage[]; pack?: BrandPackData; today?: string; recheck?: { aiSeen: string[]; accepted: string[] } }) => {
       const body = overrides?.text ?? text;
       const imgs = overrides?.images ?? images;
       if (!body.trim()) {
@@ -154,6 +155,7 @@ export function Scanner({
             ocr,
             ai: aiOn,
             intent,
+            ...(overrides?.recheck ? { recheck: overrides.recheck } : {}),
             ...(overrides?.pack
               ? { pack: overrides.pack, today: overrides.today }
               : custom
@@ -253,36 +255,68 @@ export function Scanner({
     document.getElementById(`finding-${f.id}`)?.scrollIntoView({ behavior: "smooth", block: "nearest" });
   };
 
+  /** AI findings shown in this scan, so the re-check after a fix doesn't surface fresh second opinions. */
+  const recheckOf = (accepted: Finding[]) => ({
+    aiSeen: (result?.findings ?? []).filter((f) => f.source === "ai").map((f) => `${f.rule}|${f.quote}`),
+    accepted: accepted.flatMap((f) => (f.suggestedFix && (f.source === "ai" || f.fixBy) ? [f.suggestedFix] : [])),
+  });
+
   const applyFix = (f: Finding, replacement: string, how: "accepted" | "edited") => {
-    const next = scannedText.slice(0, f.span.start) + replacement + scannedText.slice(f.span.end);
+    const next = applyFixes(scannedText, [{ start: f.span.start, end: f.span.end, replacement }]);
     setDecisions((d) => ({ ...d, [keyOf(f)]: { action: how } }));
     setVersions((v) => [...v, { n: v.length + 1, text: next, note: `${how === "accepted" ? "Accepted fix" : "Edited"} ${f.rule}` }]);
     setText(next);
-    void scan({ text: next });
+    void scan({ text: next, recheck: recheckOf([{ ...f, suggestedFix: replacement }]) });
   };
 
-  /** Every open text finding with a ready-made fix, minus any that overlap (the first, most severe, wins). */
-  const batch = useMemo(() => {
-    const picked: Finding[] = [];
-    for (const f of sorted) {
-      if (f.location !== "text" || f.suggestedFix === null || decisions[keyOf(f)]) continue;
-      if (picked.some((p) => f.span.start < p.span.end && p.span.start < f.span.end)) continue;
-      picked.push(f);
-    }
-    return picked;
-  }, [sorted, decisions]);
+  /** What "Accept all" covers: every open finding in the copy, plus images with no alt text. */
+  const batch = useMemo(
+    () => sorted.filter((f) => !decisions[keyOf(f)] && (f.location === "text" || f.rule === "KSR-5.1")),
+    [sorted, decisions],
+  );
+  const [fixing, setFixing] = useState(false);
 
-  /** Apply every fix in one go (right to left so offsets stay valid), then re-check the whole draft once. */
-  const applyAll = () => {
-    if (!canApply || batch.length === 0) return;
-    let next = scannedText;
-    for (const f of [...batch].sort((a, b) => b.span.start - a.span.start)) {
-      next = next.slice(0, f.span.start) + f.suggestedFix + next.slice(f.span.end);
+  /**
+   * One click fixes everything fixable: the server rewrites the draft once (or applies the span fixes),
+   * code checks the result, missing alt text is written from the image, and the draft is re-checked.
+   */
+  const applyAll = async () => {
+    if (!canApply || !result || batch.length === 0 || fixing) return;
+    setFixing(true);
+    setError("");
+    try {
+      const textFindings = batch.filter((f) => f.location === "text");
+      const missingAlt = batch.filter((f) => f.rule === "KSR-5.1").map((f) => images.find((i) => i.name === f.imageFile)).filter((i): i is DraftImage => !!i);
+      const imgPayload = (await Promise.all(missingAlt.map(async (i) => ({ name: i.name, dataUrl: await toDataUrl(i) })))).filter(
+        (i): i is { name: string; dataUrl: string } => !!i.dataUrl,
+      );
+      const res = await fetch("/api/fixall", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          text: scannedText,
+          findings: textFindings,
+          images: imgPayload,
+          intent,
+          ...(custom ? { pack: custom.pack, today: custom.today } : {}),
+        }),
+      });
+      const json = (await res.json()) as FixAllResponse & { error?: string };
+      if (!res.ok) throw new Error(json.error ?? "Couldn't apply the fixes.");
+      const altBy = new Map(json.alts.map((a) => [a.name, a.alt]));
+      const nextImages = images.map((i) => (altBy.has(i.name) ? { ...i, alt: altBy.get(i.name)! } : i));
+      const done = batch.filter((f) => f.location === "text" || altBy.has(f.imageFile ?? ""));
+      setDecisions((d) => ({ ...d, ...Object.fromEntries(done.map((f) => [keyOf(f), { action: "accepted" as const }])) }));
+      setVersions((v) => [...v, { n: v.length + 1, text: json.text, note: `Accepted all fixes (${done.length})` }]);
+      setText(json.text);
+      setImages(nextImages);
+      void scan({ text: json.text, images: nextImages, recheck: recheckOf(done) });
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Couldn't apply the fixes.");
+      setStatus("error");
+    } finally {
+      setFixing(false);
     }
-    setDecisions((d) => ({ ...d, ...Object.fromEntries(batch.map((f) => [keyOf(f), { action: "accepted" as const }])) }));
-    setVersions((v) => [...v, { n: v.length + 1, text: next, note: `Accepted ${batch.length} fixes (${batch.map((f) => f.rule).join(", ")})` }]);
-    setText(next);
-    void scan({ text: next });
   };
 
   const setAlt = (f: Finding, alt: string) => {
@@ -688,13 +722,28 @@ export function Scanner({
               animate={{ opacity: 1, y: 0 }}
               className="flex flex-wrap items-center gap-3 border-2 border-ink bg-yellow p-3 shadow-hard-sm"
             >
-              <Button variant="dark" onClick={applyAll} disabled={!canApply}>
-                <Icon name="check" /> Accept all {batch.length} fix{batch.length === 1 ? "" : "es"}
+              <Button variant="dark" onClick={() => void applyAll()} disabled={!canApply || fixing}>
+                <Icon name="check" /> {fixing ? "Fixing everything…" : `Accept all ${batch.length} fix${batch.length === 1 ? "" : "es"}`}
               </Button>
               <span className="text-sm">
-                Applies every suggested fix at once, then re-checks the whole draft in one pass. You can still accept, edit or dispute each
-                one below.
+                Fixes everything in the copy in one pass and writes missing alt text, then re-checks the whole draft. Text baked into a banner
+                needs a new banner.
               </span>
+            </motion.div>
+          )}
+
+          {result && !scanning && batch.length === 0 && open.some((f) => f.location === "image") && (
+            <motion.div
+              initial={{ opacity: 0, y: -6 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="flex items-start gap-3 border-2 border-ink bg-card p-3 shadow-hard-sm"
+            >
+              <Icon name="check" className="mt-0.5 h-5 w-5 text-teal" />
+              <p className="text-sm">
+                <b>The copy is clean.</b> {open.filter((f) => f.location === "image").length} issue
+                {open.filter((f) => f.location === "image").length === 1 ? " is" : "s are"} printed inside the banner image, so editing the text can&rsquo;t clear
+                {open.filter((f) => f.location === "image").length === 1 ? " it" : " them"}. Upload a corrected banner and scan again.
+              </p>
             </motion.div>
           )}
 

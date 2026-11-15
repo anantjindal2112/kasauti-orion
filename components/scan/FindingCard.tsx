@@ -114,9 +114,12 @@ export function FindingCard({
 
         {f.location !== "alt" && (
           <div className="border-2 border-ink bg-term px-3 py-2 font-mono text-sm">
-            <p className="text-yellow">SUGGESTED FIX</p>
+            <p className="text-yellow">
+              SUGGESTED FIX
+              {f.fixBy && <span className="text-paper/60"> · written by AI ({f.fixBy.split("/").at(-1)}), checked by code</span>}
+            </p>
             {f.suggestedFix === null ? (
-              <p className="mt-1 text-paper/80">No automatic fix — this needs a human rewrite.</p>
+              <p className="mt-1 text-paper/80">{f.location === "image" ? "This text is inside the image — update the banner." : "This one needs a person to rewrite it."}</p>
             ) : f.suggestedFix === "" ? (
               <p className="mt-1 text-term-green">Remove “{f.quote}”.</p>
             ) : (

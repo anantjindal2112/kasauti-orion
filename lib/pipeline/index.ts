@@ -11,6 +11,7 @@ import { maskPII } from "@/lib/privacy/mask";
 import { buildCodeLedger, reconcile } from "@/lib/ledger";
 import { askLedger, buildLedgerMessages, groundAiClaims } from "@/lib/ledger/ai";
 import type { LedgerClaim } from "@/lib/schemas/claim";
+import { writeFixes } from "@/lib/pipeline/fix-writer";
 import type { AiMeta } from "@/lib/scan-types";
 import type { ClaimCandidate, Finding } from "@/lib/schemas/finding";
 
@@ -22,6 +23,13 @@ export interface ReviewResult {
   ai: AiMeta;
 }
 
+/** On a re-check (after fixes were accepted), the AI findings shown last time, as "rule|quote". */
+export interface Recheck {
+  aiSeen: string[];
+  /** Fix wording accepted in the last round. The reviewer doesn't get to argue with its own accepted fixes. */
+  accepted?: string[];
+}
+
 /**
  * The full pipeline: code checks → mask PII → retrieve rules + proof → AI review → Verifier.
  * If anything in the AI half fails, the code findings still come back (the fallback the plan promises).
@@ -29,7 +37,7 @@ export interface ReviewResult {
 export async function reviewDraft(
   input: CheckInput & { intent?: Intent },
   pack: BrandPack,
-  opts: { client: NvidiaClient | null; ai?: boolean; today?: string; embedFn?: EmbedFn },
+  opts: { client: NvidiaClient | null; ai?: boolean; today?: string; embedFn?: EmbedFn; recheck?: Recheck },
 ): Promise<ReviewResult> {
   const today = opts.today ?? DEMO_TODAY;
   const code = runCodeChecks(input, pack, { today });
@@ -94,6 +102,13 @@ export async function reviewDraft(
       (e: unknown) => ({ ok: false as const, error: e instanceof Error ? e.message.slice(0, 160) : "error", ms: Date.now() - ledgerStarted }),
     );
 
+    // The fix-writer drafts fixes for code findings that have none, beside the reviewer and the ledger pass.
+    const fixStarted = Date.now();
+    const fixCall = writeFixes({ client, pack, draft: input.text, findings: code.findings, today }).then(
+      (r) => ({ ok: true as const, r, ms: Date.now() - fixStarted }),
+      () => ({ ok: false as const, ms: Date.now() - fixStarted }),
+    );
+
     const res = await askReviewer(client, messages);
     const result = verify({ draft: input.text, aiFindings: res.data, codeFindings: code.findings, pack, modelId: res.modelId, tokens, today });
 
@@ -117,7 +132,36 @@ export async function reviewDraft(
       });
     }
     result.kept = result.kept.filter((f) => !overruled.some((o) => o.f === f));
-    const findings = [...code.findings, ...result.kept];
+
+    // A re-check after accepting fixes reports real problems, not fresh second opinions: a new
+    // low-confidence finding the reviewer didn't raise last time is set aside (listed in the disclosure).
+    if (opts.recheck) {
+      const seen = new Set(opts.recheck.aiSeen);
+      const norm = (t: string) => t.toLowerCase().replace(/[^\p{L}\p{N}₹%]+/gu, " ").trim();
+      const accepted = (opts.recheck.accepted ?? []).map(norm).filter((t) => t.length >= 8);
+      const onAccepted = (q: string) => accepted.some((a) => norm(q).includes(a) || a.includes(norm(q)));
+      const fresh = result.kept.filter(
+        (f) => !seen.has(`${f.rule}|${f.quote}`) && (f.review === "needs_review" || onAccepted(f.quote)),
+      );
+      for (const f of fresh) {
+        result.dropped.push({
+          finding: { rule: f.rule, evidence: f.evidence ?? null, quote: f.quote, explanation: f.explanation, suggestedFix: f.suggestedFix, confidence: f.confidence },
+          reason: onAccepted(f.quote) ? "argues with a fix accepted in this review" : "new low-confidence opinion on a re-check after fixes",
+        });
+      }
+      result.kept = result.kept.filter((f) => !fresh.includes(f));
+    }
+
+    const fixRes = await fixCall;
+    const written = fixRes.ok && fixRes.r ? fixRes.r : null;
+    const codeFindings = written
+      ? code.findings.map((f) => {
+          const w = written.fixes.get(f.id);
+          // A widened fix replaces the clause around the problem, so the finding now points at that clause.
+          return w ? { ...f, quote: w.quote, span: w.span, suggestedFix: w.fix, fixBy: written.modelId } : f;
+        })
+      : code.findings;
+    const findings = [...codeFindings, ...result.kept];
     const ledgerRes = await ledgerCall;
     const grounded = ledgerRes.ok
       ? groundAiClaims({ draft: input.text, aiClaims: ledgerRes.r.data, codeClaims: codeLedger, pack, today, modelId: ledgerRes.r.modelId, tokens })
@@ -139,6 +183,9 @@ export async function reviewDraft(
         dropped: result.dropped.map((d: Dropped) => ({ rule: d.finding.rule, quote: d.finding.quote, reason: d.reason })),
         maskedItems: tokens.length,
         safety: safety ? { ...safety.data, modelId: safety.modelId } : null,
+        fixWriter: written
+          ? { ran: true, modelId: written.modelId, latencyMs: fixRes.ms, written: written.fixes.size, rejected: written.rejected.length, rejectedReasons: written.rejected.map((r) => r.reason) }
+          : undefined,
         ledger:
           ledgerRes.ok && grounded
             ? { ran: true, modelId: ledgerRes.r.modelId, latencyMs: ledgerRes.ms, judged: grounded.judged, added: grounded.added, dropped: grounded.dropped }

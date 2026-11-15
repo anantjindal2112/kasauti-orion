@@ -70,7 +70,7 @@ export const RULE_GUARDS: Record<string, { test: (quote: string) => boolean; abo
 };
 
 /** Every ₹ amount and percentage in the fix must already exist in the draft or the Claim Ledger. */
-function inventedFacts(fix: string, draft: string, pack: BrandPack): string[] {
+export function inventedFacts(fix: string, draft: string, pack: BrandPack): string[] {
   const known = new Set<number>();
   for (const m of findRegex(draft, PRICE_RE)) known.add(parseAmount(m.text) ?? -1);
   for (const e of pack.evidence) {
