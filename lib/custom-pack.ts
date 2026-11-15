@@ -77,3 +77,19 @@ function subscribe(cb: () => void) {
 export function useCustomRaw(): string | null {
   return useSyncExternalStore(subscribe, readRaw, () => null);
 }
+
+/** The settings to edit: the saved custom pack, or the built-in pack as a starting point. */
+export function startSettings(saved: CustomSettings | null, defaults: BrandPackData, today: string): CustomSettings {
+  return saved ?? { rules: defaults.rules, disabled: [], pack: defaults, today, savedAt: "" };
+}
+
+/** Validate and save. Returns an error message, or null when saved. */
+export function commitSettings(s: CustomSettings): string | null {
+  const next = { ...s, pack: effectivePack(s.pack, s.rules, s.disabled), savedAt: new Date().toISOString() };
+  const r = customSettingsSchema.safeParse(next);
+  if (!r.success) {
+    const i = r.error.issues[0];
+    return `${i.path.slice(-2).join(".")}: ${i.message}`;
+  }
+  return saveCustom(r.data) ? null : "Couldn't save to this browser's storage.";
+}

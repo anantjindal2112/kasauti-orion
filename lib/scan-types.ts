@@ -1,3 +1,4 @@
+import type { LedgerClaim } from "@/lib/schemas/claim";
 import type { ClaimCandidate, Finding } from "@/lib/schemas/finding";
 
 /** Shapes shared by the scan API and the browser. No server imports here. */
@@ -26,11 +27,24 @@ export interface AiMeta {
   dropped?: { rule: string; quote: string; reason: string }[];
   maskedItems?: number;
   safety?: { safe: boolean; categories: string[]; modelId: string } | null;
+  /** The Claim Ledger's AI pass (implicit claims + "does this evidence support it?"). */
+  ledger?: {
+    ran: boolean;
+    error?: string;
+    modelId?: string;
+    latencyMs?: number;
+    /** Unchecked claims the model settled. */
+    judged?: number;
+    /** New claims it found in plain words. */
+    added?: number;
+    dropped?: { quote: string; reason: string }[];
+  };
 }
 
 export interface ScanResponse {
   findings: Finding[];
   candidates: ClaimCandidate[];
+  claims: LedgerClaim[];
   images: ScannedImage[];
   ai: AiMeta;
   timings: { totalMs: number; ocrMs: number };
@@ -54,6 +68,8 @@ export interface DemoDraft {
   intent: { purpose: string; audience: string; mustKeep: string[] };
   images: DemoImage[];
   expectedCount: number;
+  /** Showcase drafts: what this example demonstrates. */
+  shows?: string[];
 }
 
 export interface RuleInfo {
@@ -70,4 +86,6 @@ export interface EvidenceInfo {
   source: string;
   expiresAt: string | null;
   expired: boolean;
+  verifiedAt: string;
+  owner: string;
 }

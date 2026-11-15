@@ -154,7 +154,7 @@ export default function HowPage() {
       </div>
 
       <div className="text-center">
-        <ButtonLink href="/scan?draft=D01" variant="primary" size="lg">
+        <ButtonLink href="/scan?draft=S1" variant="primary" size="lg">
           See it work <Icon name="arrow" className="h-5 w-5" />
         </ButtonLink>
       </div>

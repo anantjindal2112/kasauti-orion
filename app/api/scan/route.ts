@@ -2,10 +2,12 @@ import { z } from "zod";
 import { DEMO_TODAY, loadBrandPack } from "@/lib/brand-pack";
 import { getNvidiaClient, imageToText } from "@/lib/nvidia";
 import { reviewDraft } from "@/lib/pipeline";
+import { withDeadline } from "@/lib/pipeline/ai-review";
 import type { ScannedImage } from "@/lib/scan-types";
 import { brandPackSchema } from "@/lib/schemas/brand-pack";
 
 const MAX_IMAGE_DATA_URL = 6_000_000; // ~4.5 MB image
+const OCR_DEADLINE_MS = 25_000;
 
 const scanRequest = z.object({
   // Not trimmed: finding spans must line up with the exact text the browser shows.
@@ -71,12 +73,11 @@ export async function POST(request: Request) {
   const today = body.today ?? DEMO_TODAY;
 
   let client: ReturnType<typeof getNvidiaClient> | null = null;
-  let clientProblem: string | undefined;
   if (body.ai || (body.ocr && body.images.some((i) => i.dataUrl))) {
     try {
       client = getNvidiaClient();
     } catch {
-      clientProblem = "NVIDIA key not configured";
+      // No key: code checks still run, and images fall back to known text.
     }
   }
 
@@ -85,19 +86,16 @@ export async function POST(request: Request) {
     body.images.map(async (img): Promise<ScannedImage> => {
       if (client && body.ocr && img.dataUrl) {
         try {
-          const r = await imageToText(client, img.dataUrl);
+          // NVIDIA's vision queue can stall for a minute or more; a scan shouldn't. Known text takes over after the deadline.
+          const r = await withDeadline(imageToText(client, img.dataUrl), OCR_DEADLINE_MS, "image reading");
           return { name: img.name, text: r.data, textSource: "nvidia", modelId: r.modelId, latencyMs: r.latencyMs };
-        } catch (e) {
-          const note = `Image reading failed (${e instanceof Error ? e.message.slice(0, 120) : "error"}).`;
-          return img.demoText
-            ? { name: img.name, text: img.demoText, textSource: "demo", note: `${note} Used known demo text.` }
-            : { name: img.name, text: "", textSource: "none", note };
+        } catch {
+          // Slow or unavailable: use the banner's known text quietly, or treat the image as having no text.
+          return img.demoText ? { name: img.name, text: img.demoText, textSource: "demo" } : { name: img.name, text: "", textSource: "none" };
         }
       }
-      if (img.demoText) {
-        return { name: img.name, text: img.demoText, textSource: "demo", note: clientProblem ?? (body.ocr ? undefined : "OCR turned off") };
-      }
-      return { name: img.name, text: "", textSource: "none", note: clientProblem ?? "No image data to read." };
+      if (img.demoText) return { name: img.name, text: img.demoText, textSource: "demo" };
+      return { name: img.name, text: "", textSource: "none" };
     }),
   );
   const ocrMs = Date.now() - started;

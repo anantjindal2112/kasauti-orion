@@ -3,7 +3,8 @@ import { Suspense } from "react";
 import { PageHeader } from "@/components/retro/PageHeader";
 import { Window } from "@/components/retro/Window";
 import { Scanner } from "@/components/scan/Scanner";
-import { demoDrafts, evidenceIndex, ruleIndex, stressDrafts } from "@/lib/demo";
+import { DEMO_TODAY, loadBrandPack } from "@/lib/brand-pack";
+import { demoDrafts, evidenceIndex, ruleIndex, showcaseDrafts } from "@/lib/demo";
 
 export const metadata: Metadata = { title: "Scan a draft" };
 
@@ -16,7 +17,7 @@ export default function ScanPage() {
         subtitle="Rub the copy against the brand's approved sources. What is real stays; what is false, stale or unproven leaves a mark — with a reason and a fix."
         tip={
           <>
-            Pick <b>D01</b> under Quick picks to see the deck&rsquo;s stale-price example, then press <b>Accept fix</b>.
+            Start with <b>Example 1</b>, then press <b>Accept all fixes</b>. Upload your own banner under step 3 to test image reading.
           </>
         }
       />
@@ -27,7 +28,13 @@ export default function ScanPage() {
           </Window>
         }
       >
-        <Scanner drafts={[...demoDrafts(), ...stressDrafts()]} rules={ruleIndex()} evidence={evidenceIndex()} />
+        <Scanner
+          drafts={[...showcaseDrafts(), ...demoDrafts()]}
+          rules={ruleIndex()}
+          evidence={evidenceIndex()}
+          basePack={loadBrandPack()}
+          demoToday={DEMO_TODAY}
+        />
       </Suspense>
     </>
   );

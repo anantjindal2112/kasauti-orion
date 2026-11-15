@@ -8,11 +8,14 @@ import { Button } from "@/components/retro/Button";
 import { Icon } from "@/components/retro/Icon";
 import { TypeLines } from "@/components/retro/Motion";
 import { Window } from "@/components/retro/Window";
+import { ClaimLedger, type ProofDraft } from "@/components/scan/ClaimLedger";
 import { FindingCard, type Decision } from "@/components/scan/FindingCard";
 import { HighlightedDraft } from "@/components/scan/HighlightedDraft";
 import Link from "next/link";
-import { parseCustom, useCustomRaw } from "@/lib/custom-pack";
+import { parseCustom, saveCustom, useCustomRaw, type CustomSettings } from "@/lib/custom-pack";
 import type { DemoDraft, EvidenceInfo, RuleInfo, ScanResponse } from "@/lib/scan-types";
+import type { BrandPackData, Evidence } from "@/lib/schemas/brand-pack";
+import type { LedgerClaim } from "@/lib/schemas/claim";
 import type { Finding } from "@/lib/schemas/finding";
 
 interface DraftImage {
@@ -31,8 +34,17 @@ interface Version {
 }
 
 const SEVERITY_ORDER = { high: 0, medium: 1, low: 2 } as const;
-const QUICK = ["D01", "D02", "D07", "D16", "D17", "X1"];
 const keyOf = (f: Finding) => `${f.rule}|${f.location}|${f.imageFile ?? ""}|${f.quote}`;
+
+/** The ledger value for proof a reviewer adds from a claim: numbers stay numbers, so code can check them. */
+function proofValue(c: LedgerClaim): Evidence["value"] {
+  const n = /(\d+(?:,\d+)*(?:\.\d{1,2})?)/.exec(c.text);
+  const value = n ? Number(n[1].replace(/,/g, "")) : NaN;
+  if (c.kind === "price" && value > 0) return { kind: "price", amountInr: value };
+  if (c.kind === "percent" && value > 0 && value <= 100) return { kind: "percent", percent: value };
+  if (c.kind === "days" && Number.isInteger(value) && value > 0) return { kind: "days", days: value };
+  return { kind: "text", text: c.text };
+}
 
 async function toDataUrl(img: DraftImage): Promise<string | undefined> {
   if (img.dataUrl) return img.dataUrl;
@@ -53,10 +65,15 @@ export function Scanner({
   drafts,
   rules,
   evidence,
+  basePack,
+  demoToday,
 }: {
   drafts: DemoDraft[];
   rules: Record<string, RuleInfo>;
   evidence: Record<string, EvidenceInfo>;
+  /** The built-in brand pack — the starting point when a reviewer adds proof to the ledger. */
+  basePack: BrandPackData;
+  demoToday: string;
 }) {
   const params = useSearchParams();
   const router = useRouter();
@@ -85,7 +102,16 @@ export function Scanner({
         ? Object.fromEntries(
             custom.pack.evidence.map((e) => [
               e.code,
-              { code: e.code, title: e.title, claim: e.claim, source: e.source, expiresAt: e.expiresAt, expired: e.expiresAt !== null && e.expiresAt < custom.today },
+              {
+                code: e.code,
+                title: e.title,
+                claim: e.claim,
+                source: e.source,
+                expiresAt: e.expiresAt,
+                expired: e.expiresAt !== null && e.expiresAt < custom.today,
+                verifiedAt: e.verifiedAt,
+                owner: `${e.owner.name} (${e.owner.role})`,
+              },
             ]),
           )
         : evidence,
@@ -101,9 +127,10 @@ export function Scanner({
   const [versions, setVersions] = useState<Version[]>([]);
   const [decisions, setDecisions] = useState<Record<string, Decision>>({});
   const [runs, setRuns] = useState(0);
+  const [ledgerLog, setLedgerLog] = useState<string[]>([]);
 
   const scan = useCallback(
-    async (overrides?: { text?: string; images?: DraftImage[] }) => {
+    async (overrides?: { text?: string; images?: DraftImage[]; pack?: BrandPackData; today?: string }) => {
       const body = overrides?.text ?? text;
       const imgs = overrides?.images ?? images;
       if (!body.trim()) {
@@ -121,7 +148,18 @@ export function Scanner({
         const res = await fetch("/api/scan", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ text: body, images: payloadImages, ocr, ai: aiOn, intent, ...(custom ? { pack: custom.pack, today: custom.today } : {}) }),
+          body: JSON.stringify({
+            text: body,
+            images: payloadImages,
+            ocr,
+            ai: aiOn,
+            intent,
+            ...(overrides?.pack
+              ? { pack: overrides.pack, today: overrides.today }
+              : custom
+                ? { pack: custom.pack, today: custom.today }
+                : {}),
+          }),
         });
         const json = await res.json();
         if (!res.ok) throw new Error(json.error ?? `Scan failed (${res.status})`);
@@ -152,6 +190,7 @@ export function Scanner({
       setResult(null);
       setVersions([]);
       setDecisions({});
+      setLedgerLog([]);
       setSelectedId(null);
       setView("edit");
       setStatus("idle");
@@ -267,56 +306,76 @@ export function Scanner({
     });
   };
 
+  /**
+   * A reviewer accepts an unproven claim by adding proof: a new ledger entry with owner and expiry.
+   * Until the database exists (Stage 2) it is saved in this browser's custom brand pack, then the draft is re-scanned.
+   */
+  const ledgerToday = custom?.today ?? demoToday;
+  const addProof = (c: LedgerClaim, p: ProofDraft) => {
+    const base: CustomSettings = custom ?? { rules: basePack.rules, disabled: [], pack: basePack, today: demoToday, savedAt: "" };
+    const next = Math.max(0, ...base.pack.evidence.map((e) => Number(e.code.slice(4)) || 0)) + 1;
+    if (next > 99) {
+      setError("The ledger is full (KLE-99). Remove an old entry on the Customise page first.");
+      setStatus("error");
+      return;
+    }
+    const code = `KLE-${String(next).padStart(2, "0")}`;
+    const entry: Evidence = {
+      code,
+      title: `Added in review: ${c.text.length > 40 ? `${c.text.slice(0, 40)}…` : c.text}`,
+      claim: p.claim,
+      value: proofValue(c),
+      source: p.source,
+      owner: { name: p.ownerName, role: p.ownerRole },
+      verifiedAt: base.today,
+      expiresAt: p.expiresAt,
+      tags: ["added-in-review"],
+    };
+    const pack = { ...base.pack, evidence: [...base.pack.evidence, entry] };
+    if (!saveCustom({ ...base, pack, savedAt: new Date().toISOString() })) {
+      setError("Couldn't save to this browser's storage, so the proof wasn't added.");
+      setStatus("error");
+      return;
+    }
+    setLedgerLog((l) => [...l, `${code} added for “${c.text}” · owner ${p.ownerName} · ${p.expiresAt ? `expires ${p.expiresAt}` : "no expiry"}`]);
+    void scan({ pack, today: base.today });
+  };
+
   const scanning = status === "scanning";
   const current = drafts.find((d) => d.id === draftId);
+  const showcase = drafts.filter((d) => d.shows);
 
   return (
     <div className="grid gap-6 lg:grid-cols-2 lg:items-start">
       {/* ---------------- Left: the draft ---------------- */}
       <Window title="C:\KASAUTI\DRAFT.TXT" color="teal" bodyClassName="relative p-4 sm:p-5 space-y-5">
         <div>
-          <label htmlFor="demo-picker" className="font-mono text-xs font-bold uppercase tracking-wider">
-            1 · Load a demo draft
-          </label>
-          <select
-            id="demo-picker"
-            value={draftId}
-            onChange={(e) => pick(e.target.value, true)}
-            className="mt-1 w-full border-2 border-ink bg-card px-3 py-2.5 text-base shadow-hard-sm"
-          >
-            <option value="">— Blank draft (paste your own copy) —</option>
-            <optgroup label="Test set (with answer keys)">
-              {drafts
-                .filter((d) => d.id.startsWith("D"))
-                .map((d) => (
-                  <option key={d.id} value={d.id}>
-                    {d.id} · {d.title}
-                  </option>
-                ))}
-            </optgroup>
-            <optgroup label="Stress tests (lots of problems)">
-              {drafts
-                .filter((d) => d.id.startsWith("X"))
-                .map((d) => (
-                  <option key={d.id} value={d.id}>
-                    {d.id} · {d.title}
-                  </option>
-                ))}
-            </optgroup>
-          </select>
-          <div className="mt-2 flex flex-wrap gap-2">
-            <span className="self-center font-mono text-xs text-muted">Quick picks:</span>
-            {QUICK.map((id) => (
-              <button
-                key={id}
-                type="button"
-                onClick={() => pick(id, true)}
-                className={`border-2 border-ink px-2 py-1 font-mono text-xs shadow-hard-sm press ${draftId === id ? "bg-yellow" : "bg-card"}`}
-              >
-                {id}
-              </button>
-            ))}
+          <p className="font-mono text-xs font-bold uppercase tracking-wider">1 · Pick an example, or paste your own</p>
+          <div className="mt-2 grid gap-2 sm:grid-cols-3">
+            {showcase.map((d, i) => {
+              const on = draftId === d.id;
+              return (
+                <button
+                  key={d.id}
+                  type="button"
+                  aria-pressed={on}
+                  onClick={() => pick(d.id, true)}
+                  className={`border-2 border-ink p-2 text-left shadow-hard-sm press ${on ? "bg-yellow" : "bg-card"}`}
+                >
+                  <span className="block font-pixel text-sm font-bold">Example {i + 1}</span>
+                  <span className="mt-0.5 block text-sm leading-snug">{d.title}</span>
+                  <span className="mt-1 block font-mono text-[11px] uppercase text-muted">{d.channel}</span>
+                </button>
+              );
+            })}
           </div>
+          <button
+            type="button"
+            onClick={() => pick("", false)}
+            className={`mt-2 border-2 border-dashed border-ink px-2 py-1 font-mono text-xs press ${draftId === "" && text === "" ? "bg-sunk" : "bg-card"}`}
+          >
+            Blank draft — paste your own copy
+          </button>
           {custom && (
             <p className="mt-2 flex flex-wrap items-center gap-2 text-sm">
               <Badge tone="ok">custom brand pack</Badge>
@@ -326,10 +385,22 @@ export function Scanner({
               </Link>
             </p>
           )}
-          {current && (
+          {current?.shows && (
+            <details className="mt-3 border-2 border-ink bg-card p-3" open>
+              <summary className="cursor-pointer font-mono text-xs font-bold uppercase tracking-wider">What this example shows</summary>
+              <ul className="mt-2 space-y-1 text-sm">
+                {current.shows.map((s) => (
+                  <li key={s} className="flex gap-2">
+                    <Icon name="check" className="mt-0.5 h-3.5 w-3.5 text-teal" />
+                    {s}
+                  </li>
+                ))}
+              </ul>
+            </details>
+          )}
+          {current && !current.shows && (
             <p className="mt-2 text-sm text-muted">
-              {current.channel} · by {current.author} ·{" "}
-              {current.id.startsWith("X") ? "stress test, no answer key" : `answer key lists ${current.expectedCount} issue${current.expectedCount === 1 ? "" : "s"}`}
+              Test-set draft {current.id} · {current.title} · answer key lists {current.expectedCount} issue{current.expectedCount === 1 ? "" : "s"}
             </p>
           )}
         </div>
@@ -577,16 +648,27 @@ export function Scanner({
                     {
                       text:
                         sorted.length === 0
-                          ? "[ OK ] No issues found by code checks."
+                          ? "[ OK ] No issues found."
                           : `${sorted.length} finding${sorted.length === 1 ? "" : "s"}: ${counts.high} high · ${counts.medium} medium · ${counts.low} low.`,
                       className: "pt-2 text-term-green",
                     },
-                    {
-                      text: result.ai.ran
-                        ? `AI: ${result.ai.proposed ?? 0} proposed · ${result.ai.verified ?? 0} verified · ${result.ai.needsReview ?? 0} to a human · ${result.ai.dropped?.length ?? 0} dropped`
-                        : `AI: off — ${result.ai.error ?? "code checks only"}`,
-                      className: result.ai.ran ? "text-[#9db8f0]" : "text-paper/60",
-                    },
+                    // Only say what the AI did. If it didn't run, the code checks speak for themselves.
+                    ...(result.ai.ran
+                      ? [
+                          {
+                            text: `AI: ${result.ai.proposed ?? 0} proposed · ${result.ai.verified ?? 0} verified · ${result.ai.needsReview ?? 0} to a human · ${result.ai.dropped?.length ?? 0} dropped`,
+                            className: "text-[#9db8f0]",
+                          },
+                        ]
+                      : []),
+                    ...(result.claims.length
+                      ? [
+                          {
+                            text: `Ledger: ${result.claims.length} claim${result.claims.length === 1 ? "" : "s"} · ${result.claims.filter((c) => c.status === "verified").length} verified · ${result.claims.filter((c) => c.status === "stale" || c.status === "contradicted").length} stale/contradicted · ${result.claims.filter((c) => c.status === "no_evidence" || c.status === "unchecked").length} unproven`,
+                            className: "text-yellow",
+                          },
+                        ]
+                      : []),
                     {
                       text: sorted.length === 0 ? "Clean." : open.length ? "Human review required." : "All findings handled.",
                       className: "text-term-green",
@@ -628,11 +710,10 @@ export function Scanner({
                         AI · {img.modelId?.split("/").at(-1)} · {img.latencyMs} ms
                       </Badge>
                     )}
-                    {img.textSource === "demo" && <Badge tone="warn">demo text</Badge>}
+                    {img.textSource === "demo" && <Badge tone="neutral">text in image</Badge>}
                     {img.textSource === "none" && <Badge tone="neutral">no text</Badge>}
                   </p>
                   {img.text && <p className="mt-1 whitespace-pre-wrap font-mono">{img.text}</p>}
-                  {img.note && <p className="mt-1 text-xs text-muted">{img.note}</p>}
                 </div>
               ))}
             </div>
@@ -715,24 +796,43 @@ export function Scanner({
             </details>
           )}
 
-          {result && !scanning && !result.ai.ran && result.candidates.length > 0 && (
-            <details className="border-2 border-dashed border-ink bg-card p-3">
-              <summary className="cursor-pointer font-mono text-sm font-bold">
-                Waiting for AI review · {result.candidates.length} possible claim{result.candidates.length === 1 ? "" : "s"}
-              </summary>
-              <p className="mt-2 text-sm text-muted">
-                Code can’t decide these alone. Turn on AI review and the NVIDIA reviewer checks each one against the Claim Ledger; the Verifier drops anything it can’t ground.
-              </p>
-              <ul className="mt-2 flex flex-wrap gap-2">
-                {result.candidates.map((c, i) => (
-                  <li key={`${c.text}-${i}`} title={c.note} className="border-2 border-ink bg-paper px-2 py-1 font-mono text-xs">
-                    {c.type} · “{c.text}”{c.evidence.length ? ` → ${c.evidence.join(", ")}` : ""}
-                  </li>
-                ))}
-              </ul>
-            </details>
-          )}
         </Window>
+
+        {result && !scanning && (
+          <Window title="C:\KASAUTI\CLAIMS.DAT" color="blue" className="mt-6" bodyClassName="p-4 sm:p-5 space-y-4" delay={0.12}>
+            <div>
+              <h2 className="font-pixel text-xl font-bold">Claim Ledger for this draft</h2>
+              <p className="text-sm text-muted">
+                Every price, offer, number, certificate and superlative, checked against proof with an expiry date. Verified claims stay; the rest need a fix
+                or proof.
+              </p>
+            </div>
+            {ledgerLog.length > 0 && (
+              <ul className="space-y-1 border-2 border-ink bg-term p-3 font-mono text-xs text-term-green">
+                {ledgerLog.map((l, i) => (
+                  <li key={i}>&gt; {l}</li>
+                ))}
+                <li className="text-paper/60">Saved in this browser — see it on the Claim Ledger page.</li>
+              </ul>
+            )}
+            <ClaimLedger
+              claims={result.claims}
+              evidence={evidenceInfo}
+              ledgerAi={result.ai.ledger}
+              today={ledgerToday}
+              findingNumber={(id) => {
+                const n = sorted.findIndex((f) => f.id === id);
+                return n < 0 ? null : n + 1;
+              }}
+              onJump={(id) => {
+                const f = sorted.find((x) => x.id === id);
+                if (f) select(f);
+              }}
+              onAddProof={addProof}
+              canAdd={canApply}
+            />
+          </Window>
+        )}
       </div>
     </div>
   );

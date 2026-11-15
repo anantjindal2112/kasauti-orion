@@ -3,7 +3,7 @@ import { checkAltText, checkHashtags } from "@/lib/checks/accessibility";
 import {
   checkAbsolutes,
   checkExpiredCertifications,
-  checkLedgerPrices,
+  checkLedgerFacts,
   checkSuperlatives,
   findClaimCandidates,
 } from "@/lib/checks/claims";
@@ -36,7 +36,7 @@ const BODY_CHECKS: TextCheck[] = [
   checkReadability,
   checkSuperlatives,
   checkAbsolutes,
-  checkLedgerPrices,
+  checkLedgerFacts,
   checkExpiredCertifications,
   checkHashtags,
 ];
@@ -45,7 +45,7 @@ const BODY_CHECKS: TextCheck[] = [
  * Checks that run on text found inside images (OCR). Only facts and claims:
  * a logo wordmark in capitals is a visual question, not a voice one.
  */
-const IMAGE_TEXT_CHECKS: TextCheck[] = [checkSuperlatives, checkAbsolutes, checkLedgerPrices, checkExpiredCertifications];
+const IMAGE_TEXT_CHECKS: TextCheck[] = [checkSuperlatives, checkAbsolutes, checkLedgerFacts, checkExpiredCertifications];
 
 export interface CheckImage {
   file: string;

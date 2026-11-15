@@ -67,7 +67,7 @@ export default function InsightsPage() {
       </Window>
 
       <div className="flex flex-wrap gap-3">
-        <ButtonLink href="/scan?draft=D07" variant="primary">
+        <ButtonLink href="/scan?draft=S1" variant="primary">
           <Icon name="scan" /> Dispute a finding in the scanner
         </ButtonLink>
         <ButtonLink href="/rules">Open the Rulebook</ButtonLink>

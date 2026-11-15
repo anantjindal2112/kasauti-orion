@@ -108,13 +108,28 @@ export async function chatJson<T>(
   client: NvidiaClient,
   messages: ChatMessage[],
   schema: z.ZodType<T>,
-  opts: ChatOptions & { schemaName?: string } = {},
+  opts: ChatOptions & {
+    schemaName?: string;
+    /**
+     * "server": the server's JSON-schema mode (constrained decoding). "prompt": the schema goes in the
+     * system prompt and Zod checks the reply. On long prompts the Ultra model under constrained decoding
+     * collapses to the shortest valid answer ({"findings": []}) in under a second, so the reviewer uses "prompt".
+     */
+    schemaMode?: "server" | "prompt";
+  } = {},
 ): Promise<NvidiaResult<T>> {
-  const responseFormat = {
-    type: "json_schema",
-    json_schema: { name: opts.schemaName ?? "result", schema: jsonSchemaFor(schema), strict: false },
-  };
-  const ask = (msgs: ChatMessage[]) => chat(client, msgs, { ...opts, extra: { ...opts.extra, response_format: responseFormat } });
+  const jsonSchema = jsonSchemaFor(schema);
+  const responseFormat = { type: "json_schema", json_schema: { name: opts.schemaName ?? "result", schema: jsonSchema, strict: false } };
+  if (opts.schemaMode === "prompt") {
+    const rule = `Reply with one JSON object only — no prose, no code fences — matching this JSON Schema exactly (same field names):\n${JSON.stringify(jsonSchema)}`;
+    const i = messages.findIndex((m) => m.role === "system");
+    messages =
+      i >= 0
+        ? messages.map((m, j) => (j === i ? { ...m, content: `${String(m.content)}\n\n${rule}` } : m))
+        : [{ role: "system", content: rule }, ...messages];
+  }
+  const ask = (msgs: ChatMessage[]) =>
+    chat(client, msgs, opts.schemaMode === "prompt" ? opts : { ...opts, extra: { ...opts.extra, response_format: responseFormat } });
 
   let res = await ask(messages);
   let problem = validate(res.data, schema);

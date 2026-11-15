@@ -64,6 +64,8 @@ export function buildReviewMessages(args: {
     "- set evidence to a single code like KLE-10, or null — never prose;",
     "- give a confidence from 0 to 1. Use below 0.6 when you are unsure.",
     "Quote the specific offending words (usually under 12 words), never a whole sentence or the whole draft.",
+    "Report at most 8 findings. Spend them on what only you can judge, in this order: certification scope, 'award-winning' or green claims,",
+    "offers missing their end date or condition, several calls to action, then tone and voice.",
     "Vague rules (like 'keep the tone warm') need a clear, obvious breach before you report them. Short, plain product posts are fine.",
     "Offers (a % off, a sale, free shipping) must state their end date or condition — check the Condition in EVIDENCE.",
     "A list of several different calls to action (shop, follow, refer, download…) breaks the one-CTA rule.",
@@ -101,7 +103,7 @@ export function buildReviewMessages(args: {
 }
 
 /** Reject after `ms` — so one slow model call can't hang the scanner. */
-function withDeadline<T>(p: Promise<T>, ms: number, label: string): Promise<T> {
+export function withDeadline<T>(p: Promise<T>, ms: number, label: string): Promise<T> {
   return new Promise((resolve, reject) => {
     const t = setTimeout(() => reject(new Error(`${label} took longer than ${ms / 1000}s`)), ms);
     p.then(
@@ -115,7 +117,7 @@ function withDeadline<T>(p: Promise<T>, ms: number, label: string): Promise<T> {
 export async function askReviewer(client: NvidiaClient, messages: ChatMessage[]): Promise<NvidiaResult<AiFinding[]>> {
   const ask = (model: "reasoning" | "fast", ms: number) =>
     withDeadline(
-      chatJson(client, messages, aiResponseSchema, { model, fallback: null, schemaName: "kasauti_findings", maxTokens: 2000, timeoutMs: ms }),
+      chatJson(client, messages, aiResponseSchema, { model, fallback: null, schemaName: "kasauti_findings", schemaMode: "prompt", maxTokens: 2000, timeoutMs: ms }),
       ms,
       model,
     );

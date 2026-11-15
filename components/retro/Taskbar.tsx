@@ -7,7 +7,7 @@ import { Icon } from "@/components/retro/Icon";
 import { NAV } from "@/components/retro/links";
 
 /** Fixed bottom taskbar — the one navigation bar, visible on every page. */
-export function Taskbar({ demoDate }: { demoDate: string }) {
+export function Taskbar() {
   const path = usePathname();
   const isActive = (href: string) => (href === "/" ? path === "/" : path.startsWith(href));
 
@@ -47,10 +47,6 @@ export function Taskbar({ demoDate }: { demoDate: string }) {
             </Link>
           );
         })}
-        <div className="ml-auto hidden shrink-0 items-center gap-2 border-2 border-ink bg-paper px-3 py-2 font-mono text-xs lg:flex">
-          <span className="text-muted">demo date</span>
-          <span className="font-medium">{demoDate}</span>
-        </div>
       </div>
     </motion.nav>
   );

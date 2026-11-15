@@ -2,6 +2,7 @@
 
 import { AnimatePresence, motion } from "motion/react";
 import { useMemo, useState } from "react";
+import { RuleEditor } from "@/components/library/Editors";
 import { Badge, SeverityBadge } from "@/components/retro/Badge";
 import type { Rule } from "@/lib/schemas/brand-pack";
 
@@ -20,9 +21,17 @@ const CHECK = {
   hybrid: { label: "code + AI", tone: "dark" },
 } as const;
 
-export function RuleBrowser({ rules }: { rules: Rule[] }) {
+export interface RuleEditing {
+  disabled: Set<string>;
+  onSave: (rule: Rule) => string | null;
+  onToggle: (code: string) => string | null;
+}
+
+export function RuleBrowser({ rules, editing }: { rules: Rule[]; editing?: RuleEditing }) {
   const [layer, setLayer] = useState<string>("all");
   const [q, setQ] = useState("");
+  const [open, setOpen] = useState<string | null>(null);
+  const [toggleError, setToggleError] = useState("");
 
   const shown = useMemo(() => {
     const needle = q.trim().toLowerCase();
@@ -67,6 +76,7 @@ export function RuleBrowser({ rules }: { rules: Rule[] }) {
         </label>
       </div>
 
+      {toggleError && <p className="font-mono text-sm text-red">{toggleError}</p>}
       {shown.length === 0 && <p className="border-2 border-dashed border-ink bg-card p-4">No rules match “{q}”.</p>}
 
       <motion.ul layout className="grid gap-4 md:grid-cols-2">
@@ -80,18 +90,53 @@ export function RuleBrowser({ rules }: { rules: Rule[] }) {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, scale: 0.94 }}
               transition={{ type: "spring", stiffness: 420, damping: 30, delay: Math.min(i * 0.03, 0.3) }}
-              className="scroll-mt-6 border-2 border-ink bg-card shadow-hard-sm target:shadow-hard target:outline-4 target:outline-yellow"
+              className={`scroll-mt-6 border-2 border-ink bg-card shadow-hard-sm target:shadow-hard target:outline-4 target:outline-yellow ${
+                editing?.disabled.has(r.code) ? "opacity-60" : ""
+              }`}
             >
               <div className="flex flex-wrap items-center gap-2 border-b-2 border-ink bg-sunk px-3 py-2">
                 <span className="font-mono text-sm font-bold">{r.code}</span>
                 <span className="font-bold">{r.title}</span>
+                {editing && (
+                  <span className="ml-auto flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setToggleError(editing.onToggle(r.code) ?? "")}
+                      aria-pressed={!editing.disabled.has(r.code)}
+                      className={`border-2 border-ink px-2 py-0.5 font-mono text-xs font-bold shadow-hard-sm press ${editing.disabled.has(r.code) ? "bg-paper" : "bg-teal text-paper"}`}
+                    >
+                      {editing.disabled.has(r.code) ? "OFF" : "ON"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setOpen(open === r.code ? null : r.code)}
+                      className="border-2 border-ink bg-yellow px-2 py-0.5 font-mono text-xs font-bold shadow-hard-sm press"
+                    >
+                      {open === r.code ? "Close" : "Edit"}
+                    </button>
+                  </span>
+                )}
               </div>
+              {editing && open === r.code ? (
+                <div className="p-4">
+                  <RuleEditor
+                    rule={r}
+                    onCancel={() => setOpen(null)}
+                    onSave={(next) => {
+                      const err = editing.onSave(next);
+                      if (!err) setOpen(null);
+                      return err;
+                    }}
+                  />
+                </div>
+              ) : (
               <div className="space-y-3 p-4">
                 <div className="flex flex-wrap gap-2">
                   <SeverityBadge severity={r.severity} />
                   <Badge tone={CHECK[r.checkType].tone}>{CHECK[r.checkType].label}</Badge>
                   <Badge>v{r.version}</Badge>
                   {r.knownUnclear && <Badge tone="warn">vague on purpose · radar demo</Badge>}
+                  {editing?.disabled.has(r.code) && <Badge tone="fail">switched off</Badge>}
                 </div>
                 <p className="leading-relaxed">{r.body}</p>
                 <div className="grid gap-2 text-sm sm:grid-cols-2">
@@ -113,6 +158,7 @@ export function RuleBrowser({ rules }: { rules: Rule[] }) {
                   </div>
                 </div>
               </div>
+              )}
             </motion.li>
           ))}
         </AnimatePresence>

@@ -1,8 +1,8 @@
 import { isExpired } from "@/lib/brand-pack";
 import type { Evidence } from "@/lib/schemas/brand-pack";
-import { PRICE_RE, parseAmount } from "@/lib/checks/terminology";
-import { dropOverlaps, findRegex, findTerm, formatInr, normalize } from "@/lib/checks/text";
+import { dropOverlaps, findTerm, normalize } from "@/lib/checks/text";
 import type { CheckContext, RawCandidate, RawFinding, TextCheck } from "@/lib/checks/types";
+import { classifyFacts, type Fact } from "@/lib/ledger/facts";
 
 const formatDate = (iso: string) =>
   new Date(`${iso}T00:00:00Z`).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
@@ -21,25 +21,35 @@ function approvedPhrases(term: string, claims: string[]): string[] {
 }
 
 /**
- * KSR-4.2 — superlatives need evidence. A superlative passes only where the draft repeats a
- * live ledger entry's own phrase ("Best D2C Home Brand" is backed by KLE-14; "the best bedsheet" is not).
+ * Every superlative in the text, with the live ledger entry that approves it (if any).
+ * A superlative is approved only where the draft repeats a live entry's own phrase
+ * ("Best D2C Home Brand" is backed by KLE-14; "the best bedsheet" is not).
  */
-export const checkSuperlatives: TextCheck = (text, { pack, today }) => {
-  const liveClaims = pack.evidence.filter((e) => !isExpired(e, today)).map((e) => normalize(e.claim).toLowerCase());
+export function superlativeHits(text: string, { pack, today }: CheckContext) {
+  const live = pack.evidence.filter((e) => !isExpired(e, today));
+  const liveClaims = live.map((e) => normalize(e.claim).toLowerCase());
   const lowerText = normalize(text).toLowerCase();
-  const hits = dropOverlaps(
+  return dropOverlaps(
     pack.terms.superlatives.flatMap((s) => {
       const phrases = approvedPhrases(s, liveClaims);
-      return findTerm(text, s).filter((m) => !phrases.some((p) => lowerText.startsWith(p, m.start)));
+      return findTerm(text, s).map((m) => {
+        const ok = phrases.find((p) => lowerText.startsWith(p, m.start));
+        return { ...m, approvedBy: ok ? live.find((_, i) => liveClaims[i].includes(ok)) : undefined };
+      });
     }),
   );
-  return hits.map((m) => ({
-    rule: "KSR-4.2",
-    match: m,
-    explanation: `"${m.text}" is a claim that needs proof, and the Claim Ledger has no evidence for it.`,
-    suggestedFix: null,
-  }));
-};
+}
+
+/** KSR-4.2 — superlatives need evidence. */
+export const checkSuperlatives: TextCheck = (text, ctx) =>
+  superlativeHits(text, ctx)
+    .filter((m) => !m.approvedBy)
+    .map((m) => ({
+      rule: "KSR-4.2",
+      match: { start: m.start, end: m.end, text: m.text },
+      explanation: `"${m.text}" is a claim that needs proof, and the Claim Ledger has no evidence for it.`,
+      suggestedFix: null,
+    }));
 
 /** KSR-4.4 — absolute promises are never allowed. */
 export const checkAbsolutes: TextCheck = (text, { pack }) =>
@@ -50,46 +60,32 @@ export const checkAbsolutes: TextCheck = (text, { pack }) =>
     suggestedFix: null,
   }));
 
-const amountEntries = (pack: CheckContext["pack"], amount: number) =>
-  pack.evidence.filter(
-    (e) => (e.value.kind === "price" || e.value.kind === "threshold") && e.value.amountInr === amount,
-  );
-
-const amountOf = (e: Evidence) =>
-  e.value.kind === "price" || e.value.kind === "threshold" ? e.value.amountInr : null;
+/** Rule a wrong number breaks: prices and offers have their own rule; other facts are claims needing proof. */
+const FACT_RULE = (f: Fact) => (f.kind === "price" || f.kind === "percent" ? "KSR-4.1" : "KSR-4.2");
 
 /**
- * KSR-4.1 — a price or threshold that only matches *expired* ledger entries is stale.
- * Prices that match a live entry pass; prices with no entry become candidates.
+ * KSR-4.1 / KSR-4.2 — numbers checked against the Claim Ledger (lib/ledger/facts.ts):
+ * a price, %, rating, count, return window or year that is stale (only expired proof) or
+ * contradicted (a live entry on the same topic says something else). Verified facts pass;
+ * unproven prices and percentages become candidates for AI review.
  */
-export const checkLedgerPrices: TextCheck = (text, ctx) =>
-  findRegex(text, PRICE_RE).flatMap((m): RawFinding[] => {
-    const amount = parseAmount(m.text);
-    if (amount === null) return [];
-    const entries = amountEntries(ctx.pack, amount);
-    if (entries.length === 0 || entries.some((e) => !isExpired(e, ctx.today))) return [];
-
-    const stale = entries[0];
-    const next = stale.supersededBy ? ctx.pack.evidence.find((e) => e.code === stale.supersededBy) : undefined;
-    const nextAmount = next ? amountOf(next) : null;
-    const explanation = next
-      ? `Approved entry ${next.code} says "${next.claim}" (last verified ${formatDate(next.verifiedAt)}, source: ${next.source}). ` +
-        `${stale.code} (${formatInr(amount)}) expired on ${formatDate(stale.expiresAt!)}.`
-      : `The only proof for ${formatInr(amount)} is ${stale.code}, which expired on ${formatDate(stale.expiresAt!)}. Re-verify it or remove the price.`;
-
-    return [
-      {
-        rule: "KSR-4.1",
-        match: m,
-        evidence: stale.code,
-        explanation,
-        suggestedFix: nextAmount !== null ? formatInr(nextAmount) : null,
-      },
-    ];
-  });
+export const checkLedgerFacts: TextCheck = (text, ctx) =>
+  classifyFacts(text, ctx.pack, ctx.today).flatMap((f): RawFinding[] =>
+    f.status === "stale" || f.status === "contradicted"
+      ? [
+          {
+            rule: FACT_RULE(f),
+            match: f.match,
+            evidence: f.evidence!.code,
+            explanation: f.status === "stale" ? `Stale: ${f.note}` : `Contradicted: ${f.note}`,
+            suggestedFix: f.fix,
+          },
+        ]
+      : [],
+  );
 
 /** Certificates in the ledger, keyed by the words a draft would use ("OEKO-TEX Standard 100", "OEKO-TEX"). */
-function certificateNames(pack: CheckContext["pack"]) {
+export function certificateNames(pack: CheckContext["pack"]) {
   const names = new Map<string, Evidence[]>();
   for (const e of pack.evidence) {
     if (e.value.kind !== "certification") continue;
@@ -132,32 +128,14 @@ export const checkExpiredCertifications: TextCheck = (text, ctx) => {
 export function findClaimCandidates(text: string, ctx: CheckContext): RawCandidate[] {
   const out: RawCandidate[] = [];
 
-  for (const m of findRegex(text, PRICE_RE)) {
-    const amount = parseAmount(m.text);
-    if (amount === null) continue;
-    const entries = amountEntries(ctx.pack, amount);
-    const live = entries.filter((e) => !isExpired(e, ctx.today));
-    if (entries.length && !live.length) continue; // already a KSR-4.1 finding
+  for (const f of classifyFacts(text, ctx.pack, ctx.today)) {
+    if (f.kind !== "price" && f.kind !== "percent") continue;
+    if (f.status === "stale" || f.status === "contradicted") continue; // already a finding
     out.push({
-      match: m,
-      type: "price",
-      evidence: live.map((e) => e.code),
-      note: live.length ? `Matches live entry ${live.map((e) => e.code).join(", ")}.` : "No ledger entry has this amount.",
-    });
-  }
-
-  for (const m of findRegex(text, /\b\d{1,3}(?:\.\d+)?\s?%/g)) {
-    const pct = Number(m.text.replace(/[^\d.]/g, ""));
-    const live = ctx.pack.evidence.filter(
-      (e) => e.value.kind === "percent" && e.value.percent === pct && !isExpired(e, ctx.today),
-    );
-    out.push({
-      match: m,
-      type: "percent",
-      evidence: live.map((e) => e.code),
-      note: live.length
-        ? `Matches ${live.map((e) => e.code).join(", ")}.${live[0].conditions ? ` Conditions: ${live[0].conditions}` : ""}`
-        : "No live ledger entry has this percentage.",
+      match: f.match,
+      type: f.kind,
+      evidence: f.status === "verified" ? [f.evidence!.code] : [],
+      note: f.status === "verified" ? f.note : f.kind === "price" ? "No ledger entry has this amount." : "No live ledger entry has this percentage.",
     });
   }
 

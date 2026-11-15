@@ -38,7 +38,7 @@ export default function Home() {
             Every finding cites an approved source, every claim carries proof, and every fix keeps the creator&rsquo;s intent.
           </p>
           <div className="mt-7 flex flex-wrap gap-3">
-            <ButtonLink href="/scan?draft=D01" variant="primary" size="lg">
+            <ButtonLink href="/scan?draft=S1" variant="primary" size="lg">
               <Icon name="arrow" className="h-5 w-5" /> Try the deck example
             </ButtonLink>
             <ButtonLink href="/scan" size="lg">
@@ -105,8 +105,8 @@ export default function Home() {
           ))}
         </Stagger>
         <div className="mt-6 flex flex-wrap items-center gap-3">
-          <ButtonLink href="/scan?draft=D01" variant="primary">
-            Start with D01 <Icon name="arrow" />
+          <ButtonLink href="/scan?draft=S1" variant="primary">
+            Try Example 1 <Icon name="arrow" />
           </ButtonLink>
           <span className="text-sm text-muted">The taskbar at the bottom takes you to every page, from anywhere.</span>
         </div>

@@ -13,7 +13,8 @@
     "eval:code": "tsx scripts/eval-code-checks.ts",
     "smoke:nvidia": "tsx scripts/smoke-nvidia.mts",
     "eval:ai": "tsx scripts/eval-ai.mts",
-    "eval:retrieval": "tsx scripts/eval-retrieval.mts"
+    "eval:retrieval": "tsx scripts/eval-retrieval.mts",
+    "eval:ledger": "tsx scripts/eval-ledger.mts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
