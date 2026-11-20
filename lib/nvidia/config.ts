@@ -28,3 +28,15 @@ export const VISION_TIMEOUT_MS = 90_000;
 export function resolveModel(model: ModelRole | string): string {
   return model in MODELS ? MODELS[model as ModelRole] : model;
 }
+
+/**
+ * Speech-to-text is NVIDIA's hosted Parakeet 1.1B multilingual model (25 languages incl. Hindi and English).
+ * It is a gRPC service, not part of the chat endpoint: the same API key works, plus this function id.
+ */
+export const SPEECH = {
+  model: "nvidia/parakeet-1.1b-rnnt-multilingual-asr",
+  server: "grpc.nvcf.nvidia.com:443",
+  functionId: "71203149-d3b7-4460-8231-1be2543a1fca",
+  /** "multi" lets the model detect the spoken language. */
+  languageCode: "multi",
+} as const;

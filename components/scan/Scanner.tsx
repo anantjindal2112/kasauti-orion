@@ -562,7 +562,13 @@ export function Scanner({
                 <p className="mt-1 text-right font-mono text-xs text-muted">{text.length} characters · Ctrl/⌘ + Enter to scan</p>
               </div>
 
-              <VoiceRecorder />
+              <VoiceRecorder
+                onTranscript={(t) => {
+                  setText((prev) => (prev.trim() ? `${prev.trimEnd()}\n\n${t}` : t));
+                  setStatus("idle");
+                  setError("");
+                }}
+              />
 
               <fieldset className="border-2 border-ink bg-term p-4 text-paper">
                 <legend className="bg-term px-2 font-mono text-xs font-bold uppercase tracking-wider text-yellow">intent_card.txt · set by creator</legend>

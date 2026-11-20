@@ -3,6 +3,7 @@
 import { AnimatePresence, motion } from "motion/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/retro/Button";
+import { toWav16k } from "@/lib/audio/wav";
 
 const BARS = 28;
 const MAX_SECONDS = 60;
@@ -42,15 +43,22 @@ function Cassette({ running }: { running: boolean }) {
   );
 }
 
+type Transcription =
+  | { status: "idle" }
+  | { status: "working" }
+  | { status: "done"; text: string; ms: number; model: string }
+  | { status: "error"; message: string };
+
 /**
- * Preview: records a voice-over in the browser with a retro cassette-and-equalizer animation.
- * The audio never leaves this page. Turning speech into text (NVIDIA speech models) is planned, not built.
+ * Records a voice-over in the browser (retro cassette-and-equalizer animation). The audio stays on the page
+ * until "Transcribe" is pressed; then it goes to NVIDIA's speech model and the words land in the copy box.
  */
-export function VoiceRecorder() {
+export function VoiceRecorder({ onTranscript }: { onTranscript: (text: string) => void }) {
   const [phase, setPhase] = useState<Phase>("idle");
   const [elapsed, setElapsed] = useState(0);
   const [error, setError] = useState("");
-  const [clip, setClip] = useState<{ url: string; ms: number } | null>(null);
+  const [clip, setClip] = useState<{ url: string; ms: number; blob: Blob } | null>(null);
+  const [tx, setTx] = useState<Transcription>({ status: "idle" });
 
   const panelRef = useRef<HTMLDivElement>(null);
   const barEls = useRef<(HTMLDivElement | null)[]>([]);
@@ -115,7 +123,9 @@ export function VoiceRecorder() {
         const ms = Date.now() - startedAt.current;
         teardown();
         resetBars();
-        setClip({ url: URL.createObjectURL(new Blob(chunks, { type: rec.mimeType || "audio/webm" })), ms });
+        const blob = new Blob(chunks, { type: rec.mimeType || "audio/webm" });
+        setClip({ url: URL.createObjectURL(blob), ms, blob });
+        setTx({ status: "idle" });
         setPhase("done");
       };
 
@@ -158,16 +168,32 @@ export function VoiceRecorder() {
 
   const discard = () => {
     setClip(null);
+    setTx({ status: "idle" });
     setPhase("idle");
+  };
+
+  const transcribe = async () => {
+    if (!clip || tx.status === "working") return;
+    setTx({ status: "working" });
+    try {
+      const wav = await toWav16k(clip.blob);
+      const res = await fetch("/api/transcribe", { method: "POST", headers: { "Content-Type": "audio/wav" }, body: wav });
+      const json = (await res.json()) as { text?: string; error?: string; latencyMs?: number; modelId?: string };
+      if (!res.ok || !json.text) throw new Error(json.error ?? "Couldn't transcribe that recording.");
+      onTranscript(json.text);
+      setTx({ status: "done", text: json.text, ms: json.latencyMs ?? 0, model: (json.modelId ?? "").split("/").at(-1) ?? "" });
+    } catch (e) {
+      setTx({ status: "error", message: e instanceof Error ? e.message : "Couldn't transcribe that recording." });
+    }
   };
 
   const recording = phase === "recording";
 
   return (
-    <section aria-label="Voice-over recorder (preview)" className="space-y-2">
+    <section aria-label="Voice-over recorder" className="space-y-2">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <p className="font-mono text-xs font-bold uppercase tracking-wider">
-          Voice-over <span className="ml-1 border-2 border-ink bg-yellow px-1.5 py-0.5 text-[10px] text-ink">preview</span>
+          Voice-over <span className="ml-1 border-2 border-ink bg-yellow px-1.5 py-0.5 text-[10px] text-ink">NVIDIA speech</span>
         </p>
         {phase === "idle" || phase === "error" ? (
           <div className="relative">
@@ -242,18 +268,40 @@ export function VoiceRecorder() {
         {phase === "done" && clip && (
           <motion.div key="done" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-3 border-2 border-ink bg-card p-3">
             <div className="flex flex-wrap items-center gap-3">
-              <Cassette running={false} />
+              <Cassette running={tx.status === "working"} />
               <div className="min-w-0 flex-1 space-y-2">
                 <p className="font-mono text-sm font-bold">
-                  Recorded {clock(clip.ms)} <span className="text-muted">· saved only in this browser tab</span>
+                  Recorded {clock(clip.ms)} <span className="text-muted">· in this browser tab until you transcribe</span>
                 </p>
                 <audio controls src={clip.url} className="w-full" />
               </div>
             </div>
-            <p className="border-2 border-dashed border-ink bg-sunk p-2 text-sm">
-              <b>Preview.</b> Turning this recording into text with NVIDIA speech models is planned, not built yet, so nothing was uploaded or scanned.
+            {tx.status === "working" && (
+              <p className="border-2 border-ink bg-term p-2 font-mono text-sm text-term-green" role="status">
+                &gt; sending the tape to NVIDIA Parakeet<span className="cursor-blink">_</span>
+              </p>
+            )}
+            {tx.status === "done" && (
+              <div className="space-y-1 border-2 border-ink bg-term p-2 font-mono text-sm text-term-green" role="status">
+                <p className="text-yellow">
+                  &gt; heard by {tx.model} in {(tx.ms / 1000).toFixed(1)} s · added to the copy box
+                </p>
+                <p className="whitespace-pre-wrap text-paper">{tx.text}</p>
+              </div>
+            )}
+            {tx.status === "error" && (
+              <p role="alert" className="border-2 border-ink bg-mark-high px-3 py-2 text-sm font-medium">
+                {tx.message}
+              </p>
+            )}
+            <p className="text-xs text-muted">
+              Transcribing sends this audio to NVIDIA&rsquo;s speech model. Personal details in the <i>text</i> are masked before any AI review; the audio itself
+              is not masked. Spoken prices and percentages become digits so the Claim Ledger can check them.
             </p>
             <div className="flex flex-wrap gap-2">
+              <Button size="sm" variant="primary" onClick={() => void transcribe()} disabled={tx.status === "working"}>
+                {tx.status === "working" ? "Transcribing…" : tx.status === "done" ? "Transcribe again" : "Transcribe with NVIDIA"}
+              </Button>
               <Button size="sm" onClick={() => void start()}>
                 Record again
               </Button>
