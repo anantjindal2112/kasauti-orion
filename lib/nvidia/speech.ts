@@ -1,7 +1,7 @@
 import * as grpc from "@grpc/grpc-js";
 import * as protoLoader from "@grpc/proto-loader";
 import protobuf from "protobufjs";
-import { SPEECH } from "@/lib/nvidia/config";
+import { SPEECH, type Lang } from "@/lib/nvidia/config";
 
 /** The part of NVIDIA Riva's speech-recognition API we use (field numbers match riva_asr.proto). */
 const PROTO = `
@@ -64,7 +64,7 @@ export interface Transcript {
 }
 
 /** Transcribe a 16 kHz mono 16-bit WAV file (header included). Tries each key until one works. */
-export async function transcribeWav(wav: Buffer, apiKeys: string[], timeoutMs = 25_000): Promise<Transcript> {
+export async function transcribeWav(wav: Buffer, apiKeys: string[], lang: Lang, timeoutMs = 25_000): Promise<Transcript> {
   let last: SpeechError | null = null;
   for (const key of apiKeys) {
     const started = Date.now();
@@ -74,7 +74,7 @@ export async function transcribeWav(wav: Buffer, apiKeys: string[], timeoutMs = 
       md.set("authorization", `Bearer ${key}`);
       const res = await new Promise<RecognizeResponse>((resolve, reject) => {
         client().Recognize(
-          { config: { encoding: 0, language_code: SPEECH.languageCode, max_alternatives: 1, audio_channel_count: 1, enable_automatic_punctuation: true }, audio: wav },
+          { config: { encoding: 0, language_code: SPEECH.languageCode[lang], max_alternatives: 1, audio_channel_count: 1, enable_automatic_punctuation: true }, audio: wav },
           md,
           { deadline: new Date(Date.now() + timeoutMs) },
           (err, r) => (err ? reject(err) : resolve(r ?? {})),

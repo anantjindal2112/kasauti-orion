@@ -113,7 +113,7 @@ export function showcaseDrafts(): DemoDraft[] {
         "Contradicted facts fixed from the ledger: founding year, artisan count, rating, review count, return window",
         "Stale price (₹1,799 → ₹1,999) and an expired certificate (OEKO-TEX)",
         "AI + Verifier: GOTS stretched to every product, “award-winning” with no award named, vague “eco-friendly”",
-        "AI finds a claim in plain words and verifies it: “handwoven in Panipat and Varanasi” (KLE-13)",
+        "AI finds a claim in plain words, “handwoven in Panipat and Varanasi”, and checks it against KLE-13 (“every sheet” is flagged as wider than the proof)",
         "Readability + corporate voice",
         "Email and phone masked before any model sees the draft (see ai_disclosure.txt)",
         "Email banner: stale price, expired certificate and wrong rating read out of the image; a file name used as alt text",

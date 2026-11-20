@@ -33,7 +33,9 @@ function parseNumber(words: string[]): number | null {
 
 const group = (n: number) => n.toLocaleString("en-IN");
 
-export function normalizeSpokenEnglish(text: string): string {
+export function normalizeSpokenEnglish(input: string): string {
+  // "ninety-nine" -> "ninety nine" so it reads as two number words.
+  const text = input.replace(/\b(twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety)-(one|two|three|four|five|six|seven|eight|nine)\b/gi, "$1 $2");
   const tokens = text.split(/(\s+)/);
   const out: string[] = [];
   for (let i = 0; i < tokens.length; i++) {

@@ -30,14 +30,19 @@ export function resolveModel(model: ModelRole | string): string {
   return model in MODELS ? MODELS[model as ModelRole] : model;
 }
 
+/** The only two languages the app works in. */
+export const LANGUAGES = ["en", "hi"] as const;
+export type Lang = (typeof LANGUAGES)[number];
+export const LANGUAGE_NAME: Record<Lang, string> = { en: "English", hi: "Hindi" };
+
 /**
- * Speech-to-text is NVIDIA's hosted Parakeet 1.1B multilingual model (25 languages incl. Hindi and English).
- * It is a gRPC service, not part of the chat endpoint: the same API key works, plus this function id.
+ * Speech-to-text is NVIDIA's hosted Parakeet 1.1B multilingual model, asked for one language at a time
+ * (English or Hindi only). It is a gRPC service, not part of the chat endpoint: the same API key works,
+ * plus this function id.
  */
 export const SPEECH = {
   model: "nvidia/parakeet-1.1b-rnnt-multilingual-asr",
   server: "grpc.nvcf.nvidia.com:443",
   functionId: "71203149-d3b7-4460-8231-1be2543a1fca",
-  /** "multi" lets the model detect the spoken language. */
-  languageCode: "multi",
+  languageCode: { en: "en-US", hi: "hi-IN" } satisfies Record<Lang, string>,
 } as const;

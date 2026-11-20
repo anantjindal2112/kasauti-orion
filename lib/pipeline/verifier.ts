@@ -11,6 +11,13 @@ export const CONFIDENCE_FLOOR = 0.6;
 /** Quotes longer than this are too broad to count as a pinned-down finding. */
 export const MAX_QUOTE_WORDS = 18;
 
+/**
+ * Test 2c — a finding whose own explanation says nothing is wrong is not a finding. Small models sometimes
+ * "report" a rule and then explain that the text complies; that must never be shown as a verified issue.
+ */
+export const SAYS_NOTHING_WRONG =
+  /\b(?:no violations?|not a violation|no (?:issues?|problems?) (?:found|here|with)|(?:does|do)(?: not|n't) (?:violate|break)|(?:is|are) (?:properly|correctly) (?:stated|included|worded)|(?<!not )(?<!n't )meets? the requirement|is compliant|complies with|nothing (?:is )?wrong)\b/i;
+
 export interface Dropped {
   finding: AiFinding;
   reason: string;
@@ -154,6 +161,10 @@ export function verify(args: {
     const guard = RULE_GUARDS[rule.code];
     if (guard && !guard.test(quote)) {
       drop(`quote does not contain ${guard.about}, so it can't break ${rule.code}`);
+      continue;
+    }
+    if (SAYS_NOTHING_WRONG.test(raw.explanation)) {
+      drop("its own explanation says nothing is wrong");
       continue;
     }
     const sameAsCode = codeFindings.some((c) => c.location === "text" && c.rule === rule.code && overlaps(c.span, span));

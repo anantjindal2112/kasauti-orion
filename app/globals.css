@@ -195,6 +195,32 @@ body {
   animation: rec-ring 1.4s ease-out infinite;
 }
 
+@keyframes decode-bar {
+  0%,
+  100% {
+    transform: scaleY(0.12);
+  }
+  50% {
+    transform: scaleY(1);
+  }
+}
+.decode-bar {
+  animation: decode-bar 0.9s ease-in-out infinite;
+  transform-origin: bottom;
+}
+@keyframes glow-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgb(244 196 48 / 0);
+  }
+  50% {
+    box-shadow: 0 0 22px 2px rgb(244 196 48 / 0.55);
+  }
+}
+.glow-pulse {
+  animation: glow-pulse 1.6s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
@@ -211,7 +237,9 @@ body {
   .rec-lamp,
   .crt-flicker,
   .scan-drift,
-  .rec-ring {
+  .rec-ring,
+  .decode-bar,
+  .glow-pulse {
     animation: none;
   }
 }

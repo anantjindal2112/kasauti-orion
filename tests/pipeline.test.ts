@@ -69,6 +69,20 @@ describe("Verifier", () => {
     expect(kept[0]).toMatchObject({ review: "verified", suggestedFix: "Free shipping on orders above ₹1,499" });
   });
 
+  it("test 2c: drops a finding whose own explanation says the text is fine", () => {
+    const draft = "Enjoy 20% off sitewide until 16 November, not valid on gift cards.";
+    const fine = ai({
+      rule: "KSR-6.2",
+      evidence: "KLE-10",
+      quote: "20% off sitewide until 16 November",
+      explanation: "The offer includes its condition and is properly stated. No violation found; the offer meets the requirement to state its end date.",
+    });
+    const real = ai({ ...fine, explanation: "The offer does not meet the requirement to state its end date or condition." });
+    const { kept, dropped } = run(draft, [fine, real]);
+    expect(dropped.map((d) => d.reason)).toContain("its own explanation says nothing is wrong");
+    expect(kept).toHaveLength(1);
+    expect(kept[0].explanation).toMatch(/does not meet/);
+  });
   it("sends low-confidence findings to human review", () => {
     const { kept } = run(D06, [ai({ confidence: 0.4 })]);
     expect(kept[0].review).toBe("needs_review");
