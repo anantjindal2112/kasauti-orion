@@ -195,3 +195,16 @@ describe("errors", () => {
     expect(e.retryable).toBe(true);
   });
 });
+
+import { extractJson as extractLoose } from "@/lib/nvidia/chat";
+
+describe("extractJson repairs small escape mistakes", () => {
+  it("accepts an escaped apostrophe and a lone backslash", () => {
+    expect(extractLoose('{"explanation": "Don\\\'t name competitors", "n": 1}')).toEqual({ explanation: "Don't name competitors", n: 1 });
+    expect(extractLoose('{"quote": "Rs. 2299\\/-", "path": "a\\b"}')).toMatchObject({ quote: "Rs. 2299/-" });
+  });
+  it("still reads normal JSON and rejects non-JSON", () => {
+    expect(extractLoose('```json\n{"a": "x\\ny"}\n```')).toEqual({ a: "x\ny" });
+    expect(() => extractLoose("no json here")).toThrow();
+  });
+});

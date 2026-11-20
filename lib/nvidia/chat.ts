@@ -80,16 +80,32 @@ export async function chat(
   }
 }
 
+/**
+ * Models sometimes write JSON with escapes JSON does not allow (\' for an apostrophe, or a lone backslash).
+ * Fix just those, so a good answer is not thrown away over punctuation.
+ */
+export function repairJson(text: string): string {
+  return text.replace(/\\'/g, "'").replace(/\\(?!["\\/bfnrtu])/g, "\\\\");
+}
+
+const parseLoose = (t: string): unknown => {
+  try {
+    return JSON.parse(t);
+  } catch {
+    return JSON.parse(repairJson(t));
+  }
+};
+
 /** Pull a JSON value out of a reply that may be wrapped in prose or ``` fences. */
 export function extractJson(text: string): unknown {
   const unfenced = text.replace(/^\s*```(?:json)?\s*/i, "").replace(/\s*```\s*$/, "");
   try {
-    return JSON.parse(unfenced);
+    return parseLoose(unfenced);
   } catch {
     const start = unfenced.search(/[[{]/);
     const end = Math.max(unfenced.lastIndexOf("}"), unfenced.lastIndexOf("]"));
     if (start < 0 || end <= start) throw new Error("No JSON found in reply");
-    return JSON.parse(unfenced.slice(start, end + 1));
+    return parseLoose(unfenced.slice(start, end + 1));
   }
 }
 
