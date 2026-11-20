@@ -9,7 +9,8 @@ export const MODELS = {
   fast: "nvidia/nemotron-3.5-lightning-30b-a3b",
   /** Cheapest triage. */
   tiny: "nvidia/nemotron-3.5-bolt-e4b",
-  embed: "nvidia/nemotron-3.5-embed-1b",
+  /** The 3.5 1B model returned 503 on about 2 of 3 calls on 20 Nov 2026; this 8B model answered every call and takes 1024 dimensions. */
+  embed: "nvidia/nemotron-3.5-embed-8b",
   /** OCR and image understanding. */
   vision: "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning",
   safety: "nvidia/llama-3.1-nemotron-safety-guard-8b-v3",
