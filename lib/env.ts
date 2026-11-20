@@ -38,6 +38,9 @@ const nvidiaEnvSchema = z.object({
   NVIDIA_API_KEY_2: z.string().optional(),
   NVIDIA_API_KEY_3: z.string().optional(),
   NVIDIA_API_KEY_4: z.string().optional(),
+  NVIDIA_API_KEY_5: z.string().optional(),
+  NVIDIA_API_KEY_6: z.string().optional(),
+  NVIDIA_API_KEY_7: z.string().optional(),
   NVIDIA_BASE_URL: z.url().default("https://integrate.api.nvidia.com/v1"),
 });
 
@@ -53,7 +56,7 @@ export function parseNvidiaEnv(raw: RawEnv = process.env): NvidiaEnv {
     throw new Error(`Invalid environment:\n${result.error.issues.map((i) => `- ${i.path.join(".")}: ${i.message}`).join("\n")}`);
   }
   const e = result.data;
-  const keys = [e.NVIDIA_API_KEY, e.NVIDIA_API_KEY_2, e.NVIDIA_API_KEY_3, e.NVIDIA_API_KEY_4].filter((k): k is string => !!k);
+  const keys = [e.NVIDIA_API_KEY, e.NVIDIA_API_KEY_2, e.NVIDIA_API_KEY_3, e.NVIDIA_API_KEY_4, e.NVIDIA_API_KEY_5, e.NVIDIA_API_KEY_6, e.NVIDIA_API_KEY_7].filter((k): k is string => !!k);
   return { apiKeys: [...new Set(keys)], baseUrl: e.NVIDIA_BASE_URL.replace(/\/$/, "") };
 }
 
