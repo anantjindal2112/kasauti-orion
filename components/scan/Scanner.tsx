@@ -11,6 +11,7 @@ import { Window } from "@/components/retro/Window";
 import { ClaimLedger, type ProofDraft } from "@/components/scan/ClaimLedger";
 import { FindingCard, type Decision } from "@/components/scan/FindingCard";
 import { HighlightedDraft } from "@/components/scan/HighlightedDraft";
+import { VoiceRecorder } from "@/components/scan/VoiceRecorder";
 import Link from "next/link";
 import { parseCustom, saveCustom, useCustomRaw, type CustomSettings } from "@/lib/custom-pack";
 import { applyFixes } from "@/lib/fixes/apply";
@@ -474,10 +475,17 @@ export function Scanner({
                   <span className="block font-pixel text-sm font-bold">Example {i + 1}</span>
                   <span className="mt-0.5 block text-sm leading-snug">{d.title}</span>
                   <span className="mt-1 block font-mono text-[11px] uppercase text-muted">{d.channel}</span>
+                  <span
+                    className="mt-1.5 inline-flex items-center gap-1 border-2 border-ink bg-term px-1.5 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wide text-term-green"
+                    title="Opens a saved real NVIDIA scan of this example"
+                  >
+                    <span className="rec-lamp inline-block h-2 w-2 rounded-full bg-term-red" aria-hidden /> recorded run
+                  </span>
                 </button>
               );
             })}
           </div>
+          <p className="mt-2 text-xs text-muted">Examples replay a saved real NVIDIA run. Change anything and the scan runs live.</p>
           <button
             type="button"
             onClick={() => pick("", false)}
@@ -553,6 +561,8 @@ export function Scanner({
                 />
                 <p className="mt-1 text-right font-mono text-xs text-muted">{text.length} characters · Ctrl/⌘ + Enter to scan</p>
               </div>
+
+              <VoiceRecorder />
 
               <fieldset className="border-2 border-ink bg-term p-4 text-paper">
                 <legend className="bg-term px-2 font-mono text-xs font-bold uppercase tracking-wider text-yellow">intent_card.txt · set by creator</legend>
