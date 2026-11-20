@@ -417,6 +417,11 @@ export function VoiceRecorder({ onTranscript }: { onTranscript: (text: string) =
           →
         </span>
         <LangPick label="Text in" value={to} onChange={setTo} disabled={recording || working} />
+        {to === "hi" && (
+          <span className="font-mono text-[11px] font-bold text-red">
+            Rule checks run on English text, so Hindi text is added to the box but won&rsquo;t be checked. Pick English to test.
+          </span>
+        )}
         {from !== to && (
           <span className="font-mono text-[11px] text-muted">
             {LANG_NAME[from]} speech is translated to {LANG_NAME[to]} by NVIDIA
