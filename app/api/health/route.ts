@@ -9,7 +9,9 @@ export async function GET() {
   return Response.json({
     app: "kasauti",
     status: "ok",
-    ready: Object.values(env).every(Boolean),
+    // The app needs only the NVIDIA key today. The database keys are reported but not required: there is no database yet.
+    ready: env.nvidia,
+    notes: { database: "not used yet; rules, proof and history are kept in the browser" },
     env,
     time: new Date().toISOString(),
   });
