@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { IBM_Plex_Mono, IBM_Plex_Sans, Pixelify_Sans, Space_Mono, Tiro_Devanagari_Hindi } from "next/font/google";
 import { Providers } from "@/components/retro/Providers";
 import { Taskbar } from "@/components/retro/Taskbar";
@@ -31,7 +32,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <main id="main" className="mx-auto w-full max-w-7xl px-4 pb-28 pt-6 sm:px-6 sm:pt-10">
             {children}
           </main>
-          <Taskbar />
+          <Suspense fallback={null}>
+            <Taskbar />
+          </Suspense>
         </Providers>
       </body>
     </html>

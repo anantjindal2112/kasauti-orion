@@ -18,13 +18,14 @@ Team Orion · CodeNova · InkLoom AI brand-governance brief. Live demo: <https:/
 - **Voice-over:** record in the browser, pick English or Hindi, and get text in English or Hindi (NVIDIA Parakeet speech-to-text, NVIDIA translation). Spoken prices and percentages become digits so the ledger can check them.
 - **Hindi copy:** paste Hindi into the copy box and Kasauti offers to translate it to English with NVIDIA (spoken-number words become digits, brand names are kept) and review that. The Hindi stays restorable.
 - **Insights (early Radar):** every accept, edit and dispute is logged in your browser; the Insights page ranks rules by how often people override them and marks a rule "unclear" at 3+ decisions and 25%+ overridden.
+- **Sign-in, roles and a review workflow:** a shared database with four roles (creator, reviewer, manager, admin). Save a draft from the scanner, send it for review, comment, approve or request changes; nobody approves their own work. Every version is kept with a word-level diff, in-app notifications tell people what happened, and an **audit log** records every sign-in, save, status change, comment and decision. Demo accounts for every role are on the sign-in page. See [docs/workflow-and-database.md](docs/workflow-and-database.md).
 - **Rulebook, Claim Ledger and Customise pages:** edit rules, proof and brand words; saved in the browser.
 - **Test set page:** 18 sample drafts with answer keys, scored live.
 - **AI disclosure** on every scan: model, rules and proof used, masked items, every finding the Verifier dropped. If the AI is slow or down, the code checks still return results.
 
 ## What does not work yet
 
-Plainly, see [docs/limitations.md](docs/limitations.md): no database or login (everything is saved in your own browser), image review does not check the brand palette or logo clear space yet, the Insights Radar only sees this browser's decisions and does not yet draft sharper rules, and rule checks run on English text (Hindi is translated first).
+Plainly, see [docs/limitations.md](docs/limitations.md): rules, proof and the custom brand pack are still saved in your own browser (only submissions, comments, decisions and the audit log are shared), sign-in is a simple demo system, image review does not check the brand palette or logo clear space yet, the Insights Radar only sees this browser's decisions and does not yet draft sharper rules, and rule checks run on English text (Hindi is translated first).
 
 What we plan next is in [docs/roadmap.md](docs/roadmap.md).
 
@@ -60,7 +61,7 @@ All AI calls go to NVIDIA. Model details and what we tried: [docs/nvidia-models.
 
 ## Measured during development
 
-On our 18-draft test set (`testset/`), last full runs: code checks caught 26 of 26 issues they are responsible for with no false alarms; the full pipeline caught 32 of 32 text issues (6 only the AI found) and showed 2 findings outside the answer key; the ledger gave 17 of 17 expected statuses; retrieval found the right rule or proof for 10 of 10 test sentences. The AI part varies from run to run; re-run `npm run eval:ai` for today's numbers. 191 automated tests pass (`npm test`).
+On our 18-draft test set (`testset/`), last full runs: code checks caught 26 of 26 issues they are responsible for with no false alarms; the full pipeline caught 32 of 32 text issues (6 only the AI found) and showed 2 findings outside the answer key; the ledger gave 17 of 17 expected statuses; retrieval found the right rule or proof for 10 of 10 test sentences. The AI part varies from run to run; re-run `npm run eval:ai` for today's numbers. 202 automated tests pass (`npm test`).
 
 ## Privacy
 
@@ -70,7 +71,8 @@ Personal details in text are masked before any AI call. Voice audio is not maske
 
 ```bash
 npm install
-cp .env.example .env.local   # fill in NVIDIA_API_KEY (more keys are used in rotation)
+cp .env.example .env.local   # fill in NVIDIA_API_KEY (more keys are used in rotation); for sign-in and review also DATABASE_URL and SESSION_SECRET
+npx tsx scripts/db-migrate.mts && npx tsx scripts/db-seed.mts   # create the tables and demo accounts (needs DATABASE_URL)
 npm run dev                  # http://localhost:3000
 ```
 
@@ -89,11 +91,12 @@ npm run dev                  # http://localhost:3000
 ## Folder layout
 
 ```
-app/          pages and API routes (scan, fixall, transcribe, translate, health)
+app/          pages and API routes (scan, fixall, transcribe, translate, auth, submissions, decisions, audit, health)
 lib/nvidia/   NVIDIA clients: chat, embeddings, vision, safety, speech, translation
 lib/checks/   code checks, no AI
 lib/pipeline/ retrieval, AI review, Verifier, Intent Lock, image review, fix writer
 lib/ledger/   Claim Ledger
+lib/auth.ts, workflow.ts, db.ts   sign-in, roles and status rules, database access
 lib/speech/   spoken numbers to digits, Hindi name spellings
 lib/scan-fixtures/  saved real runs of the three examples
 testset/      sample drafts with known errors

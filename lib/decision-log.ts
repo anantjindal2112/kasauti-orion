@@ -89,19 +89,26 @@ export interface RuleStat {
 export const UNCLEAR_RATE = 0.25;
 export const UNCLEAR_MIN = 3;
 
-export function ruleStats(entries: DecisionEntry[]): RuleStat[] {
-  const by = new Map<string, RuleStat>();
-  for (const e of entries) {
-    const s = by.get(e.rule) ?? { rule: e.rule, total: 0, accepted: 0, edited: 0, disputed: 0, noted: 0, intentOverrides: 0, overrideRate: 0, unclear: false };
-    s.total++;
-    s[e.action]++;
-    if (e.intentOverride) s.intentOverrides++;
-    by.set(e.rule, s);
-  }
-  return [...by.values()]
+type Counts = Pick<RuleStat, "rule" | "total" | "accepted" | "edited" | "disputed" | "noted" | "intentOverrides">;
+
+/** Add the override rate and the "unclear" verdict to raw counts, most-argued rule first. */
+export function withVerdicts(rows: Counts[]): RuleStat[] {
+  return rows
     .map((s) => {
       const overrideRate = s.total ? (s.edited + s.disputed) / s.total : 0;
       return { ...s, overrideRate, unclear: s.total >= UNCLEAR_MIN && overrideRate >= UNCLEAR_RATE };
     })
     .sort((a, b) => Number(b.unclear) - Number(a.unclear) || b.overrideRate - a.overrideRate || b.total - a.total);
+}
+
+export function ruleStats(entries: DecisionEntry[]): RuleStat[] {
+  const by = new Map<string, Counts>();
+  for (const e of entries) {
+    const s = by.get(e.rule) ?? { rule: e.rule, total: 0, accepted: 0, edited: 0, disputed: 0, noted: 0, intentOverrides: 0 };
+    s.total++;
+    s[e.action]++;
+    if (e.intentOverride) s.intentOverrides++;
+    by.set(e.rule, s);
+  }
+  return withVerdicts([...by.values()]);
 }

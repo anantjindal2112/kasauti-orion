@@ -1,38 +1,65 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Badge } from "@/components/retro/Badge";
 import { Button, ButtonLink } from "@/components/retro/Button";
 import { Window } from "@/components/retro/Window";
-import { clearDecisions, parseDecisions, ruleStats, UNCLEAR_MIN, UNCLEAR_RATE, useDecisionsRaw } from "@/lib/decision-log";
+import { api, useMe, when } from "@/lib/client-api";
+import { clearDecisions, parseDecisions, ruleStats, UNCLEAR_MIN, UNCLEAR_RATE, useDecisionsRaw, withVerdicts, type DecisionEntry } from "@/lib/decision-log";
 
 /** Real accept / edit / dispute history from this browser, ranked by how often people override a rule. */
 export function DecisionRadar({ titles }: { titles: Record<string, string> }) {
   const raw = useDecisionsRaw();
-  const entries = useMemo(() => parseDecisions(raw), [raw]);
-  const stats = useMemo(() => ruleStats(entries), [entries]);
-  const overrides = entries.filter((e) => e.intentOverride).length;
-  const recent = entries.slice(-6).reverse();
+  const { me } = useMe();
+  const localEntries = useMemo(() => parseDecisions(raw), [raw]);
+
+  // Signed in: the whole team's decisions from the shared database. Otherwise: this browser's own.
+  const [team, setTeam] = useState<{ rules: Record<string, number | string>[]; recent: Record<string, unknown>[] } | null>(null);
+  useEffect(() => {
+    if (me.status !== "user") return;
+    let live = true;
+    void api<{ rules: Record<string, number | string>[]; recent: Record<string, unknown>[] }>("GET", "/api/decisions").then((r) => {
+      if (live && r.ok) setTeam(r.data);
+    });
+    return () => {
+      live = false;
+    };
+  }, [me.status]);
+  const shared = me.status === "user" && team !== null;
+
+  const stats = useMemo(
+    () =>
+      shared
+        ? withVerdicts(team!.rules.map((r) => ({ rule: String(r.rule), total: Number(r.total), accepted: Number(r.accepted), edited: Number(r.edited), disputed: Number(r.disputed), noted: Number(r.noted), intentOverrides: Number(r.intent_overrides) })))
+        : ruleStats(localEntries),
+    [shared, team, localEntries],
+  );
+  const entries: DecisionEntry[] = shared
+    ? team!.recent.map((r) => ({ t: String(r.created_at), rule: String(r.rule), action: r.action as DecisionEntry["action"], source: r.source as DecisionEntry["source"], quote: String(r.quote ?? ""), intentOverride: !!r.intent_override, reason: r.reason ? String(r.reason) : undefined }))
+    : localEntries;
+  const empty = shared ? stats.length === 0 : localEntries.length === 0;
+  const overrides = stats.reduce((n, s) => n + s.intentOverrides, 0);
+  const recent = shared ? entries : entries.slice(-6).reverse();
 
   return (
     <Window title="C:\KASAUTI\DECISIONS.LOG" color="teal" bodyClassName="space-y-5 p-5 sm:p-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="font-pixel text-xl font-bold">Your decisions, by rule</h2>
+          <h2 className="font-pixel text-xl font-bold">{shared ? "The team's decisions, by rule" : "Your decisions, by rule"}</h2>
           <p className="text-sm text-muted">
-            Live from the scanner: every Accept, Edit and Dispute in this browser. A rule is marked <b>unclear</b> once it has {UNCLEAR_MIN}+ decisions and{" "}
+            Live from the scanner: every Accept, Edit and Dispute {shared ? "by everyone who is signed in" : "in this browser"}. A rule is marked <b>unclear</b> once it has {UNCLEAR_MIN}+ decisions and{" "}
             {Math.round(UNCLEAR_RATE * 100)}%+ were edited or disputed.
           </p>
         </div>
-        {entries.length > 0 && (
+        {!shared && localEntries.length > 0 && (
           <Button size="sm" variant="ghost" onClick={() => clearDecisions()}>
             Clear log
           </Button>
         )}
       </div>
 
-      {entries.length === 0 ? (
+      {empty ? (
         <div className="space-y-3 border-2 border-dashed border-ink bg-card p-4">
           <p className="font-medium">No decisions yet.</p>
           <p className="text-sm text-muted">Open an example, then Accept, Edit or Dispute a few findings. They show up here straight away.</p>
@@ -86,6 +113,7 @@ export function DecisionRadar({ titles }: { titles: Record<string, string> }) {
             <ul className="mt-1 space-y-1">
               {recent.map((e, i) => (
                 <li key={`${e.t}-${i}`} className="truncate">
+                  <span className="text-paper/60">{shared ? `${when(e.t)} ` : ""}</span>
                   <span className={e.action === "disputed" ? "text-term-red" : e.action === "edited" ? "text-yellow" : "text-term-green"}>[{e.action}]</span> {e.rule} “{e.quote}”
                   {e.reason ? ` — ${e.reason}` : ""}
                 </li>
@@ -94,7 +122,13 @@ export function DecisionRadar({ titles }: { titles: Record<string, string> }) {
           </div>
         </>
       )}
-      <p className="text-xs text-muted">Kept in this browser only. A shared database, so the whole team feeds one Radar, is on the roadmap.</p>
+      <p className="text-xs text-muted">
+        {shared ? "Shared: everyone signed in feeds the same Radar." : (
+          <>
+            Kept in this browser only. <Link href="/login?next=/insights" className="font-bold underline">Sign in</Link> and your decisions join the whole team&rsquo;s Radar.
+          </>
+        )}
+      </p>
     </Window>
   );
 }

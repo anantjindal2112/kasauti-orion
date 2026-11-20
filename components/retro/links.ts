@@ -4,6 +4,7 @@ import type { IconName } from "@/components/retro/Icon";
 export const NAV: { href: string; label: string; short: string; icon: IconName; file: string; blurb: string }[] = [
   { href: "/", label: "Home", short: "Home", icon: "home", file: "KASAUTI.EXE", blurb: "Start here" },
   { href: "/scan", label: "Scan a draft", short: "Scan", icon: "scan", file: "SCAN.EXE", blurb: "Paste or pick a draft, run the checks, accept or dispute each finding." },
+  { href: "/dashboard", label: "Dashboard", short: "Dashboard", icon: "check", file: "DASH.EXE", blurb: "Sign in, save drafts, send them for review, comment, approve. Every step is in the audit log." },
   { href: "/testset", label: "Test set", short: "Tests", icon: "flask", file: "TESTSET.DAT", blurb: "18 sample drafts with known mistakes — and how many Kasauti catches." },
   { href: "/ledger", label: "Claim Ledger", short: "Ledger", icon: "ledger", file: "LEDGER.DAT", blurb: "Every approved claim with its source, owner and expiry date." },
   { href: "/rules", label: "Rulebook", short: "Rules", icon: "rules", file: "RULES.TXT", blurb: "The brand's 27 numbered rules, and how each one is checked." },

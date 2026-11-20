@@ -3,10 +3,13 @@
 Written plainly, so nobody is surprised.
 
 ## Not built yet
-- **No database, login, roles, approvals or audit log.** Rules, proof, the custom brand pack and version history are saved only in the browser you used. Another browser, or cleared site data, starts fresh, and nothing is shared between people.
+- **Sign-in is a demo system.** There is a shared database with roles, approvals, comments, versions and an audit log (see `docs/workflow-and-database.md`), but accounts are the four demo ones (password shown on the sign-in page): no sign-up, no password reset, no email check. Anyone can sign in as any demo role.
+- **Rules, proof and the custom brand pack are still saved only in your own browser.** Another browser, or cleared site data, starts fresh, and they are not shared. Only submissions, comments, decisions and the audit log are shared.
+- **The in-browser version history** inside the scanner (before you save) is not stored; saved versions are.
+- **Our own sign-in, not Supabase Auth.** Authorisation is enforced in the API routes, not by row level security (RLS is on with no policies so the public API can read nothing). Wrong-password slowing is per server instance.
 - **Image review is partial.** We read text inside banners, check alt text, and check text contrast and the logo version. We do not check the brand palette or logo clear space yet.
 - **Image colours and logo are read by a model.** Contrast is exact arithmetic, but the two colours are the vision model's reading of the picture, so only clear misses are shown as verified; near-misses and every retired-logo call go to a person. A busy photo or a gradient behind the text can fool it.
-- **The Insights Radar is an early version.** It ranks rules by the decisions made in this browser only. It does not yet draft a sharper rule, replay it on past content, or let an owner approve it, and nothing is shared between people.
+- **The Insights Radar is an early version.** Signed in, it ranks rules by the whole team's decisions; signed out, by this browser's. It does not yet draft a sharper rule, replay it on past content, or let an owner approve it.
 
 ## Languages
 - The app works in English and Hindi only. Speech can be recorded in either, and text can be returned in either.

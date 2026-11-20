@@ -14,7 +14,8 @@ import { HighlightedDraft } from "@/components/scan/HighlightedDraft";
 import { VoiceRecorder } from "@/components/scan/VoiceRecorder";
 import Link from "next/link";
 import { parseCustom, saveCustom, useCustomRaw, type CustomSettings } from "@/lib/custom-pack";
-import { logDecisions } from "@/lib/decision-log";
+import { logDecisions, type DecisionEntry } from "@/lib/decision-log";
+import { api, useMe } from "@/lib/client-api";
 import { applyFixes } from "@/lib/fixes/apply";
 import type { DemoDraft, EvidenceInfo, FixAllResponse, RuleInfo, ScanResponse } from "@/lib/scan-types";
 import type { BrandPackData, Evidence } from "@/lib/schemas/brand-pack";
@@ -92,6 +93,11 @@ export function Scanner({
   demoToday: string;
 }) {
   const params = useSearchParams();
+  const { me } = useMe();
+  /** A saved submission this draft belongs to (opened with ?submission=ID, or saved from here). */
+  const [submission, setSubmission] = useState<{ id: string; title: string; status: string; canEdit: boolean; savedText: string } | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [saveMsg, setSaveMsg] = useState("");
   const router = useRouter();
   const findingsRef = useRef<HTMLDivElement>(null);
 
@@ -280,6 +286,27 @@ export function Scanner({
     loadDraft(initial.toUpperCase(), true);
   }, [initial, loadDraft]);
 
+  // /scan?submission=ID opens a saved submission and scans it.
+  const submissionParam = params.get("submission");
+  const openedSubmission = useRef(false);
+  useEffect(() => {
+    if (openedSubmission.current || !submissionParam || me.status !== "user") return;
+    openedSubmission.current = true;
+    loadedFromUrl.current = true;
+    void api<{ submission: { id: string; title: string; status: string; text: string; intent: { purpose?: string; audience?: string; mustKeep?: string } }; you: { canEdit: boolean } }>("GET", `/api/submissions/${submissionParam}`).then((r) => {
+      if (!r.ok) {
+        setError(r.error);
+        setStatus("error");
+        return;
+      }
+      const sub = r.data.submission;
+      setSubmission({ id: sub.id, title: sub.title, status: sub.status, canEdit: r.data.you.canEdit, savedText: sub.text });
+      setText(sub.text);
+      setIntent({ purpose: sub.intent.purpose ?? "", audience: sub.intent.audience ?? "", mustKeep: sub.intent.mustKeep ?? "" });
+      void scan({ text: sub.text, intent: { purpose: sub.intent.purpose ?? "", audience: sub.intent.audience ?? "", mustKeep: sub.intent.mustKeep ?? "" } });
+    });
+  }, [submissionParam, me.status, scan]);
+
   const pick = (id: string, autoScan: boolean) => {
     loadedFromUrl.current = true; // the URL change below must not trigger a second load
     loadDraft(id, autoScan);
@@ -320,12 +347,23 @@ export function Scanner({
     accepted: accepted.flatMap((f) => (f.suggestedFix && (f.source === "ai" || f.fixBy) ? [f.suggestedFix] : [])),
   });
 
+  /** Keep a decision in this browser, and, when signed in, in the shared log the whole team's Insights are built from. */
+  const record = (entries: Omit<DecisionEntry, "t">[]) => {
+    logDecisions(entries);
+    if (me.status === "user" && entries.length) {
+      void api("POST", "/api/decisions", {
+        ...(submission ? { submissionId: submission.id } : {}),
+        entries: entries.map((e) => ({ rule: e.rule, action: e.action, source: e.source, quote: e.quote.slice(0, 200), intentOverride: !!e.intentOverride, ...(e.reason ? { reason: e.reason } : {}) })),
+      });
+    }
+  };
+
   const applyFix = (f: Finding, replacement: string, how: "accepted" | "edited") => {
     const next = applyFixes(scannedText, [{ start: f.span.start, end: f.span.end, replacement }]);
     // Accepting a fix the Intent Check flagged is the creator's call, and it is logged.
     const override = how === "accepted" && !!f.intent && !f.intent.ok;
     setDecisions((d) => ({ ...d, [keyOf(f)]: { action: how, ...(override ? { note: "Intent Check overridden by the creator" } : {}) } }));
-    logDecisions([{ rule: f.rule, action: how, source: f.source, quote: f.quote, intentOverride: override }]);
+    record([{ rule: f.rule, action: how, source: f.source, quote: f.quote, intentOverride: override }]);
     setVersions((v) => [...v, { n: v.length + 1, text: next, note: `${how === "accepted" ? "Accepted fix" : "Edited"} ${f.rule}${override ? " (overrode Intent Check)" : ""}` }]);
     setText(next);
     void scan({ text: next, recheck: recheckOf([{ ...f, suggestedFix: replacement }]) });
@@ -371,7 +409,7 @@ export function Scanner({
       const nextImages = images.map((i) => (altBy.has(i.name) ? { ...i, alt: altBy.get(i.name)! } : i));
       const done = batch.filter((f) => f.location === "text" || altBy.has(f.imageFile ?? ""));
       setDecisions((d) => ({ ...d, ...Object.fromEntries(done.map((f) => [keyOf(f), { action: "accepted" as const }])) }));
-      logDecisions(done.map((f) => ({ rule: f.rule, action: "accepted" as const, source: f.source, quote: f.quote })));
+      record(done.map((f) => ({ rule: f.rule, action: "accepted" as const, source: f.source, quote: f.quote })));
       setVersions((v) => [...v, { n: v.length + 1, text: json.text, note: `Accepted all fixes (${done.length})` }]);
       setText(json.text);
       setImages(nextImages);
@@ -388,7 +426,7 @@ export function Scanner({
     const next = images.map((i) => (i.name === f.imageFile ? { ...i, alt } : i));
     setImages(next);
     setDecisions((d) => ({ ...d, [keyOf(f)]: { action: "edited" } }));
-    logDecisions([{ rule: f.rule, action: "edited", source: f.source, quote: f.quote }]);
+    record([{ rule: f.rule, action: "edited", source: f.source, quote: f.quote }]);
     void scan({ images: next });
   };
 
@@ -459,6 +497,37 @@ export function Scanner({
     } finally {
       setTranslating(false);
     }
+  };
+
+  const scanSummary = result ? { findings: sorted.length, high: counts.high, medium: counts.medium, low: counts.low, at: new Date().toISOString() } : undefined;
+  const draftTitle = () => {
+    const first = (current?.title ?? text.trim().split(/(?<=[.!?])\s/)[0] ?? "Untitled").trim();
+    return (first.length > 80 ? `${first.slice(0, 77)}…` : first) || "Untitled";
+  };
+
+  /** Save the draft to the shared dashboard as a new submission. */
+  const saveToDashboard = async () => {
+    if (saving || !text.trim()) return;
+    setSaving(true);
+    setSaveMsg("");
+    const r = await api<{ id: string }>("POST", "/api/submissions", { title: draftTitle(), channel: current?.channel, text, intent, ...(scanSummary ? { scan: scanSummary } : {}) });
+    setSaving(false);
+    if (!r.ok) return setSaveMsg(r.error);
+    setSubmission({ id: r.data.id, title: draftTitle(), status: "draft", canEdit: true, savedText: text });
+    setSaveMsg("Saved as a draft.");
+  };
+
+  /** Save the current text as the next version of the open submission. */
+  const saveVersion = async () => {
+    if (saving || !submission) return;
+    setSaving(true);
+    setSaveMsg("");
+    const note = versions.length > 1 ? versions[versions.length - 1].note : "Edited in the scanner";
+    const r = await api<{ n: number }>("POST", `/api/submissions/${submission.id}/versions`, { text, note, intent });
+    setSaving(false);
+    if (!r.ok) return setSaveMsg(r.error);
+    setSubmission({ ...submission, savedText: text });
+    setSaveMsg(`Saved as version ${r.data.n}.`);
   };
 
   const scanning = status === "scanning";
@@ -762,6 +831,40 @@ export function Scanner({
             </Button>
           )}
         </div>
+        {me.status === "user" && text.trim() && (
+          <div className="space-y-2 border-2 border-ink bg-card p-3 text-sm">
+            <p className="font-mono text-xs font-bold uppercase tracking-wider">
+              {submission ? `Saved: “${submission.title}” · ${submission.status.replace("_", " ")}` : `Signed in as ${me.user.name}`}
+            </p>
+            <div className="flex flex-wrap items-center gap-2">
+              {!submission && (
+                <Button size="sm" variant="primary" disabled={saving} onClick={() => void saveToDashboard()}>
+                  {saving ? "Saving…" : "Save to dashboard"}
+                </Button>
+              )}
+              {submission?.canEdit && (
+                <Button size="sm" variant="primary" disabled={saving || text === submission.savedText} onClick={() => void saveVersion()}>
+                  {saving ? "Saving…" : text === submission.savedText ? "Saved" : "Save as new version"}
+                </Button>
+              )}
+              {submission && (
+                <Link href={`/submissions/${submission.id}`} className="font-bold underline">
+                  Open it to send for review
+                </Link>
+              )}
+              {saveMsg && <span role="status">{saveMsg}</span>}
+            </div>
+            {submission && !submission.canEdit && <p className="text-muted">This one is in review or approved, so its text is locked; you can still scan it.</p>}
+          </div>
+        )}
+        {me.status === "anon" && text.trim() && (
+          <p className="text-sm text-muted">
+            <Link href="/login?next=/scan" className="font-bold underline">
+              Sign in
+            </Link>{" "}
+            to save this draft, send it for review and keep an audit trail.
+          </p>
+        )}
         <AnimatePresence>
           {scanning && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="h-4 border-2 border-ink bg-card" aria-hidden>
@@ -950,12 +1053,12 @@ export function Scanner({
                       onApply={(rep, how) => applyFix(f, rep, how)}
                       onDispute={(note) => {
                         setDecisions((d) => ({ ...d, [keyOf(f)]: { action: "disputed", note } }));
-                        logDecisions([{ rule: f.rule, action: "disputed", source: f.source, quote: f.quote, reason: note.slice(0, 100) }]);
+                        record([{ rule: f.rule, action: "disputed", source: f.source, quote: f.quote, reason: note.slice(0, 100) }]);
                       }}
                       onSetAlt={(alt) => setAlt(f, alt)}
                       onNote={(note) => {
                         setDecisions((d) => ({ ...d, [keyOf(f)]: { action: "noted", note } }));
-                        logDecisions([{ rule: f.rule, action: "noted", source: f.source, quote: f.quote }]);
+                        record([{ rule: f.rule, action: "noted", source: f.source, quote: f.quote }]);
                       }}
                     />
                   </li>
