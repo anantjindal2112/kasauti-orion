@@ -1000,6 +1000,16 @@ export function Scanner({
                     ? `${result.ai.safety.safe ? "safe" : `unsafe: ${result.ai.safety.categories.join(", ")}`} · ${result.ai.safety.modelId.split("/").at(-1)}`
                     : "not checked"}
                 </dd>
+                {result.ai.imageReview && (
+                  <>
+                    <dt className="text-term-green">images</dt>
+                    <dd>
+                      {result.ai.imageReview.checked} image{result.ai.imageReview.checked === 1 ? "" : "s"} inspected for logo version and text contrast · {result.ai.imageReview.flagged} flagged
+                      {result.ai.imageReview.modelId ? ` · ${result.ai.imageReview.modelId.split("/").at(-1)}` : ""}
+                      {result.ai.imageReview.error ? ` · unavailable: ${result.ai.imageReview.error}` : ""}
+                    </dd>
+                  </>
+                )}
                 {result.ai.intent && (
                   <>
                     <dt className="text-term-green">intent lock</dt>

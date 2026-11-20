@@ -33,6 +33,8 @@ export interface AiMeta {
   fixWriter?: { ran: boolean; modelId?: string; latencyMs?: number; written?: number; rejected?: number; rejectedReasons?: string[] };
   /** Intent Lock: suggested fixes tested against the Intent Card. */
   intent?: { ran: boolean; codeOnly: boolean; checked: number; flagged: number; modelId?: string; latencyMs?: number; error?: string };
+  /** Image review: logo version and text contrast, read by the vision model and decided by code. */
+  imageReview?: { ran: boolean; checked: number; flagged: number; modelId?: string; error?: string };
   /** The Claim Ledger's AI pass (implicit claims + "does this evidence support it?"). */
   ledger?: {
     ran: boolean;

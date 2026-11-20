@@ -286,7 +286,7 @@
   "ai": {
     "ran": true,
     "modelId": "nvidia/nemotron-3-ultra-550b-a55b",
-    "latencyMs": 7139,
+    "latencyMs": 3350,
     "rulesConsidered": [
       "KSR-1.1",
       "KSR-1.2",
@@ -298,34 +298,33 @@
       "KSR-4.3",
       "KSR-4.5",
       "KSR-6.1",
-      "KSR-6.2"
+      "KSR-6.2",
+      "KSR-2.5",
+      "KSR-2.6"
     ],
     "evidenceConsidered": [
-      "KLE-01",
-      "KLE-02",
-      "KLE-03",
-      "KLE-04",
-      "KLE-05",
       "KLE-06",
-      "KLE-07",
-      "KLE-08",
-      "KLE-09",
       "KLE-10",
-      "KLE-11",
+      "KLE-15",
+      "KLE-16",
       "KLE-12",
       "KLE-13",
-      "KLE-14",
-      "KLE-15",
-      "KLE-16"
+      "KLE-04",
+      "KLE-08",
+      "KLE-07",
+      "KLE-11",
+      "KLE-02",
+      "KLE-01",
+      "KLE-14"
     ],
     "proposed": 1,
     "verified": 0,
     "needsReview": 0,
     "dropped": [
       {
-        "rule": "KSR-4.3",
-        "quote": "handwoven by artisans in Panipat and Varanasi",
-        "reason": "quote does not contain a certification, so it can't break KSR-4.3"
+        "rule": "KSR-6.1",
+        "quote": "Shop Monsoon Weave.",
+        "reason": "quote does not contain two or more different calls to action, so it can't break KSR-6.1"
       }
     ],
     "maskedItems": 0,
@@ -343,10 +342,16 @@
     "ledger": {
       "ran": true,
       "modelId": "nvidia/nemotron-3.5-lightning-30b-a3b",
-      "latencyMs": 499,
+      "latencyMs": 563,
       "judged": 0,
       "added": 0,
       "dropped": []
+    },
+    "imageReview": {
+      "ran": true,
+      "checked": 1,
+      "flagged": 0,
+      "modelId": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning"
     }
   },
   "images": [
@@ -355,11 +360,11 @@
       "text": "Dhaaga & Co.\nThe Monsoon Weave is back\n₹1,999\n20% off sitewide until 16 November\nFree shipping above ₹1,499",
       "textSource": "nvidia",
       "modelId": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning",
-      "latencyMs": 2638
+      "latencyMs": 2604
     }
   ],
   "timings": {
-    "totalMs": 9799,
-    "ocrMs": 2645
+    "totalMs": 5962,
+    "ocrMs": 2606
   }
 }

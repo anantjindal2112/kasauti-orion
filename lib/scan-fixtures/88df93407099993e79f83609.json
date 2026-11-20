@@ -296,7 +296,7 @@
         "end": 355
       },
       "explanation": "\"Don't miss out or regret it\" pressures the reader. Urgency is fine when it's true (a real end date); fear and guilt are not.",
-      "suggestedFix": "Shop the festive sale before 16 November 2026.",
+      "suggestedFix": "Shop before 16 November 2026.",
       "confidence": 1,
       "severity": "medium",
       "source": "rule",
@@ -319,7 +319,7 @@
         "end": 430
       },
       "explanation": "\"Click here\" doesn't say where the link goes. Screen-reader users hear link text on its own.",
-      "suggestedFix": "Shop the festive sale to see the collection.",
+      "suggestedFix": "Shop the festive sale to view new arrivals.",
       "confidence": 1,
       "severity": "low",
       "source": "rule",
@@ -342,7 +342,7 @@
         "end": 456
       },
       "explanation": "\"#festivesale\" looks like several words run together. Write it in CamelCase so screen readers can read it.",
-      "suggestedFix": "#FestiveSale #IndigoHours",
+      "suggestedFix": "#FestiveSale #Indigohours",
       "confidence": 0.85,
       "severity": "low",
       "source": "rule",
@@ -456,7 +456,7 @@
         "start": 356,
         "end": 409
       },
-      "explanation": "Three distinct calls to action (shop, follow, download) violate the one-CTA rule. The draft stacks competing asks instead of ending with one clear action.",
+      "explanation": "Three distinct calls to action (shop, follow, download) violate the one-CTA rule. Only one clear action should be presented.",
       "suggestedFix": "Shop the festive sale",
       "confidence": 0.95,
       "severity": "low",
@@ -480,9 +480,9 @@
         "start": 95,
         "end": 113
       },
-      "explanation": "The draft states '30% off everything' but KLE-10 only supports '20% off sitewide from 1 to 16 November 2026' with condition 'Not valid on gift cards'. The discount percentage and scope are wrong, and the end date/condition is missing.",
+      "explanation": "The draft states '30% off everything' but KLE-10 only supports '20% off sitewide from 1 to 16 November 2026' with condition 'not valid on gift cards'. The discount percentage and scope are incorrect and lack the required end date and exclusion.",
       "suggestedFix": "20% off sitewide until 16 November — not valid on gift cards",
-      "confidence": 0.9,
+      "confidence": 0.95,
       "severity": "medium",
       "source": "ai",
       "modelId": "nvidia/nemotron-3-ultra-550b-a55b",
@@ -498,25 +498,27 @@
       }
     },
     {
-      "id": "ai:KSR-1.1:327",
-      "rule": "KSR-1.1",
-      "quote": "Don't miss out or regret it!",
+      "id": "ai:KSR-6.2:115",
+      "rule": "KSR-6.2",
+      "evidence": "KLE-12",
+      "quote": "Free shipping on all orders above ₹999",
       "location": "text",
       "span": {
-        "start": 327,
-        "end": 355
+        "start": 115,
+        "end": 153
       },
-      "explanation": "This fear-based urgency ('regret it') violates the no-pressure rule. KSR-1.6 allows true urgency with real end dates, but this phrasing uses guilt and FOMO instead of stating the actual sale end date (16 November per KLE-10).",
-      "suggestedFix": "The festive sale ends 16 November",
-      "confidence": 0.9,
+      "explanation": "KLE-12 states free shipping on orders above ₹1,499, not ₹999. KLE-07 (₹999) expired on 2026-09-30. The offer must match the current ledger entry and state the correct threshold.",
+      "suggestedFix": "Free shipping on orders above ₹1,499",
+      "confidence": 0.95,
       "severity": "medium",
       "source": "ai",
       "modelId": "nvidia/nemotron-3-ultra-550b-a55b",
-      "review": "needs_review",
-      "reviewNote": "Tone is a judgement call, so a person makes the final decision.",
+      "review": "verified",
       "intent": {
         "ok": true,
-        "kept": [],
+        "kept": [
+          "free shipping"
+        ],
         "changed": [],
         "by": "code"
       }
@@ -614,46 +616,6 @@
       "findingId": "KSR-2.5:text::187"
     },
     {
-      "id": "claim:text::ai:199",
-      "text": "Cheap sheets that feel premium",
-      "span": {
-        "start": 199,
-        "end": 229
-      },
-      "location": "text",
-      "sentence": "Cheap sheets that feel premium, softer than LoomKart, with colours that never fade, guaranteed.",
-      "kind": "implicit",
-      "status": "no_evidence",
-      "evidence": "KLE-01",
-      "suggestedFix": null,
-      "note": "KLE-01 states 'Weaving since 2014'. This is a factual claim about the history of weaving, but it does not support the opinion that sheets are 'cheap' or 'feel premium'.",
-      "source": "ai",
-      "modelId": "nvidia/nemotron-3.5-lightning-30b-a3b",
-      "confidence": 0.9,
-      "review": "verified",
-      "findingId": "KSR-2.3:text::199"
-    },
-    {
-      "id": "claim:text::ai:231",
-      "text": "softer than LoomKart",
-      "span": {
-        "start": 231,
-        "end": 251
-      },
-      "location": "text",
-      "sentence": "Cheap sheets that feel premium, softer than LoomKart, with colours that never fade, guaranteed.",
-      "kind": "implicit",
-      "status": "no_evidence",
-      "evidence": "KLE-06",
-      "suggestedFix": null,
-      "note": "KLE-06 provides a customer rating (4.6 out of 5) but contains no comparison to any other brand such as LoomKart.",
-      "source": "ai",
-      "modelId": "nvidia/nemotron-3.5-lightning-30b-a3b",
-      "confidence": 0.95,
-      "review": "verified",
-      "findingId": "KSR-6.3:text::243"
-    },
-    {
       "id": "claim:text::271",
       "text": "never fade",
       "span": {
@@ -688,26 +650,6 @@
       "modelId": null,
       "confidence": 1,
       "findingId": "KSR-4.4:text::283"
-    },
-    {
-      "id": "claim:text::ai:295",
-      "text": "Made by our workers in Panipat",
-      "span": {
-        "start": 295,
-        "end": 325
-      },
-      "location": "text",
-      "sentence": "Made by our workers in Panipat.",
-      "kind": "implicit",
-      "status": "verified",
-      "evidence": "KLE-13",
-      "suggestedFix": null,
-      "note": "KLE-13 states 'Handwoven in Panipat and Varanasi'. The draft claims 'Made by our workers in Panipat', which is consistent with the evidence covering Panipat.",
-      "source": "ai",
-      "modelId": "nvidia/nemotron-3.5-lightning-30b-a3b",
-      "confidence": 1,
-      "review": "verified",
-      "findingId": "KSR-2.2:text::307"
     },
     {
       "id": "claim:image:festive-sale-banner.webp:28",
@@ -772,7 +714,7 @@
   "ai": {
     "ran": true,
     "modelId": "nvidia/nemotron-3-ultra-550b-a55b",
-    "latencyMs": 23279,
+    "latencyMs": 26295,
     "rulesConsidered": [
       "KSR-1.1",
       "KSR-1.2",
@@ -803,8 +745,8 @@
       "KLE-01"
     ],
     "proposed": 6,
-    "verified": 2,
-    "needsReview": 1,
+    "verified": 3,
+    "needsReview": 0,
     "dropped": [
       {
         "rule": "KSR-4.3",
@@ -812,14 +754,14 @@
         "reason": "quote does not contain a certification, so it can't break KSR-4.3"
       },
       {
-        "rule": "KSR-4.1",
-        "quote": "Free shipping on all orders above ₹999",
-        "reason": "duplicate of a code check"
-      },
-      {
         "rule": "KSR-4.5",
         "quote": "Cheap sheets that feel premium",
         "reason": "quote does not contain a green or sustainability claim, so it can't break KSR-4.5"
+      },
+      {
+        "rule": "KSR-4.1",
+        "quote": "the Indigo Hour set is just Rs. 2299/-",
+        "reason": "the Claim Ledger backs \"Rs. 2299/-\" (KLE-11)"
       }
     ],
     "maskedItems": 0,
@@ -834,29 +776,35 @@
       "checked": 16,
       "flagged": 1,
       "modelId": "nvidia/nemotron-3.5-lightning-30b-a3b",
-      "latencyMs": 9786
+      "latencyMs": 7105
     },
     "fixWriter": {
       "ran": true,
       "modelId": "nvidia/nemotron-3.5-lightning-30b-a3b",
-      "latencyMs": 2410,
+      "latencyMs": 6817,
       "written": 3,
       "rejected": 5,
       "rejectedReasons": [
-        "the fix itself breaks KSR-4.1",
+        "the fix itself breaks KSR-4.2, KSR-4.1",
         "the fix itself breaks KSR-6.3, KSR-4.4",
         "the fix itself breaks KSR-4.4",
-        "the fix itself breaks KSR-4.4",
-        "the fix itself breaks KSR-4.4"
+        "the fix itself breaks KSR-6.3, KSR-4.4",
+        "the fix itself breaks KSR-6.3, KSR-4.4"
       ]
     },
     "ledger": {
       "ran": true,
       "modelId": "nvidia/nemotron-3.5-lightning-30b-a3b",
-      "latencyMs": 5197,
+      "latencyMs": 571,
       "judged": 0,
-      "added": 3,
+      "added": 0,
       "dropped": []
+    },
+    "imageReview": {
+      "ran": true,
+      "checked": 1,
+      "flagged": 0,
+      "modelId": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning"
     }
   },
   "images": [
@@ -865,11 +813,11 @@
       "text": "Dhaaga & Co.\n\nFESTIVE SALE\n\n30% OFF EVERYTHING\n\nFree shipping above ₹999\n\nIndia's #1 bedsheet brand",
       "textSource": "nvidia",
       "modelId": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning",
-      "latencyMs": 2086
+      "latencyMs": 2308
     }
   ],
   "timings": {
-    "totalMs": 25408,
-    "ocrMs": 2101
+    "totalMs": 28645,
+    "ocrMs": 2317
   }
 }

@@ -2,6 +2,7 @@ import { z } from "zod";
 import { DEMO_TODAY, loadBrandPack } from "@/lib/brand-pack";
 import { getNvidiaClient, imageToText } from "@/lib/nvidia";
 import { reviewDraft } from "@/lib/pipeline";
+import { inspectImage, visualFindings, type ImageReview } from "@/lib/pipeline/image-review";
 import { readSaved, save, scanKey } from "@/lib/scan-cache";
 import { withDeadline } from "@/lib/pipeline/ai-review";
 import type { ScannedImage } from "@/lib/scan-types";
@@ -95,6 +96,10 @@ export async function POST(request: Request) {
     }
   }
 
+  // Look at each uploaded image (logo version, text contrast) while its text is being read.
+  const inspections: Promise<ImageReview>[] =
+    client && body.ocr ? body.images.flatMap((img) => (img.dataUrl ? [inspectImage(client, img.name, img.dataUrl, pack)] : [])) : [];
+
   // Read text inside images (OCR) with NVIDIA, falling back to known demo text.
   const images: ScannedImage[] = await Promise.all(
     body.images.map(async (img): Promise<ScannedImage> => {
@@ -136,7 +141,20 @@ export async function POST(request: Request) {
     ),
   ]);
 
-  const payload = { ...result, images, timings: { totalMs: Date.now() - started, ocrMs } };
+  // Image review: contrast is computed in code from the colours the model read; the logo verdict goes to a person.
+  const reviews = await Promise.all(inspections);
+  const visual = reviews.flatMap((r) => visualFindings(r, images.find((i) => i.name === r.file)?.text ?? "", pack));
+  const imageReview = reviews.length
+    ? {
+        ran: reviews.some((r) => r.visual),
+        checked: reviews.length,
+        flagged: visual.length,
+        modelId: reviews.find((r) => r.modelId)?.modelId,
+        error: reviews.every((r) => !r.visual) ? reviews.find((r) => r.error)?.error : undefined,
+      }
+    : undefined;
+  const merged = visual.length ? { ...result, findings: [...result.findings, ...visual] } : result;
+  const payload = { ...merged, ai: imageReview ? { ...merged.ai, imageReview } : merged.ai, images, timings: { totalMs: Date.now() - started, ocrMs } };
   if (key && result.ai.ran) save(key, payload);
   return Response.json(payload);
 }

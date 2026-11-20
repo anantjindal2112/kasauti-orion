@@ -3,7 +3,7 @@
 1. **Native Hindi and Hinglish review:** rules, banned words and claim checks written in Hindi, so Hindi posts are checked directly and findings quote the original Hindi (today Hindi is translated to English first).
 2. **Shared database and sign-in:** roles (creator, manager, reviewer, admin), approvals, version diff and an audit log of every accept, edit and dispute; per-brand data isolation.
 3. **Intent Lock, next step:** let creators override and explain, and learn which fixes people accept anyway. (The check itself is built.)
-4. **Full image review:** logo version, contrast, palette, and claims hidden in banners.
+4. **Rest of image review:** brand palette and logo clear space, and a pixel-based contrast check next to the model-read one. (Logo version and text contrast are built.)
 5. **Model fallback chain and rate limiting:** a busy NVIDIA model should never slow a scan.
 6. **Similar-past-decision search (embeddings)** and the full **Guideline Debt Radar**: draft a sharper rule from disputed cases, replay it on past content, owner approves. (The decision log and ranking are built, per browser.)
 7. **Read-aloud findings (text-to-speech)** and **live transcription** while speaking.

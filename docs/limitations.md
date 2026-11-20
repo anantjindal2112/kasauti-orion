@@ -4,7 +4,8 @@ Written plainly, so nobody is surprised.
 
 ## Not built yet
 - **No database, login, roles, approvals or audit log.** Rules, proof, the custom brand pack and version history are saved only in the browser you used. Another browser, or cleared site data, starts fresh, and nothing is shared between people.
-- **Image review is partial.** We read text inside banners and check alt text. We do not check logo version, contrast or palette yet.
+- **Image review is partial.** We read text inside banners, check alt text, and check text contrast and the logo version. We do not check the brand palette or logo clear space yet.
+- **Image colours and logo are read by a model.** Contrast is exact arithmetic, but the two colours are the vision model's reading of the picture, so only clear misses are shown as verified; near-misses and every retired-logo call go to a person. A busy photo or a gradient behind the text can fool it.
 - **The Insights Radar is an early version.** It ranks rules by the decisions made in this browser only. It does not yet draft a sharper rule, replay it on past content, or let an owner approve it, and nothing is shared between people.
 
 ## Languages
