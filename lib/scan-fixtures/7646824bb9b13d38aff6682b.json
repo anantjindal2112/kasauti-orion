@@ -10,12 +10,21 @@
         "end": 164
       },
       "explanation": "This sentence reads at about grade 19 (the piece overall: grade 9). Aim for grade 8 or below — shorter sentences, everyday words.",
-      "suggestedFix": "Dhaaga & Co. is now offering premium bed linen solutions designed to help you sleep better.",
+      "suggestedFix": "Dhaaga & Co. announces premium bed linen for better sleep.",
       "confidence": 1,
       "severity": "low",
       "source": "rule",
       "modelId": null,
-      "fixBy": "nvidia/nemotron-3.5-lightning-30b-a3b"
+      "fixBy": "nvidia/nemotron-3.5-lightning-30b-a3b",
+      "intent": {
+        "ok": true,
+        "kept": [
+          "Monsoon Weave"
+        ],
+        "changed": [],
+        "note": "Purpose and audience tone preserved; shortened phrasing keeps the core claim.",
+        "by": "ai"
+      }
     },
     {
       "id": "KSR-4.2:text::173",
@@ -32,7 +41,17 @@
       "confidence": 1,
       "severity": "high",
       "source": "rule",
-      "modelId": null
+      "modelId": null,
+      "intent": {
+        "ok": true,
+        "kept": [
+          "handwoven story",
+          "Monsoon Weave"
+        ],
+        "changed": [],
+        "note": "A correction: KLE-01 proves the original wrong.",
+        "by": "code"
+      }
     },
     {
       "id": "KSR-4.2:text::198",
@@ -49,7 +68,17 @@
       "confidence": 1,
       "severity": "high",
       "source": "rule",
-      "modelId": null
+      "modelId": null,
+      "intent": {
+        "ok": true,
+        "kept": [
+          "handwoven story",
+          "Monsoon Weave"
+        ],
+        "changed": [],
+        "note": "A correction: KLE-02 proves the original wrong.",
+        "by": "code"
+      }
     },
     {
       "id": "KSR-4.3:text::350",
@@ -67,7 +96,17 @@
       "severity": "high",
       "source": "rule",
       "modelId": null,
-      "fixBy": "nvidia/nemotron-3.5-lightning-30b-a3b"
+      "fixBy": "nvidia/nemotron-3.5-lightning-30b-a3b",
+      "intent": {
+        "ok": true,
+        "kept": [
+          "Monsoon Weave",
+          "handwoven story"
+        ],
+        "changed": [],
+        "note": "A correction: KLE-04 proves the original wrong.",
+        "by": "code"
+      }
     },
     {
       "id": "KSR-4.1:text::440",
@@ -84,7 +123,16 @@
       "confidence": 1,
       "severity": "high",
       "source": "rule",
-      "modelId": null
+      "modelId": null,
+      "intent": {
+        "ok": true,
+        "kept": [
+          "Monsoon Weave"
+        ],
+        "changed": [],
+        "note": "A correction: KLE-15 proves the original wrong.",
+        "by": "code"
+      }
     },
     {
       "id": "KSR-4.2:text::454",
@@ -101,7 +149,16 @@
       "confidence": 1,
       "severity": "high",
       "source": "rule",
-      "modelId": null
+      "modelId": null,
+      "intent": {
+        "ok": true,
+        "kept": [
+          "Monsoon Weave"
+        ],
+        "changed": [],
+        "note": "A correction: KLE-06 proves the original wrong.",
+        "by": "code"
+      }
     },
     {
       "id": "KSR-4.2:text::470",
@@ -118,7 +175,16 @@
       "confidence": 1,
       "severity": "high",
       "source": "rule",
-      "modelId": null
+      "modelId": null,
+      "intent": {
+        "ok": true,
+        "kept": [
+          "Monsoon Weave"
+        ],
+        "changed": [],
+        "note": "A correction: KLE-06 proves the original wrong.",
+        "by": "code"
+      }
     },
     {
       "id": "KSR-4.2:text::493",
@@ -135,7 +201,16 @@
       "confidence": 1,
       "severity": "high",
       "source": "rule",
-      "modelId": null
+      "modelId": null,
+      "intent": {
+        "ok": true,
+        "kept": [
+          "Monsoon Weave"
+        ],
+        "changed": [],
+        "note": "A correction: KLE-09 proves the original wrong.",
+        "by": "code"
+      }
     },
     {
       "id": "KSR-4.1:image:monsoon-weave-email.webp:35",
@@ -227,40 +302,34 @@
       "modelId": null
     },
     {
-      "id": "ai:KSR-1.1:165",
+      "id": "ai:KSR-1.1:0",
       "rule": "KSR-1.1",
-      "quote": "Weaving since 2012, we work with 2,000 artisans, and every sheet is handwoven in Panipat and Varanasi.",
+      "quote": "Dhaaga & Co. hereby announces the availability of premium bed linen solutions engineered to optimise consumer sleep outcomes through advanced textile methodologies.",
       "location": "text",
       "span": {
-        "start": 165,
-        "end": 267
+        "start": 0,
+        "end": 164
       },
-      "explanation": "The draft addresses the reader as 'we' and states facts without explaining why they are good, violating the friend-to-reader requirement of KSR-1.1.",
-      "suggestedFix": "We've been weaving since 2012, and every sheet is handwoven in Panipat and Varanasi by our artisans.",
-      "confidence": 0.9,
+      "explanation": "This is corporate jargon and hard-sell phrasing, not the warm, friendly tone of explaining to 'you' why the product is good.",
+      "suggestedFix": "Settle in — the Monsoon Weave is back, handwoven for you in Panipat and Varanasi.",
+      "confidence": 0.95,
       "severity": "medium",
       "source": "ai",
-      "modelId": "nvidia/nemotron-3.5-lightning-30b-a3b",
+      "modelId": "nvidia/nemotron-3-ultra-550b-a55b",
       "review": "needs_review",
-      "reviewNote": "Tone is a judgement call, so a person makes the final decision."
-    },
-    {
-      "id": "ai:KSR-1.2:165",
-      "rule": "KSR-1.2",
-      "quote": "Weaving since 2012, we work with 2,000 artisans, and every sheet is handwoven in Panipat and Varanasi.",
-      "location": "text",
-      "span": {
-        "start": 165,
-        "end": 267
-      },
-      "explanation": "The tone is transactional and factual rather than warm, failing the 'warm tone' requirement of KSR-1.2.",
-      "suggestedFix": "We've been weaving since 2012, and every sheet is handwoven in Panipat and Varanasi by our artisans.",
-      "confidence": 0.85,
-      "severity": "low",
-      "source": "ai",
-      "modelId": "nvidia/nemotron-3.5-lightning-30b-a3b",
-      "review": "needs_review",
-      "reviewNote": "KSR-1.2 is a vague rule, so a person makes the call."
+      "reviewNote": "Tone is a judgement call, so a person makes the final decision. The quote spans more than one sentence, so the exact problem isn't pinned down.",
+      "intent": {
+        "ok": true,
+        "kept": [
+          "handwoven story",
+          "Monsoon Weave"
+        ],
+        "changed": [
+          "advanced textile methodologies to handwoven for you in Panipat and Varanasi"
+        ],
+        "note": "Wording shift preserves purpose and audience tone; MUST KEEP phrases retained.",
+        "by": "ai"
+      }
     },
     {
       "id": "ai:KSR-4.3:268",
@@ -272,30 +341,78 @@
         "start": 268,
         "end": 327
       },
-      "explanation": "KLE-03 certifies only the Kesar Collection, not all products. The draft claims all products are GOTS-certified, which exceeds the certification scope.",
-      "suggestedFix": "The Kesar Collection is GOTS-certified organic cotton.",
-      "confidence": 1,
+      "explanation": "GOTS certification applies only to the Kesar Collection (KLE-03), not every product line.",
+      "suggestedFix": "The Kesar Collection is GOTS-certified organic cotton",
+      "confidence": 0.98,
       "severity": "high",
       "source": "ai",
-      "modelId": "nvidia/nemotron-3.5-lightning-30b-a3b",
-      "review": "verified"
+      "modelId": "nvidia/nemotron-3-ultra-550b-a55b",
+      "review": "verified",
+      "intent": {
+        "ok": true,
+        "kept": [
+          "Monsoon Weave",
+          "handwoven story"
+        ],
+        "changed": [],
+        "note": "A correction: KLE-03 proves the original wrong.",
+        "by": "code"
+      }
     },
     {
       "id": "ai:KSR-4.5:402",
       "rule": "KSR-4.5",
-      "quote": "eco-friendly Monsoon Weave set",
+      "quote": "eco-friendly",
       "location": "text",
       "span": {
         "start": 402,
-        "end": 432
+        "end": 414
       },
-      "explanation": "The term 'eco-friendly' is a vague green claim on its own, violating KSR-4.5 which requires specific, evidence-backed sustainability statements.",
-      "suggestedFix": "Monsoon Weave set",
-      "confidence": 0.9,
+      "explanation": "Vague green claim 'eco-friendly' used without specific evidence such as GOTS or azo-free dyes.",
+      "suggestedFix": "dyed with azo-free dyes",
+      "confidence": 0.92,
       "severity": "medium",
       "source": "ai",
-      "modelId": "nvidia/nemotron-3.5-lightning-30b-a3b",
-      "review": "verified"
+      "modelId": "nvidia/nemotron-3-ultra-550b-a55b",
+      "review": "verified",
+      "intent": {
+        "ok": true,
+        "kept": [
+          "Monsoon Weave"
+        ],
+        "changed": [
+          "eco-friendly to dyed with azo-free dyes"
+        ],
+        "note": "Terminology fix preserves the intent and audience tone.",
+        "by": "ai"
+      }
+    },
+    {
+      "id": "ai:KSR-4.2:387",
+      "rule": "KSR-4.2",
+      "evidence": "KLE-14",
+      "quote": "award-winning",
+      "location": "text",
+      "span": {
+        "start": 387,
+        "end": 400
+      },
+      "explanation": "The claim 'award-winning' must name the award and year (Demo Retail Awards 2024) per KLE-14.",
+      "suggestedFix": "Winner, Best D2C Home Brand at the Demo Retail Awards 2024",
+      "confidence": 0.97,
+      "severity": "high",
+      "source": "ai",
+      "modelId": "nvidia/nemotron-3-ultra-550b-a55b",
+      "review": "verified",
+      "intent": {
+        "ok": true,
+        "kept": [
+          "Monsoon Weave"
+        ],
+        "changed": [],
+        "note": "A correction: KLE-14 proves the original wrong.",
+        "by": "code"
+      }
     }
   ],
   "candidates": [
@@ -463,15 +580,14 @@
       "location": "text",
       "sentence": "Weaving since 2012, we work with 2,000 artisans, and every sheet is handwoven in Panipat and Varanasi.",
       "kind": "implicit",
-      "status": "contradicted",
+      "status": "verified",
       "evidence": "KLE-13",
       "suggestedFix": null,
-      "note": "KLE-13 states 'Handwoven in Panipat and Varanasi.' The draft says 'every sheet,' which may overgeneralize beyond the evidence scope, but the evidence itself matches the location claim. Verdict: contradicted due to scope ('every sheet' vs evidence).",
+      "note": "KLE-13 states 'Handwoven in Panipat and Varanasi.' The draft's claim matches exactly.",
       "source": "ai",
       "modelId": "nvidia/nemotron-3.5-lightning-30b-a3b",
-      "confidence": 0.9,
-      "review": "verified",
-      "findingId": "ai:KSR-1.1:165"
+      "confidence": 1,
+      "review": "verified"
     },
     {
       "id": "claim:text::ai:268",
@@ -486,7 +602,7 @@
       "status": "contradicted",
       "evidence": "KLE-03",
       "suggestedFix": null,
-      "note": "KLE-03 explicitly states it applies only to the Kesar Collection. The draft claims 'every product.'",
+      "note": "KLE-03 states 'The Kesar Collection is GOTS-certified organic cotton' and explicitly covers only the Kesar Collection. The draft claims 'every product.'",
       "source": "ai",
       "modelId": "nvidia/nemotron-3.5-lightning-30b-a3b",
       "confidence": 1,
@@ -511,6 +627,26 @@
       "modelId": null,
       "confidence": 1,
       "findingId": "KSR-4.3:text::350"
+    },
+    {
+      "id": "claim:text::ai:387",
+      "text": "award-winning",
+      "span": {
+        "start": 387,
+        "end": 400
+      },
+      "location": "text",
+      "sentence": "Our award-winning, eco-friendly Monsoon Weave set is now ₹1,799, rated 4.8 out of 5 by 25,000 customers, with 30-day returns.",
+      "kind": "implicit",
+      "status": "no_evidence",
+      "evidence": "KLE-14",
+      "suggestedFix": null,
+      "note": "The claim 'award-winning' must name the award and year (Demo Retail Awards 2024) per KLE-14.",
+      "source": "ai",
+      "modelId": "nvidia/nemotron-3.5-lightning-30b-a3b",
+      "confidence": 1,
+      "review": "verified",
+      "findingId": "ai:KSR-4.2:387"
     },
     {
       "id": "claim:text::440",
@@ -671,8 +807,8 @@
   ],
   "ai": {
     "ran": true,
-    "modelId": "nvidia/nemotron-3.5-lightning-30b-a3b",
-    "latencyMs": 31099,
+    "modelId": "nvidia/nemotron-3-ultra-550b-a55b",
+    "latencyMs": 22723,
     "rulesConsidered": [
       "KSR-1.1",
       "KSR-1.2",
@@ -685,33 +821,35 @@
       "KSR-4.5",
       "KSR-6.1",
       "KSR-6.2",
-      "KSR-2.2",
       "KSR-2.1",
-      "KSR-2.6",
-      "KSR-2.4"
+      "KSR-2.2",
+      "KSR-2.6"
     ],
     "evidenceConsidered": [
-      "KLE-04",
-      "KLE-16",
       "KLE-15",
+      "KLE-16",
       "KLE-13",
-      "KLE-08",
       "KLE-03",
-      "KLE-14",
+      "KLE-04",
       "KLE-02",
       "KLE-01",
-      "KLE-11",
+      "KLE-14",
       "KLE-06",
       "KLE-05",
       "KLE-09"
     ],
-    "proposed": 9,
-    "verified": 2,
-    "needsReview": 2,
+    "proposed": 8,
+    "verified": 3,
+    "needsReview": 1,
     "dropped": [
       {
         "rule": "KSR-4.3",
         "quote": "Monsoon Weave is OEKO-TEX Standard 100 certified",
+        "reason": "duplicate of a code check"
+      },
+      {
+        "rule": "KSR-4.1",
+        "quote": "₹1,799",
         "reason": "duplicate of a code check"
       },
       {
@@ -723,16 +861,6 @@
         "rule": "KSR-6.2",
         "quote": "30-day returns",
         "reason": "quote does not contain an offer, so it can't break KSR-6.2"
-      },
-      {
-        "rule": "KSR-4.1",
-        "quote": "₹1,799",
-        "reason": "duplicate of a code check"
-      },
-      {
-        "rule": "KSR-6.1",
-        "quote": "Shop Monsoon Weave.",
-        "reason": "quote does not contain two or more different calls to action, so it can't break KSR-6.1"
       }
     ],
     "maskedItems": 2,
@@ -741,10 +869,18 @@
       "categories": [],
       "modelId": "nvidia/llama-3.1-nemotron-safety-guard-8b-v3"
     },
+    "intent": {
+      "ran": true,
+      "codeOnly": false,
+      "checked": 12,
+      "flagged": 0,
+      "modelId": "nvidia/nemotron-3.5-lightning-30b-a3b",
+      "latencyMs": 6033
+    },
     "fixWriter": {
       "ran": true,
       "modelId": "nvidia/nemotron-3.5-lightning-30b-a3b",
-      "latencyMs": 916,
+      "latencyMs": 915,
       "written": 2,
       "rejected": 0,
       "rejectedReasons": []
@@ -752,9 +888,9 @@
     "ledger": {
       "ran": true,
       "modelId": "nvidia/nemotron-3.5-lightning-30b-a3b",
-      "latencyMs": 5131,
+      "latencyMs": 5247,
       "judged": 1,
-      "added": 1,
+      "added": 2,
       "dropped": []
     }
   },
@@ -764,11 +900,11 @@
       "text": "Dhaaga & Co.\nThe Monsoon Weave\nNow ₹1,799\nOEKO-TEX Standard 100 certified\nRated 4.8/5 by 25,000 customers",
       "textSource": "nvidia",
       "modelId": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning",
-      "latencyMs": 4905
+      "latencyMs": 2441
     }
   ],
   "timings": {
-    "totalMs": 36016,
-    "ocrMs": 4909
+    "totalMs": 25174,
+    "ocrMs": 2443
   }
 }

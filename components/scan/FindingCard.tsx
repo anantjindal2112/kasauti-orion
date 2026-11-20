@@ -128,6 +128,35 @@ export function FindingCard({
           </div>
         )}
 
+        {f.intent && f.location === "text" && f.suggestedFix !== null && (
+          <div
+            className={`border-2 px-3 py-2 text-sm ${f.intent.ok ? "border-ink bg-card" : "border-ink bg-mark-medium"}`}
+            aria-label="Intent Lock"
+          >
+            <p className="flex flex-wrap items-center gap-2 font-mono text-xs font-bold uppercase tracking-wider">
+              <Icon name={f.intent.ok ? "check" : "warn"} className={`h-3.5 w-3.5 ${f.intent.ok ? "text-teal" : ""}`} />
+              Intent Lock · {f.intent.ok ? "fix keeps your message" : "a person decides"}
+              <span className="font-normal normal-case text-muted">checked by {f.intent.by === "code" ? "code" : "AI"}</span>
+            </p>
+            <p className="mt-1.5 flex flex-wrap gap-1.5 font-mono text-xs">
+              {f.intent.kept.map((k) => (
+                <span key={`k-${k}`} className="border-2 border-ink bg-term px-1.5 py-0.5 text-term-green">
+                  Kept: {k}
+                </span>
+              ))}
+              <span className="border-2 border-ink bg-yellow px-1.5 py-0.5 text-ink">
+                Changed: “{f.quote.length > 28 ? `${f.quote.slice(0, 28)}…` : f.quote}” ({f.rule})
+              </span>
+              {f.intent.changed.map((c) => (
+                <span key={`c-${c}`} className="border-2 border-ink bg-mark-high px-1.5 py-0.5 text-ink">
+                  Also changed: {c}
+                </span>
+              ))}
+            </p>
+            {f.intent.note && <p className="mt-1.5 text-sm text-muted">{f.intent.note}</p>}
+          </div>
+        )}
+
         {decision && (
           <p className="flex items-center gap-2 font-mono text-sm">
             <Badge tone={disputed ? "warn" : "ok"} stamp>
@@ -140,8 +169,13 @@ export function FindingCard({
         {!decision && mode === null && (
           <div className="flex flex-wrap gap-2" onClick={(e) => e.stopPropagation()}>
             {f.location === "text" && f.suggestedFix !== null && (
-              <Button variant="primary" size="sm" disabled={!canApply} onClick={() => onApply(f.suggestedFix!, "accepted")}>
-                <Icon name="check" /> Accept fix
+              <Button
+                variant={f.intent && !f.intent.ok ? "default" : "primary"}
+                size="sm"
+                disabled={!canApply}
+                onClick={() => onApply(f.suggestedFix!, "accepted")}
+              >
+                <Icon name="check" /> {f.intent && !f.intent.ok ? "Accept anyway" : "Accept fix"}
               </Button>
             )}
             {f.location === "text" && (

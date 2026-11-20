@@ -136,25 +136,6 @@
       "confidence": 1
     },
     {
-      "id": "claim:text::ai:63",
-      "text": "handwoven by artisans in Panipat and Varanasi",
-      "span": {
-        "start": 63,
-        "end": 108
-      },
-      "location": "text",
-      "sentence": "300 thread count cotton, handwoven by artisans in Panipat and Varanasi, now ₹1,999.",
-      "kind": "implicit",
-      "status": "verified",
-      "evidence": "KLE-13",
-      "suggestedFix": null,
-      "note": "KLE-13 states: 'Handwoven in Panipat and Varanasi.' The draft's claim matches exactly.",
-      "source": "ai",
-      "modelId": "nvidia/nemotron-3.5-lightning-30b-a3b",
-      "confidence": 1,
-      "review": "verified"
-    },
-    {
       "id": "claim:text::114",
       "text": "₹1,999",
       "span": {
@@ -304,8 +285,8 @@
   ],
   "ai": {
     "ran": true,
-    "modelId": "nvidia/nemotron-3.5-lightning-30b-a3b",
-    "latencyMs": 33451,
+    "modelId": "nvidia/nemotron-3-ultra-550b-a55b",
+    "latencyMs": 7139,
     "rulesConsidered": [
       "KSR-1.1",
       "KSR-1.2",
@@ -317,49 +298,34 @@
       "KSR-4.3",
       "KSR-4.5",
       "KSR-6.1",
-      "KSR-6.2",
-      "KSR-2.5",
-      "KSR-2.6",
-      "KSR-2.2"
+      "KSR-6.2"
     ],
     "evidenceConsidered": [
-      "KLE-06",
-      "KLE-16",
+      "KLE-01",
+      "KLE-02",
+      "KLE-03",
       "KLE-04",
-      "KLE-15",
-      "KLE-10",
+      "KLE-05",
+      "KLE-06",
+      "KLE-07",
       "KLE-08",
+      "KLE-09",
+      "KLE-10",
+      "KLE-11",
       "KLE-12",
       "KLE-13",
-      "KLE-07",
-      "KLE-02",
-      "KLE-01",
-      "KLE-09",
-      "KLE-11"
+      "KLE-14",
+      "KLE-15",
+      "KLE-16"
     ],
-    "proposed": 4,
+    "proposed": 1,
     "verified": 0,
     "needsReview": 0,
     "dropped": [
       {
-        "rule": "KSR-4.2",
-        "quote": "300 thread count",
-        "reason": "quote does not contain a superlative or comparative claim, so it can't break KSR-4.2"
-      },
-      {
-        "rule": "KSR-4.2",
-        "quote": "handwoven by artisans",
-        "reason": "quote does not contain a superlative or comparative claim, so it can't break KSR-4.2"
-      },
-      {
-        "rule": "KSR-4.2",
-        "quote": "Rated 4.6 out of 5 by more than 18,000 customers",
-        "reason": "quote does not contain a superlative or comparative claim, so it can't break KSR-4.2"
-      },
-      {
-        "rule": "KSR-6.1",
-        "quote": "Shop Monsoon Weave",
-        "reason": "quote does not contain two or more different calls to action, so it can't break KSR-6.1"
+        "rule": "KSR-4.3",
+        "quote": "handwoven by artisans in Panipat and Varanasi",
+        "reason": "quote does not contain a certification, so it can't break KSR-4.3"
       }
     ],
     "maskedItems": 0,
@@ -368,22 +334,19 @@
       "categories": [],
       "modelId": "nvidia/llama-3.1-nemotron-safety-guard-8b-v3"
     },
+    "intent": {
+      "ran": false,
+      "codeOnly": false,
+      "checked": 0,
+      "flagged": 0
+    },
     "ledger": {
       "ran": true,
       "modelId": "nvidia/nemotron-3.5-lightning-30b-a3b",
-      "latencyMs": 5452,
+      "latencyMs": 499,
       "judged": 0,
-      "added": 1,
-      "dropped": [
-        {
-          "quote": "Settle in, the Monsoon Weave is back.",
-          "reason": "a call to action or a name, not a claim"
-        },
-        {
-          "quote": "Shop Monsoon Weave.",
-          "reason": "a call to action or a name, not a claim"
-        }
-      ]
+      "added": 0,
+      "dropped": []
     }
   },
   "images": [
@@ -392,11 +355,11 @@
       "text": "Dhaaga & Co.\nThe Monsoon Weave is back\n₹1,999\n20% off sitewide until 16 November\nFree shipping above ₹1,499",
       "textSource": "nvidia",
       "modelId": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning",
-      "latencyMs": 5151
+      "latencyMs": 2638
     }
   ],
   "timings": {
-    "totalMs": 38643,
-    "ocrMs": 5160
+    "totalMs": 9799,
+    "ocrMs": 2645
   }
 }

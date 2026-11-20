@@ -29,6 +29,8 @@ export interface AiMeta {
   safety?: { safe: boolean; categories: string[]; modelId: string } | null;
   /** AI-written fixes for code findings that had none (each checked by code before it is offered). */
   fixWriter?: { ran: boolean; modelId?: string; latencyMs?: number; written?: number; rejected?: number; rejectedReasons?: string[] };
+  /** Intent Lock: suggested fixes tested against the Intent Card. */
+  intent?: { ran: boolean; codeOnly: boolean; checked: number; flagged: number; modelId?: string; latencyMs?: number; error?: string };
   /** The Claim Ledger's AI pass (implicit claims + "does this evidence support it?"). */
   ledger?: {
     ran: boolean;

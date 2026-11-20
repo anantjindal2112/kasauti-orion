@@ -10,6 +10,19 @@ export const spanSchema = z.object({
 });
 export type Span = z.infer<typeof spanSchema>;
 
+/** Intent Lock: did the suggested fix keep the creator's Intent Card? */
+export const intentVerdictSchema = z.object({
+  ok: z.boolean(),
+  /** MUST KEEP items the fixed sentence still carries. */
+  kept: z.array(z.string()),
+  /** What the fix gives up besides the quoted words (e.g. a MUST KEEP phrase). */
+  changed: z.array(z.string()),
+  note: z.string().optional(),
+  /** Who decided: a code check (a MUST KEEP phrase vanished) or the model. */
+  by: z.enum(["code", "ai"]),
+});
+export type IntentVerdict = z.infer<typeof intentVerdictSchema>;
+
 /**
  * One issue in a draft. Code checks and AI checks both produce this shape,
  * so the Verifier and the UI treat them the same way.
@@ -38,6 +51,8 @@ export const findingSchema = z.object({
   reviewNote: z.string().optional(),
   /** A code finding whose fix was written by this AI model and then checked by code. */
   fixBy: z.string().optional(),
+  /** Intent Lock result for the suggested fix (only when the creator filled in the Intent Card). */
+  intent: intentVerdictSchema.optional(),
 });
 export type Finding = z.infer<typeof findingSchema>;
 

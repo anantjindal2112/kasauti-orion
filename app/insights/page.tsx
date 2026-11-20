@@ -6,6 +6,7 @@ import { Icon } from "@/components/retro/Icon";
 import { Pop, Stagger } from "@/components/retro/Motion";
 import { PageHeader } from "@/components/retro/PageHeader";
 import { Window } from "@/components/retro/Window";
+import { DecisionRadar } from "@/components/library/DecisionRadar";
 import { loadBrandPack } from "@/lib/brand-pack";
 
 export const metadata: Metadata = { title: "Insights" };
@@ -24,12 +25,14 @@ export default function InsightsPage() {
   return (
     <div className="space-y-8">
       <PageHeader icon="chart" title="Insights" subtitle="Guideline Debt Radar — find the rules people keep arguing with.">
-        <Badge tone="warn">Round 3</Badge>
+        <Badge tone="warn">early version</Badge>
       </PageHeader>
+
+      <DecisionRadar titles={Object.fromEntries(rules.map((r) => [r.code, r.title]))} />
 
       <Window title="C:\KASAUTI\RADAR.EXE" color="red" bodyClassName="grid gap-6 p-5 sm:p-6 lg:grid-cols-2">
         <div>
-          <p className="font-mono text-sm tracking-wide text-muted">OVERRIDE RATE BY RULE // waiting for decisions</p>
+          <p className="font-mono text-sm tracking-wide text-muted">RULES WE ALREADY SUSPECT // vague wording, flagged in the brand pack</p>
           <ul className="mt-4 space-y-4">
             {watched.map((r) => (
               <li key={r.code}>
@@ -47,8 +50,8 @@ export default function InsightsPage() {
             ))}
           </ul>
           <p className="mt-5 border-2 border-dashed border-ink bg-card p-3 text-sm">
-            Every Accept, Edit and Dispute in the scanner becomes a data point. Once decisions are stored (Stage 2), Radar ranks rules by how often
-            people override them.
+            The panel above ranks rules by real decisions from this browser. Next: draft a sharper rule from the disputed cases, preview it on past content, and let the
+            guideline owner approve it (needs the shared database).
           </p>
         </div>
         <div className="border-2 border-ink bg-term p-5 text-paper">

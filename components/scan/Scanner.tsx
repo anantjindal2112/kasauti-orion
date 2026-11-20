@@ -14,6 +14,7 @@ import { HighlightedDraft } from "@/components/scan/HighlightedDraft";
 import { VoiceRecorder } from "@/components/scan/VoiceRecorder";
 import Link from "next/link";
 import { parseCustom, saveCustom, useCustomRaw, type CustomSettings } from "@/lib/custom-pack";
+import { logDecisions } from "@/lib/decision-log";
 import { applyFixes } from "@/lib/fixes/apply";
 import type { DemoDraft, EvidenceInfo, FixAllResponse, RuleInfo, ScanResponse } from "@/lib/scan-types";
 import type { BrandPackData, Evidence } from "@/lib/schemas/brand-pack";
@@ -41,6 +42,12 @@ interface Version {
  * how long a real round trip to the NVIDIA models feels. A slower real scan is never cut short.
  */
 const SCAN_MS = { example: 4600, edited: 7500, codeOnly: 1500 } as const;
+
+/** Share of letters that are Devanagari (Hindi). */
+const hindiShare = (t: string) => {
+  const letters = t.match(/\p{L}/gu) ?? [];
+  return letters.length ? letters.filter((c) => /\p{Script=Devanagari}/u.test(c)).length / letters.length : 0;
+};
 
 const SEVERITY_ORDER = { high: 0, medium: 1, low: 2 } as const;
 const keyOf = (f: Finding) => `${f.rule}|${f.location}|${f.imageFile ?? ""}|${f.quote}`;
@@ -137,6 +144,9 @@ export function Scanner({
   const [decisions, setDecisions] = useState<Record<string, Decision>>({});
   const [runs, setRuns] = useState(0);
   const [ledgerLog, setLedgerLog] = useState<string[]>([]);
+  /** Hindi copy that was translated to English for review (kept so it can be restored). */
+  const [hindiOriginal, setHindiOriginal] = useState<string | null>(null);
+  const [translating, setTranslating] = useState(false);
   /** Is an NVIDIA key configured on the server? null until /api/health answers. */
   const [nvidiaKey, setNvidiaKey] = useState<boolean | null>(null);
   /** Length and id of the scan currently on screen — drives the step-by-step log and the progress bar. */
@@ -240,6 +250,7 @@ export function Scanner({
       setVersions([]);
       setDecisions({});
       setLedgerLog([]);
+      setHindiOriginal(null);
       setSelectedId(null);
       setView("edit");
       setStatus("idle");
@@ -311,17 +322,22 @@ export function Scanner({
 
   const applyFix = (f: Finding, replacement: string, how: "accepted" | "edited") => {
     const next = applyFixes(scannedText, [{ start: f.span.start, end: f.span.end, replacement }]);
-    setDecisions((d) => ({ ...d, [keyOf(f)]: { action: how } }));
-    setVersions((v) => [...v, { n: v.length + 1, text: next, note: `${how === "accepted" ? "Accepted fix" : "Edited"} ${f.rule}` }]);
+    // Accepting a fix the Intent Check flagged is the creator's call, and it is logged.
+    const override = how === "accepted" && !!f.intent && !f.intent.ok;
+    setDecisions((d) => ({ ...d, [keyOf(f)]: { action: how, ...(override ? { note: "Intent Check overridden by the creator" } : {}) } }));
+    logDecisions([{ rule: f.rule, action: how, source: f.source, quote: f.quote, intentOverride: override }]);
+    setVersions((v) => [...v, { n: v.length + 1, text: next, note: `${how === "accepted" ? "Accepted fix" : "Edited"} ${f.rule}${override ? " (overrode Intent Check)" : ""}` }]);
     setText(next);
     void scan({ text: next, recheck: recheckOf([{ ...f, suggestedFix: replacement }]) });
   };
 
   /** What "Accept all" covers: every open finding in the copy, plus images with no alt text. */
   const batch = useMemo(
-    () => sorted.filter((f) => !decisions[keyOf(f)] && (f.location === "text" || f.rule === "KSR-5.1")),
+    // Fixes the Intent Check flagged are left for a person; "Accept all" never overrides the creator's message.
+    () => sorted.filter((f) => !decisions[keyOf(f)] && (f.location === "text" || f.rule === "KSR-5.1") && !(f.intent && !f.intent.ok)),
     [sorted, decisions],
   );
+  const heldBack = sorted.filter((f) => !decisions[keyOf(f)] && f.intent && !f.intent.ok).length;
   const [fixing, setFixing] = useState(false);
 
   /**
@@ -355,6 +371,7 @@ export function Scanner({
       const nextImages = images.map((i) => (altBy.has(i.name) ? { ...i, alt: altBy.get(i.name)! } : i));
       const done = batch.filter((f) => f.location === "text" || altBy.has(f.imageFile ?? ""));
       setDecisions((d) => ({ ...d, ...Object.fromEntries(done.map((f) => [keyOf(f), { action: "accepted" as const }])) }));
+      logDecisions(done.map((f) => ({ rule: f.rule, action: "accepted" as const, source: f.source, quote: f.quote })));
       setVersions((v) => [...v, { n: v.length + 1, text: json.text, note: `Accepted all fixes (${done.length})` }]);
       setText(json.text);
       setImages(nextImages);
@@ -371,6 +388,7 @@ export function Scanner({
     const next = images.map((i) => (i.name === f.imageFile ? { ...i, alt } : i));
     setImages(next);
     setDecisions((d) => ({ ...d, [keyOf(f)]: { action: "edited" } }));
+    logDecisions([{ rule: f.rule, action: "edited", source: f.source, quote: f.quote }]);
     void scan({ images: next });
   };
 
@@ -421,6 +439,26 @@ export function Scanner({
     }
     setLedgerLog((l) => [...l, `${code} added for “${c.text}” · owner ${p.ownerName} · ${p.expiresAt ? `expires ${p.expiresAt}` : "no expiry"}`]);
     void scan({ pack, today: base.today });
+  };
+
+  /** Rule checks run on English, so Hindi copy is translated with NVIDIA, then reviewed. The Hindi stays restorable. */
+  const translateHindi = async () => {
+    if (translating) return;
+    setTranslating(true);
+    setError("");
+    try {
+      const res = await fetch("/api/translate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text }) });
+      const json = (await res.json()) as { text?: string; error?: string };
+      if (!res.ok || !json.text) throw new Error(json.error ?? "Couldn't translate that text.");
+      setHindiOriginal(text);
+      setText(json.text);
+      void scan({ text: json.text });
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Couldn't translate that text.");
+      setStatus("error");
+    } finally {
+      setTranslating(false);
+    }
   };
 
   const scanning = status === "scanning";
@@ -560,6 +598,34 @@ export function Scanner({
                   className="w-full border-2 border-ink bg-card p-3 text-lg leading-relaxed"
                 />
                 <p className="mt-1 text-right font-mono text-xs text-muted">{text.length} characters · Ctrl/⌘ + Enter to scan</p>
+                {hindiShare(text) >= 0.3 && (
+                  <div className="mt-2 flex flex-wrap items-center gap-3 border-2 border-ink bg-mark-medium p-3 text-sm">
+                    <span className="min-w-0 flex-1">
+                      <b>Hindi text detected.</b> The rule checks run on English, so Kasauti can translate it with NVIDIA and review the English. Your Hindi stays here to restore.
+                    </span>
+                    <Button variant="primary" size="sm" onClick={() => void translateHindi()} disabled={translating || scanning}>
+                      {translating ? "Translating…" : "Translate to English and review"}
+                    </Button>
+                  </div>
+                )}
+                {hindiOriginal && hindiShare(text) < 0.3 && (
+                  <details className="mt-2 border-2 border-ink bg-card p-3 text-sm">
+                    <summary className="cursor-pointer font-mono text-xs font-bold uppercase tracking-wider">Original Hindi (translated for review)</summary>
+                    <p className="mt-2 whitespace-pre-wrap" lang="hi">
+                      {hindiOriginal}
+                    </p>
+                    <Button
+                      size="sm"
+                      className="mt-2"
+                      onClick={() => {
+                        setText(hindiOriginal);
+                        setHindiOriginal(null);
+                      }}
+                    >
+                      Restore the Hindi
+                    </Button>
+                  </details>
+                )}
               </div>
 
               <VoiceRecorder
@@ -591,7 +657,7 @@ export function Scanner({
                     </label>
                   ))}
                 </div>
-                <p className="mt-3 text-xs text-paper/70">Intent Lock (Round 3) will test every suggested fix against this card so fixes never flatten your message.</p>
+                <p className="mt-3 text-xs text-paper/70">Intent Lock tests every suggested fix against this card, so fixes never flatten your message. Separate the “must keep” items with commas.</p>
               </fieldset>
 
               <div>
@@ -812,6 +878,15 @@ export function Scanner({
               <span className="text-sm">
                 Fixes everything in the copy in one pass and writes missing alt text, then re-checks the whole draft. Text baked into a banner
                 needs a new banner.
+                {heldBack > 0 && (
+                  <>
+                    {" "}
+                    <b>
+                      {heldBack} fix{heldBack === 1 ? "" : "es"} held back
+                    </b>{" "}
+                    because the Intent Check says {heldBack === 1 ? "it" : "they"} may change your message; you decide those.
+                  </>
+                )}
               </span>
             </motion.div>
           )}
@@ -873,9 +948,15 @@ export function Scanner({
                       selected={selectedId === f.id}
                       onSelect={() => setSelectedId(f.id)}
                       onApply={(rep, how) => applyFix(f, rep, how)}
-                      onDispute={(note) => setDecisions((d) => ({ ...d, [keyOf(f)]: { action: "disputed", note } }))}
+                      onDispute={(note) => {
+                        setDecisions((d) => ({ ...d, [keyOf(f)]: { action: "disputed", note } }));
+                        logDecisions([{ rule: f.rule, action: "disputed", source: f.source, quote: f.quote, reason: note.slice(0, 100) }]);
+                      }}
                       onSetAlt={(alt) => setAlt(f, alt)}
-                      onNote={(note) => setDecisions((d) => ({ ...d, [keyOf(f)]: { action: "noted", note } }))}
+                      onNote={(note) => {
+                        setDecisions((d) => ({ ...d, [keyOf(f)]: { action: "noted", note } }));
+                        logDecisions([{ rule: f.rule, action: "noted", source: f.source, quote: f.quote }]);
+                      }}
                     />
                   </li>
                 ))}
@@ -913,6 +994,16 @@ export function Scanner({
                     ? `${result.ai.safety.safe ? "safe" : `unsafe: ${result.ai.safety.categories.join(", ")}`} · ${result.ai.safety.modelId.split("/").at(-1)}`
                     : "not checked"}
                 </dd>
+                {result.ai.intent && (
+                  <>
+                    <dt className="text-term-green">intent lock</dt>
+                    <dd>
+                      {result.ai.intent.checked} fix{result.ai.intent.checked === 1 ? "" : "es"} tested against the Intent Card · {result.ai.intent.flagged} flagged
+                      {result.ai.intent.modelId ? ` · ${result.ai.intent.modelId.split("/").at(-1)}` : " · code check only"}
+                      {result.ai.intent.error ? ` · ${result.ai.intent.error}` : ""}
+                    </dd>
+                  </>
+                )}
               </dl>
               {result.ai.dropped && result.ai.dropped.length > 0 && (
                 <>

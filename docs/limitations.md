@@ -4,15 +4,17 @@ Written plainly, so nobody is surprised.
 
 ## Not built yet
 - **No database, login, roles, approvals or audit log.** Rules, proof, the custom brand pack and version history are saved only in the browser you used. Another browser, or cleared site data, starts fresh, and nothing is shared between people.
-- **Intent Lock is not built.** The Intent Card is read by the AI reviewer, but a suggested fix is not tested against it.
 - **Image review is partial.** We read text inside banners and check alt text. We do not check logo version, contrast or palette yet.
-- **The Insights page is a preview.** It is not a working Guideline Debt Radar and does not learn from real disputes.
-- **Disputes and notes are not logged.** They stay in the browser session.
+- **The Insights Radar is an early version.** It ranks rules by the decisions made in this browser only. It does not yet draft a sharper rule, replay it on past content, or let an owner approve it, and nothing is shared between people.
 
 ## Languages
 - The app works in English and Hindi only. Speech can be recorded in either, and text can be returned in either.
-- **Rule checks run on English text.** Hindi text added to the copy box is not checked by the English rules. To test, record Hindi and choose English text.
+- **Rule checks run on English text.** Pasted Hindi is translated to English with NVIDIA first and the English is reviewed, so findings quote the English translation, not your Hindi. Translation can slip on names and idioms.
 - Hindi numbers become digits and the demo brand's names are restored from a small list of Devanagari spellings. Other names, and Hindi speech recognition errors, can still appear; the transcript can be edited.
+
+## Intent Lock
+- The model's judgement of "does this keep the message" is imperfect and can be too strict or too lenient. Code decides what it can see (a must-keep phrase that vanishes, an unproven lower discount) and always wins over the model, and a ledger-proven correction is never blocked. A person always makes the final call.
+- Fixes that remove a must-keep phrase are held back from "Accept all".
 
 ## AI behaviour
 - **The AI can be wrong and varies between runs.** Edited drafts use whichever NVIDIA model answers first; the faster model sometimes raises a finding that is not real. The Verifier drops many of these (including findings that say the text is fine), but not all. Code checks never vary.

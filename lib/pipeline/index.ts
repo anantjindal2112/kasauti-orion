@@ -4,6 +4,7 @@ import { splitSentences } from "@/lib/checks/text";
 import { embed } from "@/lib/nvidia/embed";
 import type { NvidiaClient } from "@/lib/nvidia/client";
 import { safetyCheck } from "@/lib/nvidia/safety";
+import { checkIntent, hasIntent } from "@/lib/pipeline/intent-lock";
 import { askReviewer, buildReviewMessages, withDeadline, type AiFinding, type Intent } from "@/lib/pipeline/ai-review";
 import { retrieve, withSuccessors, type EmbedFn } from "@/lib/pipeline/retrieval";
 import { verify, type Dropped } from "@/lib/pipeline/verifier";
@@ -170,8 +171,12 @@ export async function reviewDraft(
           return w ? { ...f, quote: w.quote, span: w.span, suggestedFix: w.fix, fixBy: written.modelId } : f;
         })
       : code.findings;
-    const findings = [...codeFindings, ...result.kept];
+    const merged = [...codeFindings, ...result.kept];
+    // Intent Lock runs beside the ledger pass: every suggested fix is tested against the Intent Card.
+    const intentCall = hasIntent(input.intent) ? checkIntent({ client, draft: input.text, findings: merged, intent: input.intent! }) : null;
     const ledgerRes = await ledgerCall;
+    const intentRes = intentCall ? await intentCall : null;
+    const findings = intentRes ? merged.map((f) => (intentRes.verdicts.has(f.id) ? { ...f, intent: intentRes.verdicts.get(f.id) } : f)) : merged;
     const grounded = ledgerRes.ok
       ? groundAiClaims({ draft: input.text, aiClaims: ledgerRes.r.data, codeClaims: codeLedger, pack, today, modelId: ledgerRes.r.modelId, tokens })
       : null;
@@ -192,6 +197,7 @@ export async function reviewDraft(
         dropped: result.dropped.map((d: Dropped) => ({ rule: d.finding.rule, quote: d.finding.quote, reason: d.reason })),
         maskedItems: tokens.length,
         safety: safety ? { ...safety.data, modelId: safety.modelId } : null,
+        intent: intentRes?.meta,
         fixWriter: written
           ? { ran: true, modelId: written.modelId, latencyMs: fixRes.ms, written: written.fixes.size, rejected: written.rejected.length, rejectedReasons: written.rejected.map((r) => r.reason) }
           : undefined,

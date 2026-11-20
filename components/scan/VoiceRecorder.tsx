@@ -419,7 +419,7 @@ export function VoiceRecorder({ onTranscript }: { onTranscript: (text: string) =
         <LangPick label="Text in" value={to} onChange={setTo} disabled={recording || working} />
         {to === "hi" && (
           <span className="font-mono text-[11px] font-bold text-red">
-            Rule checks run on English text, so Hindi text is added to the box but won&rsquo;t be checked. Pick English to test.
+            Rule checks run on English, so the copy box will offer to translate this Hindi for review.
           </span>
         )}
         {from !== to && (

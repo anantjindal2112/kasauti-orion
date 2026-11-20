@@ -13,15 +13,18 @@ Team Orion · CodeNova · InkLoom AI brand-governance brief. Live demo: <https:/
 - **Claim Ledger:** finds every price, offer, rating, count, certificate and superlative and marks it verified, stale, contradicted or no proof, against entries with an owner and an expiry date. Reviewers can add proof.
 - **AI review with NVIDIA models**, then the **Verifier**: a finding is shown only if its rule exists, its quote is in the draft word for word, the quote contains what the rule is about, and its own explanation does not say the text is fine. Low confidence goes to a person.
 - **Images:** NVIDIA vision reads text inside banners and the same checks run on it; missing alt text is flagged.
+- **Intent Lock:** fill in the Intent Card (purpose, audience, must-keep items) and every suggested fix is tested against it. Each fix shows what it **kept** and what it **changed**; a fix that loses a must-keep phrase, or lowers an offer without proof, is flagged for a person ("Accept anyway" is logged). Corrections the Claim Ledger proves are never blocked. "Accept all" holds flagged fixes back.
 - **Fixes:** accept, edit or dispute each one, or "Accept all fixes" (rewrite, re-check, version history with restore).
 - **Voice-over:** record in the browser, pick English or Hindi, and get text in English or Hindi (NVIDIA Parakeet speech-to-text, NVIDIA translation). Spoken prices and percentages become digits so the ledger can check them.
+- **Hindi copy:** paste Hindi into the copy box and Kasauti offers to translate it to English with NVIDIA (spoken-number words become digits, brand names are kept) and review that. The Hindi stays restorable.
+- **Insights (early Radar):** every accept, edit and dispute is logged in your browser; the Insights page ranks rules by how often people override them and marks a rule "unclear" at 3+ decisions and 25%+ overridden.
 - **Rulebook, Claim Ledger and Customise pages:** edit rules, proof and brand words; saved in the browser.
 - **Test set page:** 18 sample drafts with answer keys, scored live.
 - **AI disclosure** on every scan: model, rules and proof used, masked items, every finding the Verifier dropped. If the AI is slow or down, the code checks still return results.
 
 ## What does not work yet
 
-Plainly, see [docs/limitations.md](docs/limitations.md): no database or login (everything is saved in your own browser), Intent Lock is not built, image review does not check logo, contrast or palette yet, the Insights page is a preview, and rule checks run on English text only.
+Plainly, see [docs/limitations.md](docs/limitations.md): no database or login (everything is saved in your own browser), image review does not check logo, contrast or palette yet, the Insights Radar only sees this browser's decisions and does not yet draft sharper rules, and rule checks run on English text (Hindi is translated first).
 
 What we plan next is in [docs/roadmap.md](docs/roadmap.md).
 
@@ -35,6 +38,10 @@ What we plan next is in [docs/roadmap.md](docs/roadmap.md).
 4. **AI review** (`lib/pipeline/ai-review.ts`): the reasoning and fast NVIDIA models are asked together; the first usable answer wins.
 5. **Verifier** (`lib/pipeline/verifier.ts`): see above. Failing findings are dropped and listed in the disclosure.
 6. **Claim Ledger** (`lib/ledger/`): code decides each claim's status from the proof entry; a model can only propose claims.
+
+Intent Lock (`lib/pipeline/intent-lock.ts`): after the fixes are known, code checks what it can see (a must-keep phrase that disappears, an unproven lower discount) and a model judges the rest in one call; code overrules the model on ledger-proven corrections.
+
+Hindi copy: `POST /api/translate` (Hindi to English) before the scan.
 
 Voice: `POST /api/transcribe?from=en|hi&to=en|hi` → NVIDIA Parakeet (gRPC) → digits for spoken numbers → NVIDIA translation if the languages differ.
 
@@ -53,7 +60,7 @@ All AI calls go to NVIDIA. Model details and what we tried: [docs/nvidia-models.
 
 ## Measured during development
 
-On our 18-draft test set (`testset/`), last full runs: code checks caught 26 of 26 issues they are responsible for with no false alarms; the full pipeline caught 32 of 32 text issues (6 only the AI found) and showed 2 findings outside the answer key; the ledger gave 17 of 17 expected statuses; retrieval found the right rule or proof for 10 of 10 test sentences. The AI part varies from run to run; re-run `npm run eval:ai` for today's numbers. 175 automated tests pass (`npm test`).
+On our 18-draft test set (`testset/`), last full runs: code checks caught 26 of 26 issues they are responsible for with no false alarms; the full pipeline caught 32 of 32 text issues (6 only the AI found) and showed 2 findings outside the answer key; the ledger gave 17 of 17 expected statuses; retrieval found the right rule or proof for 10 of 10 test sentences. The AI part varies from run to run; re-run `npm run eval:ai` for today's numbers. 184 automated tests pass (`npm test`).
 
 ## Privacy
 
@@ -82,10 +89,10 @@ npm run dev                  # http://localhost:3000
 ## Folder layout
 
 ```
-app/          pages and API routes (scan, fixall, transcribe, health)
+app/          pages and API routes (scan, fixall, transcribe, translate, health)
 lib/nvidia/   NVIDIA clients: chat, embeddings, vision, safety, speech, translation
 lib/checks/   code checks, no AI
-lib/pipeline/ retrieval, AI review, Verifier, fix writer
+lib/pipeline/ retrieval, AI review, Verifier, Intent Lock, fix writer
 lib/ledger/   Claim Ledger
 lib/speech/   spoken numbers to digits, Hindi name spellings
 lib/scan-fixtures/  saved real runs of the three examples
