@@ -9,6 +9,8 @@ import { brandPackSchema } from "@/lib/schemas/brand-pack";
 
 const MAX_IMAGE_DATA_URL = 6_000_000; // ~4.5 MB image
 const OCR_DEADLINE_MS = 25_000;
+/** Stay under the 60 s function limit with room to spare. */
+const TOTAL_BUDGET_MS = 50_000;
 
 const scanRequest = z.object({
   // Not trimmed: finding spans must line up with the exact text the browser shows.
@@ -113,15 +115,26 @@ export async function POST(request: Request) {
   const ocrMs = Date.now() - started;
 
   // Code checks → mask PII → retrieval → AI review → Verifier (falls back to code checks only).
-  const result = await reviewDraft(
-    {
-      text: body.text,
-      images: body.images.map((img, i) => ({ file: img.name, alt: img.alt, text: images[i].text || undefined })),
-      intent: body.intent,
-    },
-    pack,
-    { client, ai: body.ai, today, recheck: body.recheck },
-  );
+  const reviewInput = {
+    text: body.text,
+    images: body.images.map((img, i) => ({ file: img.name, alt: img.alt, text: images[i].text || undefined })),
+    intent: body.intent,
+  };
+  // The whole request must finish inside the function limit. If the models are slow, the code checks are returned
+  // instead of letting the request time out with nothing.
+  const budgetLeft = Math.max(5_000, TOTAL_BUDGET_MS - (Date.now() - started));
+  const result = await Promise.race([
+    reviewDraft(reviewInput, pack, { client, ai: body.ai, today, recheck: body.recheck }),
+    new Promise<Awaited<ReturnType<typeof reviewDraft>>>((resolve) =>
+      setTimeout(
+        () =>
+          void reviewDraft(reviewInput, pack, { client: null, ai: false, today }).then((r) =>
+            resolve({ ...r, ai: { ran: false, error: "AI review took too long — showing code checks only" } }),
+          ),
+        budgetLeft,
+      ),
+    ),
+  ]);
 
   const payload = { ...result, images, timings: { totalMs: Date.now() - started, ocrMs } };
   if (key && result.ai.ran) save(key, payload);
