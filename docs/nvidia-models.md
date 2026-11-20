@@ -38,5 +38,6 @@ Plan: `response_format` json_schema (or top-level `guided_json`) → Zod validat
 | Reranker | `llama-3_2-nv-rerankqa-1b-v2` 410 (EOL), `nv-rerankqa-mistral-4b-v3` 404 | Embedding similarity, then the fast LLM picks the relevant rules |
 | PII detection | No PII model in our catalog | Code (regex for emails/phones/IDs) + marked spans; LLM pass optional |
 | Standalone OCR | `nemoretriever-ocr-v1` 410 (EOL) | Omni vision model above |
-| Speech-to-text / TTS | Not on this endpoint (separate gRPC API) | Stretch goal only |
+| Speech-to-text | `parakeet-1.1b-rnnt-multilingual-asr` — not on the chat endpoint, but works with the same key over gRPC (`grpc.nvcf.nvidia.com:443`, function id in `lib/nvidia/config.ts`). Tested 20 Nov 2026: English and Hindi, language `multi` auto-detects | Built: `/api/transcribe` |
+| Text-to-speech | Not tested | Stretch goal only |
 | Other LLMs tried | `nemotron-3-super-120b`, `llama-3.1-nemotron-70b`, `llama-3.1-nemotron-ultra-253b`, `nemotron-nano-3-30b`, `kimi-k2.6`: 404. `gemma-4-31b`, `nemotron-3.5-embed-8b`, `nemoguard-8b-content-safety`: timed out | — |
