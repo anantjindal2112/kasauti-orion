@@ -4,7 +4,7 @@ import { splitSentences } from "@/lib/checks/text";
 import { embed } from "@/lib/nvidia/embed";
 import type { NvidiaClient } from "@/lib/nvidia/client";
 import { safetyCheck } from "@/lib/nvidia/safety";
-import { askReviewer, buildReviewMessages, type AiFinding, type Intent } from "@/lib/pipeline/ai-review";
+import { askReviewer, buildReviewMessages, withDeadline, type AiFinding, type Intent } from "@/lib/pipeline/ai-review";
 import { retrieve, withSuccessors, type EmbedFn } from "@/lib/pipeline/retrieval";
 import { verify, type Dropped } from "@/lib/pipeline/verifier";
 import { maskPII } from "@/lib/privacy/mask";
@@ -14,6 +14,9 @@ import type { LedgerClaim } from "@/lib/schemas/claim";
 import { writeFixes } from "@/lib/pipeline/fix-writer";
 import type { AiMeta } from "@/lib/scan-types";
 import type { ClaimCandidate, Finding } from "@/lib/schemas/finding";
+
+/** How long embedding search gets before the full ledger is sent instead. */
+const RETRIEVAL_DEADLINE_MS = 8_000;
 
 export interface ReviewResult {
   findings: Finding[];
@@ -58,8 +61,14 @@ export async function reviewDraft(
     const sentences = splitSentences(masked).map((s) => s.text);
     const candidateTexts = code.candidates.filter((c) => c.location === "text").map((c) => c.text);
 
+    // Embedding search picks the closest rules and proof. If the embedding model is slow or down, the whole
+    // ledger goes to the reviewer instead (packs are small enough to fit): slower to read, but the scan still works.
     const [retrieved, safety] = await Promise.all([
-      retrieve([...sentences, ...candidateTexts], pack, embedFn, { perQuery: 6, today }),
+      withDeadline(retrieve([...sentences, ...candidateTexts], pack, embedFn, { perQuery: 6, today }), RETRIEVAL_DEADLINE_MS, "retrieval").catch(() => ({
+        rules: [] as BrandPack["rules"],
+        evidence: pack.evidence,
+        scores: {} as Record<string, number>,
+      })),
       safetyCheck(client, masked).catch(() => null),
     ]);
 
