@@ -95,7 +95,10 @@ export function FindingCard({
         )}
         {f.source === "ai" && f.review === "verified" && (
           <p className="flex items-center gap-2 font-mono text-xs text-teal">
-            <Icon name="check" className="h-3.5 w-3.5" /> Passed all 3 Verifier tests · confidence {Math.round(f.confidence * 100)}%
+            <Icon name="check" className="h-3.5 w-3.5" />{" "}
+            {f.id.startsWith("img:")
+              ? `Colours read by the vision model, ratio computed in code · confidence ${Math.round(f.confidence * 100)}%`
+              : `Passed all 3 Verifier tests · confidence ${Math.round(f.confidence * 100)}%`}
           </p>
         )}
 
