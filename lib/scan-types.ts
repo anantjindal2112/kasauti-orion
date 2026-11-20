@@ -21,6 +21,8 @@ export interface AiMeta {
   latencyMs?: number;
   rulesConsidered?: string[];
   evidenceConsidered?: string[];
+  /** The reviewer model failed; the rest of the AI half still ran. */
+  reviewerError?: string;
   proposed?: number;
   verified?: number;
   needsReview?: number;

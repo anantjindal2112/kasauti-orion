@@ -119,7 +119,13 @@ export async function reviewDraft(
       () => ({ ok: false as const, ms: Date.now() - fixStarted }),
     );
 
-    const res = await askReviewer(client, messages);
+    // If the reviewer model fails (e.g. it returns broken JSON twice), the rest of the AI half still runs:
+    // the ledger pass, the fix writer and Intent Lock don't depend on it. The disclosure says so.
+    let reviewerError: string | undefined;
+    const res = await askReviewer(client, messages).catch((e: unknown) => {
+      reviewerError = `The reviewer model failed (${e instanceof Error ? e.message.slice(0, 100) : "error"}); its findings are missing from this scan.`;
+      return { data: [] as AiFinding[], modelId: "reviewer unavailable", latencyMs: 0, attempts: 0 };
+    });
     const result = verify({ draft: input.text, aiFindings: res.data, codeFindings: code.findings, pack, modelId: res.modelId, tokens, today });
 
     // Code wins on proof: an AI claims finding (price, evidence, certificate) on words the ledger verifiably
@@ -175,6 +181,8 @@ export async function reviewDraft(
     // Intent Lock runs beside the ledger pass: every suggested fix is tested against the Intent Card.
     const intentCall = hasIntent(input.intent) ? checkIntent({ client, draft: input.text, findings: merged, intent: input.intent! }) : null;
     const ledgerRes = await ledgerCall;
+    // Nothing from the AI half worked: that is "AI unavailable", and the code findings go out on their own.
+    if (reviewerError && !ledgerRes.ok && !fixRes.ok) throw new Error(reviewerError);
     const intentRes = intentCall ? await intentCall : null;
     const findings = intentRes ? merged.map((f) => (intentRes.verdicts.has(f.id) ? { ...f, intent: intentRes.verdicts.get(f.id) } : f)) : merged;
     const grounded = ledgerRes.ok
@@ -191,6 +199,7 @@ export async function reviewDraft(
         latencyMs: Date.now() - started,
         rulesConsidered: ruleSet.map((r) => r.code),
         evidenceConsidered: evidence.map((e) => e.code),
+        reviewerError,
         proposed: res.data.length,
         verified: result.kept.filter((k) => k.review === "verified").length,
         needsReview: result.kept.filter((k) => k.review === "needs_review").length,

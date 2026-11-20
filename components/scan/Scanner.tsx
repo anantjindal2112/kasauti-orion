@@ -982,6 +982,12 @@ export function Scanner({
                 <dd>
                   {result.ai.modelId} · {result.ai.latencyMs} ms
                 </dd>
+                {result.ai.reviewerError && (
+                  <>
+                    <dt className="text-term-red">reviewer</dt>
+                    <dd className="text-term-red">{result.ai.reviewerError}</dd>
+                  </>
+                )}
                 <dt className="text-term-green">rules</dt>
                 <dd>{result.ai.rulesConsidered?.join(", ")}</dd>
                 <dt className="text-term-green">proof</dt>
