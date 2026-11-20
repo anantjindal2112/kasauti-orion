@@ -60,7 +60,7 @@ All AI calls go to NVIDIA. Model details and what we tried: [docs/nvidia-models.
 
 ## Measured during development
 
-On our 18-draft test set (`testset/`), last full runs: code checks caught 26 of 26 issues they are responsible for with no false alarms; the full pipeline caught 32 of 32 text issues (6 only the AI found) and showed 2 findings outside the answer key; the ledger gave 17 of 17 expected statuses; retrieval found the right rule or proof for 10 of 10 test sentences. The AI part varies from run to run; re-run `npm run eval:ai` for today's numbers. 184 automated tests pass (`npm test`).
+On our 18-draft test set (`testset/`), last full runs: code checks caught 26 of 26 issues they are responsible for with no false alarms; the full pipeline caught 32 of 32 text issues (6 only the AI found) and showed 2 findings outside the answer key; the ledger gave 17 of 17 expected statuses; retrieval found the right rule or proof for 10 of 10 test sentences. The AI part varies from run to run; re-run `npm run eval:ai` for today's numbers. 186 automated tests pass (`npm test`).
 
 ## Privacy
 
