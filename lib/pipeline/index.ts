@@ -16,7 +16,7 @@ import type { AiMeta } from "@/lib/scan-types";
 import type { ClaimCandidate, Finding } from "@/lib/schemas/finding";
 
 /** How long embedding search gets before the full ledger is sent instead. */
-const RETRIEVAL_DEADLINE_MS = 8_000;
+const RETRIEVAL_DEADLINE_MS = 4_000;
 
 export interface ReviewResult {
   findings: Finding[];
