@@ -52,6 +52,8 @@ export async function translateText(client: NvidiaClient, text: string, from: La
     timeoutMs: 20_000,
   });
   const out = res.data.replace(/\[\[|\]\]/g, "").replace(/\s+/g, " ").trim();
-  if (!isLanguage(out, to)) throw new Error(`The translation did not come back in ${LANGUAGE_NAME[to]}.`);
+  // Protected names stay in English by design, so they don't count when judging which language the rest is in.
+  const rest = terms.reduce((t, term) => t.replace(new RegExp(escapeRe(term), "gi"), " "), out);
+  if (!isLanguage(rest, to)) throw new Error(`The translation did not come back in ${LANGUAGE_NAME[to]}.`);
   return { text: out, modelId: res.modelId, latencyMs: res.latencyMs };
 }

@@ -2,8 +2,10 @@
 
 import { AnimatePresence, motion } from "motion/react";
 import { useCallback, useEffect, useRef, useState, type ReactNode, type RefObject } from "react";
+import { createPortal } from "react-dom";
 import { Button } from "@/components/retro/Button";
 import { toWav16k } from "@/lib/audio/wav";
+import { api } from "@/lib/client-api";
 
 const BARS = 32;
 const MAX_SECONDS = 60;
@@ -172,12 +174,54 @@ function TypeReveal({ text }: { text: string }) {
   return <span>{shown}</span>;
 }
 
+/** A sample line to read aloud: written by NVIDIA from the brand's facts and passed by our own rule checks. */
+function PhraseBox({ phrase, busy, error, onNew, dark = false }: { phrase: { text: string; english: string | null; lang: Lang } | null; busy: boolean; error: string; onNew: () => void; dark?: boolean }) {
+  return (
+    <div className={`space-y-1.5 border-2 border-ink p-3 ${dark ? "bg-[#152019] text-paper" : "bg-card"}`} aria-live="polite">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <p className={`font-mono text-[11px] font-bold uppercase tracking-wider ${dark ? "text-yellow" : ""}`}>Say this</p>
+        <button
+          type="button"
+          onClick={onNew}
+          disabled={busy}
+          className={`border-2 border-ink px-2 py-0.5 font-mono text-[11px] font-bold disabled:opacity-50 ${dark ? "bg-term text-term-green hover:bg-[#1f2d25]" : "bg-paper hover:bg-yellow"}`}
+        >
+          {busy ? "Writing…" : "New phrase"}
+        </button>
+      </div>
+      {error && <p className="text-sm text-term-red">{error}</p>}
+      {phrase && (
+        <>
+          <p className="text-lg leading-snug" lang={phrase.lang}>
+            {phrase.text}
+          </p>
+          {phrase.english && <p className={`text-xs ${dark ? "text-paper/60" : "text-muted"}`}>In English: {phrase.english}</p>}
+          <p className={`text-[11px] ${dark ? "text-paper/60" : "text-muted"}`}>
+            Written by NVIDIA from the brand&rsquo;s real facts, and checked against our rules, so it comes back from speech-to-text almost ready to use.
+          </p>
+        </>
+      )}
+      {!phrase && !error && busy && <p className="text-sm opacity-70">Writing a line from the brand&rsquo;s facts…</p>}
+    </div>
+  );
+}
+
 /**
  * Records a voice-over (English or Hindi) with a retro cassette, oscilloscope and equalizer. The audio stays on
  * the page until "Transcribe" is pressed; then NVIDIA's speech model turns it into text, and NVIDIA's translation
  * model can turn it into the other language, before the words land in the copy box.
  */
-export function VoiceRecorder({ onTranscript }: { onTranscript: (text: string) => void }) {
+export function VoiceRecorder({
+  onTranscript,
+  liveSlot,
+  intent,
+}: {
+  onTranscript: (text: string) => void;
+  /** Where the live recording panel is shown (under the findings terminal). Without it the panel appears right here. */
+  liveSlot?: HTMLElement | null;
+  /** The Intent Card, so a suggested phrase matches what the creator is writing about. */
+  intent?: { purpose?: string; mustKeep?: string };
+}) {
   const [phase, setPhase] = useState<Phase>("idle");
   const [elapsed, setElapsed] = useState(0);
   const [error, setError] = useState("");
@@ -185,6 +229,10 @@ export function VoiceRecorder({ onTranscript }: { onTranscript: (text: string) =
   const [tx, setTx] = useState<Transcription>({ status: "idle" });
   const [from, setFrom] = useState<Lang>("en");
   const [to, setTo] = useState<Lang>("en");
+  const [phrase, setPhrase] = useState<{ text: string; english: string | null; lang: Lang } | null>(null);
+  const [phraseBusy, setPhraseBusy] = useState(false);
+  const [phraseError, setPhraseError] = useState("");
+  const sectionRef = useRef<HTMLElement>(null);
 
   const panelRef = useRef<HTMLDivElement>(null);
   const barEls = useRef<(HTMLDivElement | null)[]>([]);
@@ -265,12 +313,15 @@ export function VoiceRecorder({ onTranscript }: { onTranscript: (text: string) =
         setClip({ url: URL.createObjectURL(blob), ms, blob });
         setTx({ status: "idle" });
         setPhase("done");
+        if (window.matchMedia("(max-width: 1023px)").matches) setTimeout(() => sectionRef.current?.scrollIntoView({ behavior: "smooth", block: "center" }), 150);
       };
 
       startedAt.current = Date.now();
       setElapsed(0);
       setPhase("recording");
       rec.start();
+      // On a phone the panel sits further down the page, so bring it into view.
+      if (window.matchMedia("(max-width: 1023px)").matches) setTimeout(() => document.getElementById("voice-live-slot")?.scrollIntoView({ behavior: "smooth", block: "center" }), 150);
       tick.current = setInterval(() => {
         const ms = Date.now() - startedAt.current;
         setElapsed(ms);
@@ -395,21 +446,118 @@ export function VoiceRecorder({ onTranscript }: { onTranscript: (text: string) =
     }
   };
 
+  /** NVIDIA writes a short line from the brand's real facts, and our own rules must pass it before it is shown. */
+  const suggestPhrase = async () => {
+    if (phraseBusy) return;
+    setPhraseBusy(true);
+    setPhraseError("");
+    let r = await api<{ phrase: string; english: string | null; lang: Lang }>("POST", "/api/phrase", { lang: from, purpose: intent?.purpose || undefined, mustKeep: intent?.mustKeep || undefined });
+    if (!r.ok && r.status === 502) r = await api<{ phrase: string; english: string | null; lang: Lang }>("POST", "/api/phrase", { lang: from, purpose: intent?.purpose || undefined, mustKeep: intent?.mustKeep || undefined });
+    setPhraseBusy(false);
+    if (!r.ok) return setPhraseError(r.error);
+    setPhrase({ text: r.data.phrase, english: r.data.english, lang: r.data.lang });
+  };
+
   const recording = phase === "recording";
   const working = tx.status === "working";
 
+  const livePanel = (
+        <motion.div
+          key="rec"
+          initial={{ opacity: 0, scaleY: 0.15 }}
+          animate={{ opacity: 1, scaleY: 1 }}
+          exit={{ opacity: 0, scaleY: 0.15 }}
+          transition={{ type: "spring", stiffness: 380, damping: 28 }}
+          style={{ originY: 0 }}
+        >
+          <div ref={panelRef} className="crt-flicker relative overflow-hidden border-2 border-ink bg-term p-4 text-paper transition-shadow">
+            <div className="scan-drift pointer-events-none absolute inset-0" aria-hidden />
+            <div className="relative flex flex-wrap items-center justify-between gap-3 font-mono text-sm">
+              <span className="flex items-center gap-2 font-bold text-term-red">
+                <span className="relative inline-flex h-4 w-4 items-center justify-center" aria-hidden>
+                  <span className="rec-ring absolute inset-0 rounded-full bg-term-red" />
+                  <span className="rec-lamp relative h-3 w-3 rounded-full bg-term-red" />
+                </span>
+                REC · {LANG_NAME[from]}
+              </span>
+              <TimerRing progress={elapsed / (MAX_SECONDS * 1000)}>{clock(elapsed)}</TimerRing>
+              <span className="text-right text-term-green">
+                &gt; listening<span className="cursor-blink">_</span>
+                <span ref={levelRef} className="mt-1 block text-xs text-paper/60">
+                  −∞ dB
+                </span>
+              </span>
+            </div>
+
+            <div className="relative mt-3">
+              <PhraseBox phrase={phrase} busy={phraseBusy} error={phraseError} onNew={() => void suggestPhrase()} dark />
+            </div>
+
+            <div className="relative mt-3 flex items-end gap-4">
+              <Cassette running spinL={spinL} spinR={spinR} tapeL={tapeL} tapeR={tapeR} />
+              <div className="min-w-0 flex-1 space-y-1.5">
+                <canvas ref={scopeRef} width={SCOPE.w} height={SCOPE.h} className="h-16 w-full border-2 border-term-green/40 bg-term" aria-hidden />
+                <div className="relative h-24" aria-hidden>
+                  <div className="grid h-full items-end gap-[3px]" style={{ gridTemplateColumns: `repeat(${BARS}, minmax(0, 1fr))` }}>
+                    {Array.from({ length: BARS }, (_, i) => (
+                      <div key={i} className="relative flex h-24 items-end bg-[#152019]">
+                        <div
+                          ref={(el) => {
+                            barEls.current[i] = el;
+                          }}
+                          className="w-full"
+                          style={{
+                            height: "4%",
+                            background: "linear-gradient(to top, #7ee6a6 0%, #7ee6a6 45%, #f4c430 70%, #ff8a7a 100%)",
+                            backgroundSize: "100% 96px",
+                            backgroundPosition: "bottom",
+                            WebkitMaskImage: "repeating-linear-gradient(to top, #000 0 6px, transparent 6px 8px)",
+                            maskImage: "repeating-linear-gradient(to top, #000 0 6px, transparent 6px 8px)",
+                          }}
+                        />
+                        <div
+                          ref={(el) => {
+                            capEls.current[i] = el;
+                          }}
+                          className="absolute left-0 h-[3px] w-full bg-paper"
+                          style={{ bottom: "0%" }}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                  <canvas ref={sparkRef} width={SPARK.w} height={SPARK.h} className="pointer-events-none absolute inset-0 h-full w-full" />
+                </div>
+              </div>
+            </div>
+
+            <div className="relative mt-3 flex flex-wrap items-center justify-between gap-3">
+              <p className="font-mono text-xs text-paper/70">Recording stays in this browser until you transcribe. Stops by itself at {MAX_SECONDS} s.</p>
+              <Button variant="danger" size="sm" onClick={stop}>
+                <span className="inline-block h-3 w-3 border-2 border-ink bg-paper" aria-hidden /> Stop
+              </Button>
+            </div>
+          </div>
+        </motion.div>
+  );
+
   return (
-    <section aria-label="Voice-over recorder" className="space-y-2">
+    <section ref={sectionRef} aria-label="Voice-over recorder" className="space-y-2">
       <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
         <p className="font-mono text-xs font-bold uppercase tracking-wider">
           Voice-over <span className="ml-1 border-2 border-ink bg-yellow px-1.5 py-0.5 text-[10px] text-ink">NVIDIA speech</span>
         </p>
         {phase === "idle" || phase === "error" ? (
-          <Button variant="default" size="sm" onClick={() => void start()}>
-            <span className="inline-block h-3 w-3 rounded-full border-2 border-ink bg-red" aria-hidden /> Record a voice-over
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            <Button variant="ghost" size="sm" onClick={() => void suggestPhrase()} disabled={phraseBusy}>
+              {phraseBusy ? "Writing…" : phrase ? "New phrase" : "Suggest a phrase to read"}
+            </Button>
+            <Button variant="default" size="sm" onClick={() => void start()}>
+              <span className="inline-block h-3 w-3 rounded-full border-2 border-ink bg-red" aria-hidden /> Record a voice-over
+            </Button>
+          </div>
         ) : null}
       </div>
+      {phase !== "recording" && (phrase || phraseError || phraseBusy) && <PhraseBox phrase={phrase} busy={phraseBusy} error={phraseError} onNew={() => void suggestPhrase()} />}
 
       <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
         <LangPick label="I speak" value={from} onChange={setFrom} disabled={recording || working} />
@@ -430,80 +578,20 @@ export function VoiceRecorder({ onTranscript }: { onTranscript: (text: string) =
       </div>
 
       <AnimatePresence mode="wait" initial={false}>
-        {recording && (
-          <motion.div
-            key="rec"
-            initial={{ opacity: 0, scaleY: 0.15 }}
-            animate={{ opacity: 1, scaleY: 1 }}
-            exit={{ opacity: 0, scaleY: 0.15 }}
-            transition={{ type: "spring", stiffness: 380, damping: 28 }}
-            style={{ originY: 0 }}
-          >
-            <div ref={panelRef} className="crt-flicker relative overflow-hidden border-2 border-ink bg-term p-4 text-paper transition-shadow">
-              <div className="scan-drift pointer-events-none absolute inset-0" aria-hidden />
-              <div className="relative flex flex-wrap items-center justify-between gap-3 font-mono text-sm">
-                <span className="flex items-center gap-2 font-bold text-term-red">
-                  <span className="relative inline-flex h-4 w-4 items-center justify-center" aria-hidden>
-                    <span className="rec-ring absolute inset-0 rounded-full bg-term-red" />
-                    <span className="rec-lamp relative h-3 w-3 rounded-full bg-term-red" />
-                  </span>
-                  REC · {LANG_NAME[from]}
-                </span>
-                <TimerRing progress={elapsed / (MAX_SECONDS * 1000)}>{clock(elapsed)}</TimerRing>
-                <span className="text-right text-term-green">
-                  &gt; listening<span className="cursor-blink">_</span>
-                  <span ref={levelRef} className="mt-1 block text-xs text-paper/60">
-                    −∞ dB
-                  </span>
-                </span>
-              </div>
-
-              <div className="relative mt-3 flex items-end gap-4">
-                <Cassette running spinL={spinL} spinR={spinR} tapeL={tapeL} tapeR={tapeR} />
-                <div className="min-w-0 flex-1 space-y-1.5">
-                  <canvas ref={scopeRef} width={SCOPE.w} height={SCOPE.h} className="h-16 w-full border-2 border-term-green/40 bg-term" aria-hidden />
-                  <div className="relative h-24" aria-hidden>
-                    <div className="grid h-full items-end gap-[3px]" style={{ gridTemplateColumns: `repeat(${BARS}, minmax(0, 1fr))` }}>
-                      {Array.from({ length: BARS }, (_, i) => (
-                        <div key={i} className="relative flex h-24 items-end bg-[#152019]">
-                          <div
-                            ref={(el) => {
-                              barEls.current[i] = el;
-                            }}
-                            className="w-full"
-                            style={{
-                              height: "4%",
-                              background: "linear-gradient(to top, #7ee6a6 0%, #7ee6a6 45%, #f4c430 70%, #ff8a7a 100%)",
-                              backgroundSize: "100% 96px",
-                              backgroundPosition: "bottom",
-                              WebkitMaskImage: "repeating-linear-gradient(to top, #000 0 6px, transparent 6px 8px)",
-                              maskImage: "repeating-linear-gradient(to top, #000 0 6px, transparent 6px 8px)",
-                            }}
-                          />
-                          <div
-                            ref={(el) => {
-                              capEls.current[i] = el;
-                            }}
-                            className="absolute left-0 h-[3px] w-full bg-paper"
-                            style={{ bottom: "0%" }}
-                          />
-                        </div>
-                      ))}
-                    </div>
-                    <canvas ref={sparkRef} width={SPARK.w} height={SPARK.h} className="pointer-events-none absolute inset-0 h-full w-full" />
-                  </div>
-                </div>
-              </div>
-
-              <div className="relative mt-3 flex flex-wrap items-center justify-between gap-3">
-                <p className="font-mono text-xs text-paper/70">Recording stays in this browser until you transcribe. Stops by itself at {MAX_SECONDS} s.</p>
-                <Button variant="danger" size="sm" onClick={stop}>
-                  <span className="inline-block h-3 w-3 border-2 border-ink bg-paper" aria-hidden /> Stop
-                </Button>
-              </div>
-            </div>
-          </motion.div>
-        )}
+        {recording &&
+          (liveSlot ? (
+            <motion.div key="rec-note" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-wrap items-center justify-between gap-3 border-2 border-ink bg-term px-3 py-2 font-mono text-sm text-term-green">
+              <span className="flex items-center gap-2">
+                <span className="rec-lamp inline-block h-3 w-3 rounded-full bg-term-red" aria-hidden />
+                Recording {clock(elapsed)} · the live panel is under the terminal
+              </span>
+              <Button variant="danger" size="sm" onClick={stop}>
+                <span className="inline-block h-3 w-3 border-2 border-ink bg-paper" aria-hidden /> Stop
+              </Button>
+            </motion.div>
+          ) : (
+            livePanel
+          ))}
 
         {phase === "done" && clip && (
           <motion.div key="done" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ type: "spring", stiffness: 340, damping: 26 }} className="space-y-3 border-2 border-ink bg-card p-3">
@@ -577,6 +665,8 @@ export function VoiceRecorder({ onTranscript }: { onTranscript: (text: string) =
           {error}
         </p>
       )}
+
+      {liveSlot && createPortal(<AnimatePresence>{recording && livePanel}</AnimatePresence>, liveSlot)}
     </section>
   );
 }

@@ -98,6 +98,11 @@ export function Scanner({
   const [submission, setSubmission] = useState<{ id: string; title: string; status: string; canEdit: boolean; savedText: string } | null>(null);
   const [saving, setSaving] = useState(false);
   const [saveMsg, setSaveMsg] = useState("");
+  const [liveSlot, setLiveSlot] = useState<HTMLDivElement | null>(null);
+  /** Tidy text: the text as it was before, so the change can be undone. */
+  const [beforeTidy, setBeforeTidy] = useState<string | null>(null);
+  const [tidying, setTidying] = useState(false);
+  const [tidyNote, setTidyNote] = useState("");
   const router = useRouter();
   const findingsRef = useRef<HTMLDivElement>(null);
 
@@ -257,6 +262,8 @@ export function Scanner({
       setDecisions({});
       setLedgerLog([]);
       setHindiOriginal(null);
+      setBeforeTidy(null);
+      setTidyNote("");
       setSelectedId(null);
       setView("edit");
       setStatus("idle");
@@ -479,6 +486,20 @@ export function Scanner({
     void scan({ pack, today: base.today });
   };
 
+  /** A plain tidy-up of English or Hindi text (spacing, punctuation, capitals). Not the brand guidelines: the scan does that. */
+  const tidyText = async () => {
+    if (tidying || !text.trim()) return;
+    setTidying(true);
+    setTidyNote("");
+    const r = await api<{ text: string; changed: boolean; by: "ai" | "code"; lang: "en" | "hi"; note?: string }>("POST", "/api/format", { text });
+    setTidying(false);
+    if (!r.ok) return setTidyNote(r.error);
+    if (!r.data.changed) return setTidyNote("Already tidy.");
+    setBeforeTidy(text);
+    setText(r.data.text);
+    setTidyNote(r.data.by === "ai" ? `Tidied by NVIDIA (${r.data.lang === "hi" ? "Hindi" : "English"}). Only spacing, punctuation and capitals changed; every word is the same.` : `Tidied by code (${r.data.lang === "hi" ? "Hindi" : "English"}). ${r.data.note ?? ""}`);
+  };
+
   /** Rule checks run on English, so Hindi copy is translated with NVIDIA, then reviewed. The Hindi stays restorable. */
   const translateHindi = async () => {
     if (translating) return;
@@ -666,7 +687,32 @@ export function Scanner({
                   placeholder="Paste a post, email or banner copy here…"
                   className="w-full border-2 border-ink bg-card p-3 text-lg leading-relaxed"
                 />
-                <p className="mt-1 text-right font-mono text-xs text-muted">{text.length} characters · Ctrl/⌘ + Enter to scan</p>
+                <div className="mt-1 flex flex-wrap items-center justify-between gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Button size="sm" onClick={() => void tidyText()} disabled={tidying || !text.trim()} title="Fixes spacing, punctuation and capital letters in English or Hindi. It does not apply the brand guidelines; the scan does that.">
+                      {tidying ? "Tidying…" : `Tidy text (${hindiShare(text) >= 0.3 ? "हिन्दी" : "English"})`}
+                    </Button>
+                    {beforeTidy !== null && (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => {
+                          setText(beforeTidy);
+                          setBeforeTidy(null);
+                          setTidyNote("Undone.");
+                        }}
+                      >
+                        Undo
+                      </Button>
+                    )}
+                  </div>
+                  <p className="font-mono text-xs text-muted">{text.length} characters · Ctrl/⌘ + Enter to scan</p>
+                </div>
+                {tidyNote && (
+                  <p role="status" className="mt-1 text-xs text-muted">
+                    {tidyNote}
+                  </p>
+                )}
                 {hindiShare(text) >= 0.3 && (
                   <div className="mt-2 flex flex-wrap items-center gap-3 border-2 border-ink bg-mark-medium p-3 text-sm">
                     <span className="min-w-0 flex-1">
@@ -698,6 +744,8 @@ export function Scanner({
               </div>
 
               <VoiceRecorder
+                liveSlot={liveSlot}
+                intent={{ purpose: intent.purpose, mustKeep: intent.mustKeep }}
                 onTranscript={(t) => {
                   setText((prev) => (prev.trim() ? `${prev.trimEnd()}\n\n${t}` : t));
                   setStatus("idle");
@@ -968,6 +1016,9 @@ export function Scanner({
               </div>
             )}
           </div>
+
+          {/* The live recording panel (cassette, scope, equalizer) appears here, under the terminal, while a voice-over is recorded. */}
+          <div id="voice-live-slot" ref={setLiveSlot} className="empty:hidden" />
 
           {result && !scanning && batch.length > 0 && (
             <motion.div
