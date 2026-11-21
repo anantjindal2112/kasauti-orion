@@ -30,7 +30,7 @@ export default function InsightsPage() {
 
       <DecisionRadar titles={Object.fromEntries(rules.map((r) => [r.code, r.title]))} />
 
-      <Window title="C:\KASAUTI\RADAR.EXE" color="red" bodyClassName="grid gap-6 p-5 sm:p-6 lg:grid-cols-2">
+      <Window title="C:\KASAUTI\RADAR.EXE" controls={["min","max"]} color="red" bodyClassName="grid gap-6 p-5 sm:p-6 lg:grid-cols-2">
         <div>
           <p className="font-mono text-sm tracking-wide text-muted">RULES WE ALREADY SUSPECT // vague wording, flagged in the brand pack</p>
           <ul className="mt-4 space-y-4">

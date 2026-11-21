@@ -43,7 +43,7 @@ export function DecisionRadar({ titles }: { titles: Record<string, string> }) {
   const recent = shared ? entries : entries.slice(-6).reverse();
 
   return (
-    <Window title="C:\KASAUTI\DECISIONS.LOG" color="teal" bodyClassName="space-y-5 p-5 sm:p-6">
+    <Window title="C:\KASAUTI\DECISIONS.LOG" controls={["min","max","close"]} color="teal" bodyClassName="space-y-5 p-5 sm:p-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 className="font-pixel text-xl font-bold">{shared ? "The team's decisions, by rule" : "Your decisions, by rule"}</h2>

@@ -114,7 +114,7 @@ export function SubmissionView() {
 
   return (
     <div className="space-y-6">
-      <Window title="C:\KASAUTI\SUBMISSION.TXT" color="teal" bodyClassName="space-y-4 p-5 sm:p-6">
+      <Window title="C:\KASAUTI\SUBMISSION.TXT" controls={["min","max"]} color="teal" bodyClassName="space-y-4 p-5 sm:p-6">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <h2 className="font-pixel text-2xl font-bold">{s.title}</h2>
@@ -173,7 +173,7 @@ export function SubmissionView() {
       </Window>
 
       <div className="grid gap-6 lg:grid-cols-2 lg:items-start">
-        <Window title="C:\KASAUTI\COMMENTS.LOG" color="blue" bodyClassName="space-y-3 p-4 sm:p-5">
+        <Window title="C:\KASAUTI\COMMENTS.LOG" controls={["min","max","close"]} color="blue" bodyClassName="space-y-3 p-4 sm:p-5">
           {d.comments.length === 0 && <p className="text-sm text-muted">No comments yet.</p>}
           <ul className="space-y-2">
             {d.comments.map((c) => (
@@ -203,7 +203,7 @@ export function SubmissionView() {
           </form>
         </Window>
 
-        <Window title="C:\KASAUTI\VERSIONS.LOG" color="yellow" bodyClassName="space-y-3 p-4 sm:p-5">
+        <Window title="C:\KASAUTI\VERSIONS.LOG" controls={["min","max","close"]} color="yellow" bodyClassName="space-y-3 p-4 sm:p-5">
           <ol className="space-y-3">
             {[...d.versions].reverse().map((v) => {
               const prev = d.versions.find((x) => x.n === v.n - 1);
@@ -232,7 +232,7 @@ export function SubmissionView() {
         </Window>
       </div>
 
-      <Window title="C:\KASAUTI\TRAIL.LOG" color="ink" dark bodyClassName="space-y-4 p-4 sm:p-5">
+      <Window title="C:\KASAUTI\TRAIL.LOG" controls={["min","max","close"]} color="ink" dark bodyClassName="space-y-4 p-4 sm:p-5">
         <div>
           <p className="font-mono text-xs font-bold uppercase tracking-wider text-yellow">Decisions on findings ({d.decisions.length})</p>
           {d.decisions.length === 0 ? (

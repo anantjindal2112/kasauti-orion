@@ -89,7 +89,7 @@ export function Dashboard() {
       </Window>
 
       {!isCreator && waiting.length > 0 && (
-        <Window title="C:\KASAUTI\QUEUE.LOG" color="red" bodyClassName="space-y-3 p-4 sm:p-5">
+        <Window title="C:\KASAUTI\QUEUE.LOG" controls={["min","close"]} color="red" bodyClassName="space-y-3 p-4 sm:p-5">
           <p className="font-pixel text-xl font-bold">
             {waiting.length} waiting for review
           </p>
@@ -109,7 +109,7 @@ export function Dashboard() {
       )}
 
       <div className="grid gap-6 lg:grid-cols-[1fr_20rem] lg:items-start">
-        <Window title={isCreator ? "C:\\KASAUTI\\MY_SUBMISSIONS.DAT" : "C:\\KASAUTI\\SUBMISSIONS.DAT"} color="blue" bodyClassName="space-y-4 p-4 sm:p-5">
+        <Window title={isCreator ? "C:\\KASAUTI\\MY_SUBMISSIONS.DAT" : "C:\\KASAUTI\\SUBMISSIONS.DAT"} controls={["min", "max"]} color="blue" bodyClassName="space-y-4 p-4 sm:p-5">
           <div className="flex flex-wrap gap-2" role="group" aria-label="Filter by status">
             {(["all", ...STATUSES] as const).map((f) => (
               <button
@@ -154,7 +154,7 @@ export function Dashboard() {
           </ul>
         </Window>
 
-        <Window title="C:\KASAUTI\INBOX.TXT" color="yellow" bodyClassName="space-y-3 p-4">
+        <Window title="C:\KASAUTI\INBOX.TXT" controls={["min","close"]} color="yellow" bodyClassName="space-y-3 p-4">
           <div className="flex items-center justify-between gap-2">
             <p className="font-pixel text-lg font-bold">Notifications {unread > 0 && <Badge tone="fail">{unread} new</Badge>}</p>
             {unread > 0 && (

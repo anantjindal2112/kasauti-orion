@@ -46,7 +46,7 @@ export default function HowPage() {
     <div className="space-y-8">
       <PageHeader icon="help" title="How it works" subtitle="The brief asks for a reviewer. We are building a verifier — nothing an AI says reaches a person until it is tested against the brand's own sources." />
 
-      <Window title="C:\KASAUTI\WORKFLOW.BAT" color="teal">
+      <Window title="C:\KASAUTI\WORKFLOW.BAT" controls={["min"]} color="teal">
         <h2 className="font-pixel text-2xl font-bold">From draft to approved, in six steps</h2>
         <Stagger className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {FLOW.map((s, i) => {
@@ -63,7 +63,7 @@ export default function HowPage() {
         </Stagger>
       </Window>
 
-      <Window title="C:\KASAUTI\VERIFIER.EXE" color="red" bodyClassName="grid gap-6 p-5 sm:p-6 lg:grid-cols-[1.1fr_1fr]">
+      <Window title="C:\KASAUTI\VERIFIER.EXE" controls={["min"]} color="red" bodyClassName="grid gap-6 p-5 sm:p-6 lg:grid-cols-[1.1fr_1fr]">
         <div>
           <h2 className="font-pixel text-2xl font-bold">Hardest problem: findings you can trust</h2>
           <p className="mt-3 text-lg text-muted">
@@ -99,7 +99,7 @@ export default function HowPage() {
         </Stagger>
       </Window>
 
-      <Window title="C:\KASAUTI\TRUST.SYS" color="ink" dark>
+      <Window title="C:\KASAUTI\TRUST.SYS" controls={["min"]} color="ink" dark>
         <h2 className="font-pixel text-2xl font-bold text-term-green">Automation with a human in charge</h2>
         <Stagger className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {TRUST.map((t, i) => (
@@ -114,7 +114,7 @@ export default function HowPage() {
       </Window>
 
       <div className="grid gap-8 lg:grid-cols-2">
-        <Window title="C:\KASAUTI\STACK.CFG" color="blue">
+        <Window title="C:\KASAUTI\STACK.CFG" controls={["min"]} color="blue">
           <h2 className="font-pixel text-xl font-bold">AI used — NVIDIA only</h2>
           <ul className="mt-4 divide-y-2 divide-ink border-2 border-ink bg-card">
             {[
@@ -133,7 +133,7 @@ export default function HowPage() {
           <p className="mt-4 border-2 border-ink bg-yellow px-3 py-2 font-bold">Code wherever a rule can be written as code. AI only where judgement is needed.</p>
         </Window>
 
-        <Window title="C:\KASAUTI\PLAN.BAT" color="red" delay={0.06}>
+        <Window title="C:\KASAUTI\PLAN.BAT" controls={["min"]} color="red" delay={0.06}>
           <h2 className="font-pixel text-xl font-bold">Build status</h2>
           <ul className="mt-4 space-y-3">
             {STAGES.map(([name, note, pct, s]) => (

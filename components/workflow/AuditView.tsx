@@ -45,7 +45,7 @@ export function AuditView() {
 
   if (me.status !== "user") return <SignInNotice state={me.status} />;
   return (
-    <Window title="C:\KASAUTI\AUDIT.LOG" color="ink" dark bodyClassName="space-y-3 p-4 sm:p-5">
+    <Window title="C:\KASAUTI\AUDIT.LOG" controls={["min","max"]} color="ink" dark bodyClassName="space-y-3 p-4 sm:p-5">
       <p className="font-mono text-xs text-paper/70">
         {scope === "everyone" ? "Everything everyone did, newest first." : "Your own actions, newest first. Managers, reviewers and admins see everyone's."} Each line is written in the same step as the change it records.
       </p>

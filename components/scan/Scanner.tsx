@@ -565,7 +565,7 @@ export function Scanner({
   return (
     <div className="grid gap-6 lg:grid-cols-2 lg:items-start">
       {/* ---------------- Left: the draft ---------------- */}
-      <Window title="C:\KASAUTI\DRAFT.TXT" color="teal" bodyClassName="relative p-4 sm:p-5 space-y-5">
+      <Window title="C:\KASAUTI\DRAFT.TXT" controls={["min","max"]} color="teal" bodyClassName="relative p-4 sm:p-5 space-y-5">
         <div>
           <p className="font-mono text-xs font-bold uppercase tracking-wider">1 · Pick an example, or paste your own</p>
           <div className="mt-2 grid gap-2 sm:grid-cols-3">
@@ -902,7 +902,7 @@ export function Scanner({
 
       {/* ---------------- Right: findings ---------------- */}
       <div ref={findingsRef} className="scroll-mt-6">
-        <Window title="C:\KASAUTI\FINDINGS.LOG" color={!result ? "ink" : sorted.length ? "red" : "teal"} bodyClassName="p-4 sm:p-5 space-y-4" delay={0.08}>
+        <Window title="C:\KASAUTI\FINDINGS.LOG" controls={["min","max"]} color={!result ? "ink" : sorted.length ? "red" : "teal"} bodyClassName="p-4 sm:p-5 space-y-4" delay={0.08}>
           <div aria-live="polite" className="border-2 border-ink bg-term p-4 font-mono text-sm text-paper sm:text-base">
             <p className="text-yellow">&gt; kasauti scan {draftId ? `draft_${draftId}.txt` : "draft.txt"}</p>
             {!result && !scanning && (
@@ -1142,7 +1142,7 @@ export function Scanner({
         </Window>
 
         {result && !scanning && (
-          <Window title="C:\KASAUTI\CLAIMS.DAT" color="blue" className="mt-6" bodyClassName="p-4 sm:p-5 space-y-4" delay={0.12}>
+          <Window title="C:\KASAUTI\CLAIMS.DAT" controls={["min","max","close"]} color="blue" className="mt-6" bodyClassName="p-4 sm:p-5 space-y-4" delay={0.12}>
             <div>
               <h2 className="font-pixel text-xl font-bold">Claim Ledger for this draft</h2>
               <p className="text-sm text-muted">

@@ -77,7 +77,7 @@ export function LedgerView({ defaults, today }: { defaults: BrandPackData; today
       </div>
 
       {expiring.length > 0 && (
-        <Window title="C:\KASAUTI\EXPIRING.TXT" color="yellow" className="mb-6" bodyClassName="p-4 space-y-2">
+        <Window title="C:\KASAUTI\EXPIRING.TXT" controls={["min","close"]} color="yellow" className="mb-6" bodyClassName="p-4 space-y-2">
           <p className="font-bold">Expiring within {EXPIRING_DAYS} days — re-verify or let them lapse:</p>
           <ul className="flex flex-wrap gap-2">
             {expiring.map((r) => (
@@ -95,7 +95,7 @@ export function LedgerView({ defaults, today }: { defaults: BrandPackData; today
         </Window>
       )}
 
-      <Window title="C:\KASAUTI\LEDGER.DAT" color="teal">
+      <Window title="C:\KASAUTI\LEDGER.DAT" controls={["min","max"]} color="teal">
         <div className="mb-4 flex flex-wrap items-center gap-3">
           <p className="max-w-3xl flex-1 text-muted">
             {custom ? "Your edited ledger, saved in this browser — every scan checks against it. " : "Press Edit on any entry to change it, or add new proof. "}

@@ -38,7 +38,7 @@ export function RulebookView({ defaults, today }: { defaults: BrandPackData; tod
         ))}
       </div>
 
-      <Window title="C:\KASAUTI\RULES.TXT" color="blue">
+      <Window title="C:\KASAUTI\RULES.TXT" controls={["min","max"]} color="blue">
         <div className="mb-5 flex flex-wrap items-center gap-3 border-2 border-ink bg-card p-3 text-sm">
           {saved ? (
             <>

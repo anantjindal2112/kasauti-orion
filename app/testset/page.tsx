@@ -90,7 +90,7 @@ export default function TestSetPage() {
         </Window>
       </div>
 
-      <Window title="C:\KASAUTI\TESTSET.DAT" color="ink" bodyClassName="p-4 sm:p-6">
+      <Window title="C:\KASAUTI\TESTSET.DAT" controls={["min","max"]} color="ink" bodyClassName="p-4 sm:p-6">
         <Stagger as="ul" className="grid gap-4 lg:grid-cols-2" gap={0.04}>
           {scored.map(({ d, s }) => (
             <Pop as="li" key={d.id} className="flex flex-col border-2 border-ink bg-card shadow-hard-sm">

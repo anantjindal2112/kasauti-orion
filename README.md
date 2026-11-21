@@ -20,6 +20,7 @@ Team Orion · CodeNova · InkLoom AI brand-governance brief. Live demo: <https:/
 - **Insights (early Radar):** every accept, edit and dispute is logged in your browser; the Insights page ranks rules by how often people override them and marks a rule "unclear" at 3+ decisions and 25%+ overridden.
 - **Sign-in, roles and a review workflow:** a shared database with four roles (creator, reviewer, manager, admin). Save a draft from the scanner, send it for review, comment, approve or request changes; nobody approves their own work. Every version is kept with a word-level diff, in-app notifications tell people what happened, and an **audit log** records every sign-in, save, status change, comment and decision. Demo accounts for every role are on the sign-in page. See [docs/workflow-and-database.md](docs/workflow-and-database.md).
 - **Rulebook, Claim Ledger and Customise pages:** edit rules, proof and brand words; saved in the browser.
+- **Working windows:** on the pages where it helps, the title-bar buttons are real. Minimize folds a window up to its title bar, maximize fills the screen (Esc or the button puts it back; so does a double-click on the title bar), and close tucks it into a one-line bar with a Reopen button. Nothing typed or recorded inside is lost.
 - **Test set page:** 18 sample drafts with answer keys, scored live.
 - **AI disclosure** on every scan: model, rules and proof used, masked items, every finding the Verifier dropped. If the AI is slow or down, the code checks still return results.
 
