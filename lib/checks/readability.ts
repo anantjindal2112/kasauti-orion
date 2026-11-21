@@ -1,5 +1,6 @@
 import type { BrandPack } from "@/lib/brand-pack";
 import { splitSentences, words } from "@/lib/checks/text";
+import { hindiShare } from "@/lib/format";
 import type { TextCheck } from "@/lib/checks/types";
 
 /** Rough English syllable count — good enough for a reading-level signal. */
@@ -51,6 +52,8 @@ const MIN_SENTENCE_WORDS = 8;
  * the limit, and any single sentence that is far above it.
  */
 export const checkReadability: TextCheck = (text, { pack }) => {
+  // The reading-grade formula counts English syllables; it says nothing about Hindi, so it stays quiet there.
+  if (hindiShare(text) >= 0.3) return [];
   const limit = pack.brand.limits.readabilityMaxGrade;
   const simple = brandVocabulary(pack);
   const overall = fleschKincaidGrade(text, simple);

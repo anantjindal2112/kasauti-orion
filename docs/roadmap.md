@@ -1,6 +1,6 @@
 # Roadmap (planned, not built)
 
-1. **Native Hindi and Hinglish review:** rules, banned words and claim checks written in Hindi, so Hindi posts are checked directly and findings quote the original Hindi (today Hindi is translated to English first).
+1. **Deeper Hindi and Hinglish review:** native review is built; next are a wider Hindi term list, Devanagari digits and typed number words, a Hindi reading-level check, and a Hindi test set to measure the catch rate.
 2. **Real accounts:** sign-up, password reset, email verification and single sign-on; per-brand data isolation and shared rules and proof (today: demo accounts, and rules and proof stay in the browser). Roles, approvals, version diff and the audit log are built.
 3. **Intent Lock, next step:** let creators override and explain, and learn which fixes people accept anyway. (The check itself is built.)
 4. **Rest of image review:** brand palette and logo clear space, and a pixel-based contrast check next to the model-read one. (Logo version and text contrast are built.)

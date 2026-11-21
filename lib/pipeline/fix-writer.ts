@@ -47,6 +47,7 @@ export function buildFixMessages(pack: BrandPack, draft: string, items: Finding[
   const live = pack.evidence.filter((e) => !isExpired(e, today));
   const system = [
     `You fix copy for ${pack.brand.name}. Voice: ${pack.brand.voice.summary}`,
+    "The DRAFT may be English, Hindi (Devanagari) or Hinglish (Hindi in Roman letters). Keep the SENTENCE's own language and script: write every replacement in the same language and script as the words it replaces. Explanations are in English.",
     "For each ITEM, choose a TARGET — the exact words in the SENTENCE to replace — and write its replacement.",
     "The TARGET is usually just the QUOTE. Widen it to the surrounding clause only when the sentence would not read naturally otherwise",
     "(e.g. to delete a certificate you must remove the whole claim, not just its name). The TARGET must contain the QUOTE.",

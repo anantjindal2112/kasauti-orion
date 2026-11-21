@@ -18,6 +18,7 @@ import { logDecisions, type DecisionEntry } from "@/lib/decision-log";
 import { api, useMe } from "@/lib/client-api";
 import { useWide } from "@/lib/use-wide";
 import { applyFixes } from "@/lib/fixes/apply";
+import { HINDI_EXAMPLE } from "@/lib/hindi-example";
 import type { DemoDraft, EvidenceInfo, FixAllResponse, RuleInfo, ScanResponse } from "@/lib/scan-types";
 import type { BrandPackData, Evidence } from "@/lib/schemas/brand-pack";
 import type { LedgerClaim } from "@/lib/schemas/claim";
@@ -642,6 +643,19 @@ export function Scanner({
           >
             Blank draft — paste your own copy
           </button>
+          <button
+            type="button"
+            onClick={() => {
+              loadedFromUrl.current = true;
+              loadDraft("", false);
+              setText(HINDI_EXAMPLE.text);
+              setIntent(HINDI_EXAMPLE.intent);
+              void scan({ text: HINDI_EXAMPLE.text, intent: HINDI_EXAMPLE.intent });
+            }}
+            className="ml-2 mt-2 border-2 border-dashed border-ink bg-card px-2 py-1 font-mono text-xs press"
+          >
+            Try a Hindi draft (हिन्दी)
+          </button>
           {custom && (
             <p className="mt-2 flex flex-wrap items-center gap-2 text-sm">
               <Badge tone="ok">custom brand pack</Badge>
@@ -737,10 +751,11 @@ export function Scanner({
                 {hindiShare(text) >= 0.3 && (
                   <div className="mt-2 flex flex-wrap items-center gap-3 border-2 border-ink bg-mark-medium p-3 text-sm">
                     <span className="min-w-0 flex-1">
-                      <b>Hindi text detected.</b> The rule checks run on English, so Kasauti can translate it with NVIDIA and review the English. Your Hindi stays here to restore.
+                      <b>Hindi text detected.</b> Kasauti reviews it directly with its Hindi and English rules, and the findings quote your Hindi. If you would rather read the review in English, it can
+                      translate the text first (your Hindi stays here to restore).
                     </span>
-                    <Button variant="primary" size="sm" onClick={() => void translateHindi()} disabled={translating || scanning}>
-                      {translating ? "Translating…" : "Translate to English and review"}
+                    <Button size="sm" onClick={() => void translateHindi()} disabled={translating || scanning}>
+                      {translating ? "Translating…" : "Translate to English instead"}
                     </Button>
                   </div>
                 )}

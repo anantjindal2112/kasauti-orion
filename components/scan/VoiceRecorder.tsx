@@ -584,7 +584,7 @@ export function VoiceRecorder({
         <LangPick label="Text in" value={to} onChange={setTo} disabled={recording || working} />
         {to === "hi" && (
           <span className="font-mono text-[11px] font-bold text-red">
-            Rule checks run on English, so the copy box will offer to translate this Hindi for review.
+            Hindi text is reviewed directly: findings will quote your Hindi.
           </span>
         )}
         {from !== to && (

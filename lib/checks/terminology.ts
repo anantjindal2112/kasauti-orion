@@ -76,7 +76,10 @@ export const checkCompetitors: TextCheck = (text, { pack }) =>
  * Matches ₹1,499 · ₹1499 · Rs. 1499/- · Rs 1,499 · INR 1499.
  * A comma only counts as part of the number when digits follow it ("₹1,499, shop now" → "₹1,499").
  */
-export const PRICE_RE = /(?:₹\s?|\bRs\.?\s?|\bINR\s?)(\d+(?:,\d+)*(?:\.\d{1,2})?)(?:\s?\/-)?/g;
+const NUM = String.raw`\d+(?:,\d+)*(?:\.\d{1,2})?`;
+const RUPEE_WORD = String.raw`(?:रुपये|रुपए|रुपया|रू\.?|रु\.?)`;
+/** Also Hindi forms: "रु. 1499", "रुपये 1499", "1499 रुपये". */
+export const PRICE_RE = new RegExp(String.raw`(?:₹\s?|\bRs\.?\s?|\bINR\s?|${RUPEE_WORD}\s?)(${NUM})(?:\s?\/-)?|(${NUM})\s?${RUPEE_WORD}(?![\p{L}\p{M}])`, "gu");
 
 export function parseAmount(raw: string): number | null {
   const m = /(\d+(?:,\d+)*(?:\.\d{1,2})?)/.exec(raw);

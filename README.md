@@ -19,7 +19,7 @@ Team Orion · CodeNova · InkLoom AI brand-governance brief. Live demo: <https:/
 - **Suggest a phrase to read:** next to the record button. NVIDIA writes a short line from the brand's real facts (in English or Hindi), and our own rule checks must pass it (real product name, only numbers from the facts, no banned words or shouting) before it is shown, so what speech-to-text returns needs almost no fixing.
 - **Live recording panel under the terminal:** the cassette, oscilloscope and equalizer show up right under the findings terminal while you record, where you can see them without scrolling, and go away when the recording ends.
 - **Tidy text (English or Hindi):** one button under the copy box for typed or transcribed text. It fixes spacing, punctuation and capital letters (the Hindi full stop । for Hindi), and never changes a word: code tidies first, an NVIDIA model places sentence breaks better, and its version is used only if every word is identical. It is not the brand guidelines; the scan does that next. Undo is one click.
-- **Hindi copy:** paste Hindi into the copy box and Kasauti offers to translate it to English with NVIDIA (spoken-number words become digits, brand names are kept) and review that. The Hindi stays restorable.
+- **Hindi and Hinglish copy, reviewed directly:** paste Hindi (Devanagari) or Hinglish (Hindi in Roman letters) and the same checks run on it: brand and product names (Devanagari spellings of the names are flagged), banned words, superlatives, absolute promises, pressure phrases, link text, prices in Hindi forms (`1999 रुपये`, `रु. 1499`, `₹1,999`), and facts checked against the Claim Ledger (`30%` / `30 प्रतिशत`, `2012 से`, `2,000 कारीगरों`, `5 में से 4.8`, `30 दिन`). Findings quote your Hindi, fixes are written in Hindi, and the AI reviewer, Verifier and Intent Lock work on it too. "Try a Hindi draft" on the scan page shows it. If you would rather read the review in English, one click translates the text first.
 - **Insights (early Radar):** every accept, edit and dispute is logged in your browser; the Insights page ranks rules by how often people override them and marks a rule "unclear" at 3+ decisions and 25%+ overridden.
 - **Sign-in, roles and a review workflow:** a shared database with four roles (creator, reviewer, manager, admin). Save a draft from the scanner, send it for review, comment, approve or request changes; nobody approves their own work. Every version is kept with a word-level diff, in-app notifications tell people what happened, and an **audit log** records every sign-in, save, status change, comment and decision. Demo accounts for every role are on the sign-in page. See [docs/workflow-and-database.md](docs/workflow-and-database.md).
 - **Rulebook, Claim Ledger and Customise pages:** edit rules, proof and brand words; saved in the browser.
@@ -29,7 +29,7 @@ Team Orion · CodeNova · InkLoom AI brand-governance brief. Live demo: <https:/
 
 ## What does not work yet
 
-Plainly, see [docs/limitations.md](docs/limitations.md): rules, proof and the custom brand pack are still saved in your own browser (only submissions, comments, decisions and the audit log are shared), sign-in is a simple demo system, image review does not check the brand palette or logo clear space yet, the Insights Radar only sees this browser's decisions and does not yet draft sharper rules, and rule checks run on English text (Hindi is translated first).
+Plainly, see [docs/limitations.md](docs/limitations.md): rules, proof and the custom brand pack are still saved in your own browser (only submissions, comments, decisions and the audit log are shared), sign-in is a simple demo system, image review does not check the brand palette or logo clear space yet, the Insights Radar only sees this browser's decisions and does not yet draft sharper rules, and the readability grade, the shouting check and typed Hindi number words (such as एक हजार) are not done for Hindi.
 
 What we plan next is in [docs/roadmap.md](docs/roadmap.md).
 
@@ -65,7 +65,7 @@ All AI calls go to NVIDIA. Model details and what we tried: [docs/nvidia-models.
 
 ## Measured during development
 
-On our 18-draft test set (`testset/`), last full runs: code checks caught 26 of 26 issues they are responsible for with no false alarms; the full pipeline caught 32 of 32 text issues (6 only the AI found) and showed 2 findings outside the answer key; the ledger gave 17 of 17 expected statuses; retrieval found the right rule or proof for 10 of 10 test sentences. The AI part varies from run to run; re-run `npm run eval:ai` for today's numbers. 212 automated tests pass (`npm test`).
+On our 18-draft test set (`testset/`), last full runs: code checks caught 26 of 26 issues they are responsible for with no false alarms; the full pipeline caught 32 of 32 text issues (6 only the AI found) and showed 2 findings outside the answer key; the ledger gave 17 of 17 expected statuses; retrieval found the right rule or proof for 10 of 10 test sentences. The AI part varies from run to run; re-run `npm run eval:ai` for today's numbers. 224 automated tests pass (`npm test`).
 
 ## Privacy
 

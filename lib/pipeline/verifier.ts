@@ -55,25 +55,33 @@ function locate(draft: string, quote: string, taken: { start: number; end: numbe
 }
 
 const CTA_VERBS = /\b(shop|buy|order|follow|refer|download|subscribe|sign up|join|visit|share|tag|click|book|call|install|register)\b/gi;
+const CTA_VERBS_HI = /(खरीदें|खरीदिए|ऑर्डर|फ़ॉलो|फॉलो|डाउनलोड|सब्सक्राइब|जुड़ें|विज़िट|शेयर|क्लिक|बुक|कॉल|इंस्टॉल|रजिस्टर|रेफर)(?![\p{L}\p{M}])/gu;
+const distinctCtas = (q: string) => new Set([...(q.match(CTA_VERBS) ?? []), ...(q.match(CTA_VERBS_HI) ?? [])].map((v) => v.toLowerCase())).size;
 
 /**
  * Test 2b — the quote must contain what the rule is about. Catches the deck's "known limit":
  * a real rule and a real quote that don't belong together (e.g. "soft, breathable" cited as a certification claim).
+ * Each guard knows the English words and the Hindi (Devanagari) ones.
  */
 export const RULE_GUARDS: Record<string, { test: (quote: string) => boolean; about: string }> = {
-  "KSR-4.1": { test: (q) => /\d/.test(q), about: "a price, number or date" },
+  "KSR-4.1": { test: (q) => /\p{Nd}/u.test(q), about: "a price, number or date" },
   "KSR-4.2": {
-    test: (q) => /(#\s?1|best|most|top|leading|favou?rite|award|number one|no\.\s?1|trusted|loved|biggest|lowest|only brand|unbeatable)/i.test(q),
+    test: (q) =>
+      /(#\s?1|best|most|top|leading|favou?rite|award|number one|no\.\s?1|trusted|loved|biggest|lowest|only brand|unbeatable)/i.test(q) ||
+      /(सबसे|नंबर|नम्बर|नं\.|सर्वश्रेष्ठ|बेहतरीन|अग्रणी|भरोसेमंद|पसंदीदा|पुरस्कार|टॉप|बेस्ट|अवॉर्ड)/u.test(q),
     about: "a superlative or comparative claim",
   },
-  "KSR-4.3": { test: (q) => /(gots|oeko|certif|azo|organic|lab[- ]tested|accredit)/i.test(q), about: "a certification" },
+  "KSR-4.3": { test: (q) => /(gots|oeko|certif|azo|organic|lab[- ]tested|accredit)/i.test(q) || /(प्रमाण|ऑर्गेनिक|जैविक|प्रयोगशाला)/u.test(q), about: "a certification" },
   "KSR-4.5": {
-    test: (q) => /(eco|green|sustainab|planet|earth|natural|environment|carbon|conscious|ethical)/i.test(q),
+    test: (q) => /(eco|green|sustainab|planet|earth|natural|environment|carbon|conscious|ethical)/i.test(q) || /(पर्यावरण|इको|टिकाऊ|ग्रीन|प्राकृतिक|नैतिक|धरती)/u.test(q),
     about: "a green or sustainability claim",
   },
-  "KSR-6.1": { test: (q) => new Set((q.match(CTA_VERBS) ?? []).map((v) => v.toLowerCase())).size >= 2, about: "two or more different calls to action" },
-  "KSR-6.2": { test: (q) => /(%|\boff\b|sale|free|discount|offer|deal|price|₹|today only|limited)/i.test(q), about: "an offer" },
-  "KSR-1.6": { test: (q) => /(only|last|hurry|now|miss|regret|before|ends?\b|limited|quick|fast|today)/i.test(q), about: "pressure or urgency" },
+  "KSR-6.1": { test: (q) => distinctCtas(q) >= 2, about: "two or more different calls to action" },
+  "KSR-6.2": { test: (q) => /(%|\boff\b|sale|free|discount|offer|deal|price|₹|today only|limited)/i.test(q) || /(छूट|ऑफर|सेल|मुफ़्त|मुफ्त|फ्री|डील|कीमत|प्रतिशत|फीसदी|रुपये)/u.test(q), about: "an offer" },
+  "KSR-1.6": {
+    test: (q) => /(only|last|hurry|now|miss|regret|before|ends?\b|limited|quick|fast|today)/i.test(q) || /(सिर्फ|केवल|आखिरी|आख़िरी|जल्दी|अभी|मौका|पछता|आज|सीमित|देर)/u.test(q),
+    about: "pressure or urgency",
+  },
 };
 
 /** Every ₹ amount and percentage in the fix must already exist in the draft or the Claim Ledger. */
@@ -84,10 +92,10 @@ export function inventedFacts(fix: string, draft: string, pack: BrandPack): stri
     if (e.value.kind === "price" || e.value.kind === "threshold") known.add(e.value.amountInr);
     if (e.value.kind === "percent") known.add(e.value.percent);
   }
-  const draftPercents = new Set(findRegex(draft, /\d+(?:\.\d+)?\s?%/g).map((m) => Number(m.text.replace(/[^\d.]/g, ""))));
+  const draftPercents = new Set(findRegex(draft, /\d+(?:\.\d+)?\s?(?:%|प्रतिशत|फीसदी|फ़ीसदी)/gu).map((m) => Number(m.text.replace(/[^\d.]/g, ""))));
   const bad: string[] = [];
   for (const m of findRegex(fix, PRICE_RE)) if (!known.has(parseAmount(m.text) ?? -1)) bad.push(m.text);
-  for (const m of findRegex(fix, /\d+(?:\.\d+)?\s?%/g)) {
+  for (const m of findRegex(fix, /\d+(?:\.\d+)?\s?(?:%|प्रतिशत|फीसदी|फ़ीसदी)/gu)) {
     const n = Number(m.text.replace(/[^\d.]/g, ""));
     if (!known.has(n) && !draftPercents.has(n)) bad.push(m.text);
   }

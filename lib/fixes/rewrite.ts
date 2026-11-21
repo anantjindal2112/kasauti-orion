@@ -104,6 +104,7 @@ function messages(pack: BrandPack, draft: string, issues: Finding[], intent: Int
     `You are the copy editor for ${pack.brand.name}. Voice: ${pack.brand.voice.summary}`,
     "Rewrite the DRAFT so that every ISSUE is fixed. Change nothing else: keep the structure, length and hashtags, and copy every sentence that has no issue word for word.",
     "Do not add new sentences or new facts.",
+    "The DRAFT may be Hindi (Devanagari) or Hinglish: rewrite it in the same language and script, and never translate it.",
     "Where fixes meet, make the sentence read naturally. One call to action only.",
     "A suggested fix shows WHAT must change, not the wording: never paste it in where it doesn't read as natural English",
     "(e.g. not \"Our Winner, Best D2C Home Brand…, dyed with azo-free dyes set\" — write \"Our Monsoon Weave set, from the winner of Best D2C Home Brand 2024, is dyed with azo-free dyes\").",

@@ -13,8 +13,9 @@ Written plainly, so nobody is surprised.
 
 ## Languages
 - The app works in English and Hindi only. Speech can be recorded in either, and text can be returned in either.
-- **Rule checks run on English text.** Pasted Hindi is translated to English with NVIDIA first and the English is reviewed, so findings quote the English translation, not your Hindi. Translation can slip on names and idioms.
-- Hindi numbers become digits and the demo brand's names are restored from a small list of Devanagari spellings. Other names, and Hindi speech recognition errors, can still appear; the transcript can be edited.
+- **Hindi and Hinglish are reviewed directly**, with Hindi term lists next to the English ones (`lib/checks/hindi.ts`). The lists cover common terms, not every word: a banned word, superlative or pressure phrase that is not on them is only caught if the AI reviewer notices it.
+- **Hindi gaps:** the reading-grade check (it counts English syllables) and the shouting check (Hindi has no capital letters) do not apply; Devanagari digits (१९९९) and number words typed in a draft (एक हजार) are not turned into numbers, so a price written that way is not checked against the ledger (voice transcripts are converted before they reach the box); quoting a Devanagari spelling of the brand or a product name is flagged because the names are written in English letters.
+- Spoken Hindi numbers become digits and the demo brand's names are restored from a small list of Devanagari spellings. Other names, and Hindi speech recognition errors, can still appear; the transcript can be edited.
 
 ## Tidy text and sample phrases
 - Tidy text is generic: it does not follow the brand guidelines and it will not fix wording. If the model's version changes a word (for example "dont" to "don't"), it is discarded and only the safe code tidy-up is used, which is plainer (it will not capitalise a month, for instance).

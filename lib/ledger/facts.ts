@@ -1,6 +1,8 @@
 import { isExpired, type BrandPack } from "@/lib/brand-pack";
 import { PRICE_RE, parseAmount } from "@/lib/checks/terminology";
+import { HINDI_TOPIC_WORDS, withHindiTerms } from "@/lib/checks/hindi";
 import { findRegex, findTerm, formatInr, splitSentences, type Match } from "@/lib/checks/text";
+import { HINDI_SPELLINGS } from "@/lib/speech/glossary";
 import type { Evidence } from "@/lib/schemas/brand-pack";
 import type { ClaimKind } from "@/lib/schemas/claim";
 
@@ -51,20 +53,23 @@ const formatDate = (iso: string) =>
 
 /** Words a sentence uses when it talks about what an entry covers. Tags that say nothing about topic are skipped. */
 const TAG_WORDS: Record<string, string[]> = {
-  shipping: ["shipping", "delivery"],
-  sale: ["sale", "off", "discount", "sitewide"],
-  returns: ["return", "returns", "refund", "exchange"],
-  reviews: ["rated", "rating", "reviews", "customers"],
-  artisans: ["artisans", "weavers"],
+  shipping: ["shipping", "delivery", ...HINDI_TOPIC_WORDS.shipping],
+  sale: ["sale", "off", "discount", "sitewide", ...HINDI_TOPIC_WORDS.sale],
+  returns: ["return", "returns", "refund", "exchange", ...HINDI_TOPIC_WORDS.returns],
+  reviews: ["rated", "rating", "reviews", "customers", ...HINDI_TOPIC_WORDS.reviews],
+  artisans: ["artisans", "weavers", ...HINDI_TOPIC_WORDS.artisans],
 };
 const GENERIC_TAGS = new Set([
   "offer", "price", "policy", "trust", "spec", "impact", "company", "history", "safety", "certification",
   "festive", "sustainability", "organic", "dyes", "sourcing", "award",
 ]);
-const UNIT_SYNONYMS: Record<string, string[]> = { artisans: ["artisans", "weavers", "craftspeople"] };
+const UNIT_SYNONYMS: Record<string, string[]> = { artisans: ["artisans", "weavers", "craftspeople", ...HINDI_TOPIC_WORDS.artisans] };
 
 export function topicWords(e: Evidence): string[] {
-  return e.tags.flatMap((t) => (GENERIC_TAGS.has(t) ? [] : (TAG_WORDS[t] ?? [t.replace(/-/g, " ")])));
+  const words = e.tags.flatMap((t) => (GENERIC_TAGS.has(t) ? [] : (TAG_WORDS[t] ?? [t.replace(/-/g, " ")])));
+  // A product named by its English tag ("monsoon weave") is also named by its Devanagari spellings.
+  const spelled = Object.entries(HINDI_SPELLINGS).flatMap(([name, spellings]) => (words.includes(name.toLowerCase()) ? spellings : []));
+  return [...words, ...spelled];
 }
 
 const FAMILY_OF: Record<Evidence["value"]["kind"], Family[]> = {
@@ -140,15 +145,15 @@ function extract(text: string, pack: BrandPack): Raw[] {
     if (value !== null) out.push({ family: "money", kind: "price", match: m, numberText: m.text, value });
   }
 
-  for (const m of findRegex(text, /\b(\d{1,3}(?:\.\d+)?)\s?%/g)) {
-    const around = text.slice(Math.max(0, m.start - 20), m.end + 20);
+  for (const m of text.matchAll(/\b(\d{1,3}(?:\.\d+)?)\s?(?:%|प्रतिशत|फ़ीसदी|फीसदी)/gu)) {
+    const around = text.slice(Math.max(0, m.index - 20), m.index + m[0].length + 20);
     out.push({
       family: "percent",
       kind: "percent",
-      match: m,
-      numberText: m.text.replace(/\s?%$/, ""),
-      value: Number(m.text.replace(/[^\d.]/g, "")),
-      offer: /\b(off|discount|sale|cashback)\b/i.test(around),
+      match: { start: m.index, end: m.index + m[0].length, text: m[0] },
+      numberText: m[1],
+      value: Number(m[1]),
+      offer: /\b(off|discount|sale|cashback)\b|छूट|डिस्काउंट|ऑफर|सेल|कैशबैक/iu.test(around),
     });
   }
 
@@ -198,6 +203,24 @@ function extract(text: string, pack: BrandPack): Raw[] {
     out.push({ family: "year", kind: "year", match: { start: m.index, end: m.index + m[0].length, text: m[0] }, numberText: m[1], value: Number(m[1]) });
   }
 
+  // Hindi phrasings of the same facts.
+  for (const m of text.matchAll(/(5|10)\s*में\s*से\s*(\d(?:\.\d{1,2})?)/gu)) {
+    out.push({ family: "rating", kind: "rating", match: { start: m.index, end: m.index + m[0].length, text: m[0] }, numberText: m[2], value: Number(m[2]) });
+  }
+  for (const m of text.matchAll(/(\d[\d,]*(?:\.\d+)?)(\s?(?:हज़ार|हजार|लाख))?\+?\s*(?:से\s*(?:अधिक|ज़्यादा|ज्यादा)\s*)?(?:खुश\s)?(ग्राहकों|ग्राहक|समीक्षाओं|रिव्यू)(?![\p{L}\p{M}])/gu)) {
+    const mult = !m[2] ? 1 : /लाख/.test(m[2]) ? 100_000 : 1000;
+    out.push({ family: "reviews", kind: "count", match: { start: m.index, end: m.index + m[0].length, text: m[0] }, numberText: m[1] + (m[2] ?? ""), value: num(m[1]) * mult });
+  }
+  for (const m of text.matchAll(/(\d[\d,]*)\+?\s*(कारीगरों|कारीगर|बुनकरों|बुनकर)(?![\p{L}\p{M}])/gu)) {
+    out.push({ family: "count", kind: "count", match: { start: m.index, end: m.index + m[0].length, text: m[0] }, numberText: m[1], value: num(m[1]), unit: m[2] });
+  }
+  for (const m of text.matchAll(/(\d{1,3})\s?(?:-|\s)?(?:दिन|दिनों)(?![\p{L}\p{M}])/gu)) {
+    out.push({ family: "days", kind: "days", match: { start: m.index, end: m.index + m[0].length, text: m[0] }, numberText: m[1], value: Number(m[1]) });
+  }
+  for (const m of text.matchAll(/((?:19|20)\d{2})\s?से(?=\s*(?:बुन|काम|स्थापित|शुरू|चल))/gu)) {
+    out.push({ family: "year", kind: "year", match: { start: m.index, end: m.index + m[0].length, text: m[0] }, numberText: m[1], value: Number(m[1]) });
+  }
+
   // Overlaps: "4.6 out of 5" must not also count as a "5 days"… keep the earliest-starting longest match.
   out.sort((a, b) => a.match.start - b.match.start || b.match.end - a.match.end);
   return out.filter((r, i) => !out.slice(0, i).some((p) => r.match.start < p.match.end && p.match.start < r.match.end));
@@ -231,7 +254,8 @@ const SINGLE_VALUED = new Set<Family>(["year", "rating", "reviews"]);
 const describe = (e: Evidence) => `${e.code} "${e.claim}" (source: ${e.source})`;
 
 /** Classify every numeric fact in `text` against the ledger. Pure code — no AI, no network. */
-export function classifyFacts(text: string, pack: BrandPack, today: string): Fact[] {
+export function classifyFacts(text: string, basePack: BrandPack, today: string): Fact[] {
+  const pack = withHindiTerms(basePack);
   const sentences = splitSentences(text);
   const sentenceAt = (i: number) => sentences.find((s) => i >= s.start && i < s.end) ?? { start: 0, end: text.length, text };
 

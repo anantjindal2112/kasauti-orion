@@ -1,5 +1,6 @@
 import { isExpired, type BrandPack } from "@/lib/brand-pack";
 import { certificateNames, superlativeHits } from "@/lib/checks/claims";
+import { withHindiTerms } from "@/lib/checks/hindi";
 import type { CheckInput } from "@/lib/checks";
 import { dropOverlaps, findTerm, splitSentences, type Match } from "@/lib/checks/text";
 import { classifyFacts, topicWords } from "@/lib/ledger/facts";
@@ -133,7 +134,8 @@ function toClaim(d: Draft, text: string, location: FindingLocation, imageFile?: 
 }
 
 /** Every claim code can find in the draft body and in text read from images. */
-export function buildCodeLedger(input: CheckInput, pack: BrandPack, today: string): LedgerClaim[] {
+export function buildCodeLedger(input: CheckInput, basePack: BrandPack, today: string): LedgerClaim[] {
+  const pack = withHindiTerms(basePack);
   const claims = codeClaims(input.text, pack, today).map((d) => toClaim(d, input.text, "text"));
   for (const img of input.images ?? []) {
     if (img.text) claims.push(...codeClaims(img.text, pack, today).map((d) => toClaim(d, img.text!, "image", img.file)));

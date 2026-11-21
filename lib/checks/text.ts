@@ -18,7 +18,7 @@ export function escapeRegExp(s: string): string {
   return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-const WORD_CHAR = /[\p{L}\p{N}_]/u;
+const WORD_CHAR = /[\p{L}\p{M}\p{N}_]/u;
 export const isWordChar = (c: string | undefined): boolean => c !== undefined && WORD_CHAR.test(c);
 
 /**
@@ -60,7 +60,7 @@ export function splitSentences(text: string): Match[] {
     const trimmed = raw.trim();
     if (trimmed) out.push({ start: from + lead, end: from + lead + trimmed.length, text: trimmed });
   };
-  for (const m of text.matchAll(/[.!?]+(?=\s|$)/g)) {
+  for (const m of text.matchAll(/[.!?।॥]+(?=\s|$)/g)) {
     const end = m.index + m[0].length;
     if (m[0] === "." && ABBREVIATIONS.some((a) => text.slice(end - a.length, end) === a)) continue;
     push(start, end);
@@ -72,7 +72,7 @@ export function splitSentences(text: string): Match[] {
 
 /** Words for readability: tokens containing a letter or digit. */
 export function words(text: string): string[] {
-  return text.match(/[\p{L}\p{N}][\p{L}\p{N}'’-]*/gu) ?? [];
+  return text.match(/[\p{L}\p{N}][\p{L}\p{M}\p{N}'’-]*/gu) ?? [];
 }
 
 /** Indian digit grouping: 1499 → "₹1,499", 150000 → "₹1,50,000". */

@@ -56,6 +56,7 @@ export function buildLedgerMessages(args: {
   const { pack, draft, evidence, open, decided, today } = args;
   const system = [
     `You keep the Claim Ledger for ${pack.brand.name}. Today is ${today}.`,
+    "The DRAFT may be English, Hindi (Devanagari) or Hinglish (Hindi in Roman letters). Quote words exactly as written, in the draft's own script, and write every replacement in the same language and script as the words it replaces. Explanations are in English.",
     "List the factual claims in the DRAFT — statements a customer could check: origin, process, materials, certifications,",
     "awards, ratings, performance ('gets softer with every wash'), sustainability, comparisons.",
     "Skip opinions, moods, invitations, product names on their own and calls to action ('Treat your home', 'Shop the sale before 16 November', 'Find your new favourite set').",

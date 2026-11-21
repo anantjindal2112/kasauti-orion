@@ -1,5 +1,6 @@
 import { DEMO_TODAY, type BrandPack } from "@/lib/brand-pack";
 import { checkAltText, checkHashtags } from "@/lib/checks/accessibility";
+import { withHindiTerms } from "@/lib/checks/hindi";
 import {
   checkAbsolutes,
   checkExpiredCertifications,
@@ -65,7 +66,8 @@ export interface CodeCheckResult {
 }
 
 /** Run every deterministic check. No network, no AI — this is also the fallback when AI is down. */
-export function runCodeChecks(input: CheckInput, pack: BrandPack, opts: { today?: string } = {}): CodeCheckResult {
+export function runCodeChecks(input: CheckInput, basePack: BrandPack, opts: { today?: string } = {}): CodeCheckResult {
+  const pack = withHindiTerms(basePack); // Hindi and Hinglish terms are checked alongside the English ones
   const ctx: CheckContext = { pack, today: opts.today ?? DEMO_TODAY };
   const severityOf = new Map(pack.rules.map((r) => [r.code, r.severity]));
 
