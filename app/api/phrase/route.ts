@@ -40,7 +40,7 @@ export async function POST(request: Request) {
   const facts = pick(usableFacts(pack, DEMO_TODAY), 3);
   let tried: { phrase: string; problems: string[] } | undefined;
   const started = Date.now();
-  for (let attempt = 1; attempt <= 3; attempt++) {
+  for (let attempt = 1; attempt <= 5; attempt++) {
     try {
       const res = await withDeadline(
         chatJson(client, phraseMessages({ pack, facts, purpose: input.purpose, mustKeep: input.mustKeep, tried }), reply, {
@@ -70,7 +70,7 @@ export async function POST(request: Request) {
       return Response.json({ phrase: spoken, english: input.lang === "hi" ? phrase : null, lang: input.lang, checked: "passed every rule check", attempts: attempt, modelIds, latencyMs: Date.now() - started });
     } catch (e) {
       tried = undefined;
-      if (attempt === 3) return Response.json({ error: `Couldn't write a phrase right now (${e instanceof Error ? e.message.slice(0, 80) : "error"}).` }, { status: 502 });
+      if (attempt === 5) return Response.json({ error: `Couldn't write a phrase right now (${e instanceof Error ? e.message.slice(0, 80) : "error"}).` }, { status: 502 });
     }
   }
   return Response.json({ error: "Couldn't write a phrase that passes the brand rules. Try again." }, { status: 502 });

@@ -18,7 +18,7 @@ Written plainly, so nobody is surprised.
 
 ## Tidy text and sample phrases
 - Tidy text is generic: it does not follow the brand guidelines and it will not fix wording. If the model's version changes a word (for example "dont" to "don't"), it is discarded and only the safe code tidy-up is used, which is plainer (it will not capitalise a month, for instance).
-- The sample phrase is checked by our own rules, but it can still be dull. About one request in a few fails the rule checks three times in a row; try "New phrase".
+- The sample phrase is checked by our own rules, but it can still be dull. About one request in a few fails the rule checks five times in a row; try "New phrase".
 
 ## Intent Lock
 - The model's judgement of "does this keep the message" is imperfect and can be too strict or too lenient. Code decides what it can see (a must-keep phrase that vanishes, an unproven lower discount) and always wins over the model, and a ledger-proven correction is never blocked. A person always makes the final call.
