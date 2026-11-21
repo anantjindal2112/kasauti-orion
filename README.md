@@ -46,7 +46,7 @@ What we plan next is in [docs/roadmap.md](docs/roadmap.md).
 
 Intent Lock (`lib/pipeline/intent-lock.ts`): after the fixes are known, code checks what it can see (a must-keep phrase that disappears, an unproven lower discount) and a model judges the rest in one call; code overrules the model on ledger-proven corrections.
 
-Hindi copy: `POST /api/translate` (Hindi to English) before the scan.
+Hindi and Hinglish copy go through the same pipeline: `lib/checks/hindi.ts` adds the Hindi term lists to the code checks, the ledger and the Verifier. `POST /api/translate` (Hindi to English) is optional, for reading the review in English.
 
 Voice: `POST /api/transcribe?from=en|hi&to=en|hi` → NVIDIA Parakeet (gRPC) → digits for spoken numbers → NVIDIA translation if the languages differ.
 
