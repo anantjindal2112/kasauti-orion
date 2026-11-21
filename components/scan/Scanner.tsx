@@ -16,6 +16,7 @@ import Link from "next/link";
 import { parseCustom, saveCustom, useCustomRaw, type CustomSettings } from "@/lib/custom-pack";
 import { logDecisions, type DecisionEntry } from "@/lib/decision-log";
 import { api, useMe } from "@/lib/client-api";
+import { useWide } from "@/lib/use-wide";
 import { applyFixes } from "@/lib/fixes/apply";
 import type { DemoDraft, EvidenceInfo, FixAllResponse, RuleInfo, ScanResponse } from "@/lib/scan-types";
 import type { BrandPackData, Evidence } from "@/lib/schemas/brand-pack";
@@ -98,7 +99,11 @@ export function Scanner({
   const [submission, setSubmission] = useState<{ id: string; title: string; status: string; canEdit: boolean; savedText: string } | null>(null);
   const [saving, setSaving] = useState(false);
   const [saveMsg, setSaveMsg] = useState("");
-  const [liveSlot, setLiveSlot] = useState<HTMLDivElement | null>(null);
+  /** The voice-over section has two homes: under the findings terminal first, and back below the copy box once a transcript is in. */
+  const [slotTerminal, setSlotTerminal] = useState<HTMLDivElement | null>(null);
+  const [slotOriginal, setSlotOriginal] = useState<HTMLDivElement | null>(null);
+  const [voicePlace, setVoicePlace] = useState<"terminal" | "original">("terminal");
+  const wide = useWide();
   /** Tidy text: the text as it was before, so the change can be undone. */
   const [beforeTidy, setBeforeTidy] = useState<string | null>(null);
   const [tidying, setTidying] = useState(false);
@@ -587,19 +592,21 @@ export function Scanner({
     <div className="grid gap-6 lg:grid-cols-2 lg:items-start">
       {/* ---------------- Left: the draft ---------------- */}
       <Window title="C:\KASAUTI\DRAFT.TXT" controls={["min","max"]} color="teal" bodyClassName="relative p-4 sm:p-5 space-y-5">
-        {/* Voice-over is the first thing in this window, so it is always in reach (also while reviewing). */}
-        <div className="border-2 border-dashed border-ink bg-paper p-3">
-          <VoiceRecorder
-            liveSlot={liveSlot}
-            intent={{ purpose: intent.purpose, mustKeep: intent.mustKeep }}
-            onTranscript={(t) => {
-              setText((prev) => (prev.trim() ? `${prev.trimEnd()}\n\n${t}` : t));
-              setStatus("idle");
-              setView("edit");
-              setError("");
-            }}
-          />
-        </div>
+        {/* The voice-over section itself is rendered into one of two slots (see VoiceRecorder). */}
+        <VoiceRecorder
+          slotTerminal={slotTerminal}
+          slotOriginal={slotOriginal}
+          place={wide ? voicePlace : "original"}
+          intent={{ purpose: intent.purpose, mustKeep: intent.mustKeep }}
+          onStart={() => setVoicePlace("terminal")}
+          onTranscript={(t) => {
+            setText((prev) => (prev.trim() ? `${prev.trimEnd()}\n\n${t}` : t));
+            setStatus("idle");
+            setView("edit");
+            setError("");
+            setVoicePlace("original");
+          }}
+        />
 
         <div>
           <p className="font-mono text-xs font-bold uppercase tracking-wider">1 · Pick an example, or paste your own</p>
@@ -756,6 +763,8 @@ export function Scanner({
                   </details>
                 )}
               </div>
+
+              <div ref={setSlotOriginal} className="empty:hidden" />
 
               <fieldset className="border-2 border-ink bg-term p-4 text-paper">
                 <legend className="bg-term px-2 font-mono text-xs font-bold uppercase tracking-wider text-yellow">intent_card.txt · set by creator</legend>
@@ -1021,8 +1030,8 @@ export function Scanner({
             )}
           </div>
 
-          {/* The live recording panel (cassette, scope, equalizer) appears here, under the terminal, while a voice-over is recorded. */}
-          <div id="voice-live-slot" ref={setLiveSlot} className="empty:hidden" />
+          {/* The voice-over section starts here, under the terminal, and moves back below the copy box after a transcript. */}
+          <div ref={setSlotTerminal} className="empty:hidden" />
 
           {result && !scanning && batch.length > 0 && (
             <motion.div

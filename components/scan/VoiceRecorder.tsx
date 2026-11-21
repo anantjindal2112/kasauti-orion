@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "motion/react";
-import { useCallback, useEffect, useRef, useState, type ReactNode, type RefObject } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore, type ReactNode, type RefObject } from "react";
 import { createPortal } from "react-dom";
 import { Button } from "@/components/retro/Button";
 import { toWav16k } from "@/lib/audio/wav";
@@ -213,12 +213,19 @@ function PhraseBox({ phrase, busy, error, onNew, dark = false }: { phrase: { tex
  */
 export function VoiceRecorder({
   onTranscript,
-  liveSlot,
+  onStart,
+  slotTerminal,
+  slotOriginal,
+  place,
   intent,
 }: {
   onTranscript: (text: string) => void;
-  /** Where the live recording panel is shown (under the findings terminal). Without it the panel appears right here. */
-  liveSlot?: HTMLElement | null;
+  /** A new recording started. */
+  onStart?: () => void;
+  /** Two homes for the whole section: under the findings terminal, and its original place below the copy box. */
+  slotTerminal?: HTMLElement | null;
+  slotOriginal?: HTMLElement | null;
+  place: "terminal" | "original";
   /** The Intent Card, so a suggested phrase matches what the creator is writing about. */
   intent?: { purpose?: string; mustKeep?: string };
 }) {
@@ -233,6 +240,22 @@ export function VoiceRecorder({
   const [phraseBusy, setPhraseBusy] = useState(false);
   const [phraseError, setPhraseError] = useState("");
   const sectionRef = useRef<HTMLElement>(null);
+
+  // The whole section lives in one DOM node that is moved between its two homes, so moving it never
+  // remounts anything: a recording in progress, the phrase and the result all stay exactly as they are.
+  const mounted = useSyncExternalStore(
+    () => () => undefined,
+    () => true,
+    () => false,
+  );
+  const [holder] = useState<HTMLDivElement | null>(() => (typeof document === "undefined" ? null : document.createElement("div")));
+  useEffect(() => {
+    if (!holder) return;
+    const home = place === "terminal" ? slotTerminal : slotOriginal;
+    if (home) home.appendChild(holder);
+    else holder.remove();
+  }, [holder, place, slotTerminal, slotOriginal]);
+  useEffect(() => () => holder?.remove(), [holder]);
 
   const panelRef = useRef<HTMLDivElement>(null);
   const barEls = useRef<(HTMLDivElement | null)[]>([]);
@@ -313,15 +336,13 @@ export function VoiceRecorder({
         setClip({ url: URL.createObjectURL(blob), ms, blob });
         setTx({ status: "idle" });
         setPhase("done");
-        if (window.matchMedia("(max-width: 1023px)").matches) setTimeout(() => sectionRef.current?.scrollIntoView({ behavior: "smooth", block: "center" }), 150);
       };
 
       startedAt.current = Date.now();
       setElapsed(0);
       setPhase("recording");
       rec.start();
-      // On a phone the panel sits further down the page, so bring it into view.
-      if (window.matchMedia("(max-width: 1023px)").matches) setTimeout(() => document.getElementById("voice-live-slot")?.scrollIntoView({ behavior: "smooth", block: "center" }), 150);
+      onStart?.();
       tick.current = setInterval(() => {
         const ms = Date.now() - startedAt.current;
         setElapsed(ms);
@@ -540,8 +561,8 @@ export function VoiceRecorder({
         </motion.div>
   );
 
-  return (
-    <section ref={sectionRef} aria-label="Voice-over recorder" className="space-y-2">
+  const content = (
+    <section ref={sectionRef} aria-label="Voice-over recorder" className="space-y-2 border-2 border-dashed border-ink bg-paper p-3">
       <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
         <p className="font-mono text-xs font-bold uppercase tracking-wider">
           Voice-over <span className="ml-1 border-2 border-ink bg-yellow px-1.5 py-0.5 text-[10px] text-ink">NVIDIA speech</span>
@@ -578,20 +599,7 @@ export function VoiceRecorder({
       </div>
 
       <AnimatePresence mode="wait" initial={false}>
-        {recording &&
-          (liveSlot ? (
-            <motion.div key="rec-note" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-wrap items-center justify-between gap-3 border-2 border-ink bg-term px-3 py-2 font-mono text-sm text-term-green">
-              <span className="flex items-center gap-2">
-                <span className="rec-lamp inline-block h-3 w-3 rounded-full bg-term-red" aria-hidden />
-                Recording {clock(elapsed)} · the live panel is under the terminal
-              </span>
-              <Button variant="danger" size="sm" onClick={stop}>
-                <span className="inline-block h-3 w-3 border-2 border-ink bg-paper" aria-hidden /> Stop
-              </Button>
-            </motion.div>
-          ) : (
-            livePanel
-          ))}
+        {recording && livePanel}
 
         {phase === "done" && clip && (
           <motion.div key="done" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ type: "spring", stiffness: 340, damping: 26 }} className="space-y-3 border-2 border-ink bg-card p-3">
@@ -666,7 +674,8 @@ export function VoiceRecorder({
         </p>
       )}
 
-      {liveSlot && createPortal(<AnimatePresence>{recording && livePanel}</AnimatePresence>, liveSlot)}
     </section>
   );
+  // Nothing is rendered until after hydration, so the server HTML and the first client render agree.
+  return mounted && holder ? createPortal(content, holder) : null;
 }
