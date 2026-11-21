@@ -587,6 +587,20 @@ export function Scanner({
     <div className="grid gap-6 lg:grid-cols-2 lg:items-start">
       {/* ---------------- Left: the draft ---------------- */}
       <Window title="C:\KASAUTI\DRAFT.TXT" controls={["min","max"]} color="teal" bodyClassName="relative p-4 sm:p-5 space-y-5">
+        {/* Voice-over is the first thing in this window, so it is always in reach (also while reviewing). */}
+        <div className="border-2 border-dashed border-ink bg-paper p-3">
+          <VoiceRecorder
+            liveSlot={liveSlot}
+            intent={{ purpose: intent.purpose, mustKeep: intent.mustKeep }}
+            onTranscript={(t) => {
+              setText((prev) => (prev.trim() ? `${prev.trimEnd()}\n\n${t}` : t));
+              setStatus("idle");
+              setView("edit");
+              setError("");
+            }}
+          />
+        </div>
+
         <div>
           <p className="font-mono text-xs font-bold uppercase tracking-wider">1 · Pick an example, or paste your own</p>
           <div className="mt-2 grid gap-2 sm:grid-cols-3">
@@ -742,16 +756,6 @@ export function Scanner({
                   </details>
                 )}
               </div>
-
-              <VoiceRecorder
-                liveSlot={liveSlot}
-                intent={{ purpose: intent.purpose, mustKeep: intent.mustKeep }}
-                onTranscript={(t) => {
-                  setText((prev) => (prev.trim() ? `${prev.trimEnd()}\n\n${t}` : t));
-                  setStatus("idle");
-                  setError("");
-                }}
-              />
 
               <fieldset className="border-2 border-ink bg-term p-4 text-paper">
                 <legend className="bg-term px-2 font-mono text-xs font-bold uppercase tracking-wider text-yellow">intent_card.txt · set by creator</legend>
