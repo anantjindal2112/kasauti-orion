@@ -510,10 +510,6 @@ export function VoiceRecorder({
               </span>
             </div>
 
-            <div className="relative mt-3">
-              <PhraseBox phrase={phrase} busy={phraseBusy} error={phraseError} onNew={() => void suggestPhrase()} dark />
-            </div>
-
             <div className="relative mt-3 flex items-end gap-4">
               <Cassette running spinL={spinL} spinR={spinR} tapeL={tapeL} tapeR={tapeR} />
               <div className="min-w-0 flex-1 space-y-1.5">
